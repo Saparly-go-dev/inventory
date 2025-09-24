@@ -15,4 +15,5 @@ type Device struct {
 	Brand       Brand     `json:"brand" gorm:"foreignKey:BrandId;constraint:OnDelete:SET NULL;"`
 	Model       Model     `json:"model" gorm:"foreignKey:ModelId;constraint:OnDelete:SET NULL;"`
 	Category    Category  `json:"category" gorm:"foreignKey:CategoryId;constraint:OnDelete:SET NULL;"`
+	Attributes  []DeviceAttribute `json:"attributes" gorm:"foreignKey:DeviceId;constraint:OnDelete:CASCADE;"`
 }

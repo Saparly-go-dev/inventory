@@ -8,4 +8,5 @@ type Attribute struct {
 	Description string    `json:"description" db:"description"`
 	CreatedAt   time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt   time.Time `json:"updatedAt" db:"updated_at"`
+	Devices  []DeviceAttribute `json:"devices" gorm:"foreignKey:AttributeId;constraint:OnDelete:CASCADE;"`
 }
