@@ -1,6 +1,7 @@
 package handler
 
 import (
+	_ "inventory/docs"
 	"inventory/pkg/service"
 
 	"github.com/gin-gonic/gin"
@@ -21,10 +22,31 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	//api := router.Group("/api")
-	//{
-	//
-	//}
+	api := router.Group("/api")
+	{
+
+		api.POST("/auth/singIn", h.singIn)
+
+		users := api.Group("/users")
+		{
+			users.POST("/", h.createUser)
+			users.GET("/", h.getUserPage)
+			users.PATCH("/:id/status", h.changeUserStatus)
+			users.DELETE("/:id", h.deleteUser)
+			users.PUT("/:id", h.updateUser)
+			users.POST("/password", h.changeUserPassword)
+		}
+
+		brands := api.Group("/brands")
+		{
+			brands.POST("/", h.CreateBrand)
+			brands.GET("/", h.GetBrandPage)
+			brands.PUT("/", h.UpdateBrand)
+			brands.DELETE("/", h.DeleteBrand)
+			brands.GET("/selected", h.GetBrandBySelectedObject)
+		}
+
+	}
 
 	return router
 }

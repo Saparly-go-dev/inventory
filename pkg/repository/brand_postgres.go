@@ -43,3 +43,94 @@ func (r *BrandPostgres) Create(buffer models.UpdateBrand) error {
 
 	return nil
 }
+
+func (r *BrandPostgres) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
+	var page models.Paginator
+	var list []models.Brand
+	var count int64
+
+	offset := (pageNumber - 1) * pageSize
+
+	get_list_request := r.db.Model(&models.Brand{})
+
+	if len(name) > 0 {
+		get_list_request = get_list_request.Where("name ILIKE ?", "%"+name+"%")
+	}
+
+	get_list_request.Count(&count)
+	get_list_request.Offset(offset).Limit(pageSize).Find(&list)
+
+	page = CreatePaginator(list, int(count), pageSize, pageNumber)
+	return page, nil
+}
+
+func (r *BrandPostgres) Update(id int, buffer models.UpdateBrand) error {
+	var count int64
+
+	check_request := r.db.Model(&models.Brand{}).Where("id = ?", id).Count(&count)
+
+	if check_request.Error != nil {
+		return check_request.Error
+	}
+
+	if count == 0 {
+		return errors.New("Not Found")
+	}
+
+	updateData := map[string]interface{}{
+		"name":        buffer.Name,
+		"description": buffer.Description,
+		"info":        buffer.Info,
+		"updated_at":  time.Now(),
+	}
+
+	update_request := r.db.Model(&models.Brand{}).Where("id = ?", id).Updates(updateData)
+	if update_request.Error != nil {
+		return update_request.Error
+	}
+
+	return nil
+}
+
+func (r *BrandPostgres) Delete(id int) error {
+	var count int64
+
+	check_request := r.db.Model(&models.Brand{}).Where("id = ?", id).Count(&count)
+
+	if check_request.Error != nil {
+		return check_request.Error
+	}
+
+	if count == 0 {
+		return errors.New("Not Found")
+	}
+
+	delete_request := r.db.Model(&models.Brand{}).Where("id = ?", id).Delete(&models.Brand{})
+	if delete_request.Error != nil {
+		return delete_request.Error
+	}
+
+	return nil
+}
+
+func (r *BrandPostgres) GetBrandsInSelectedObjects(name string) ([]models.SelectedObject, error) {
+	var list []models.Brand
+	var result []models.SelectedObject
+
+	get_request := r.db.Model(&models.SelectedObject{})
+
+	if len(name) > 0 {
+		get_request = get_request.Where("name ILIKE ?", "%"+name+"%")
+	}
+
+	get_request.Find(&list)
+
+	for _, item := range list {
+		var element models.SelectedObject
+
+		element.Id = item.Id
+		element.Name = item.Name
+	}
+
+	return result, nil
+}

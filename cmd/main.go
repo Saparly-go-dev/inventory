@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"inventory"
+	"inventory/models"
 	"inventory/pkg/handler"
 	"inventory/pkg/repository"
 	"inventory/pkg/service"
@@ -56,7 +57,7 @@ func main() {
 	}
 
 	// Run auto migration for models if necessary
-	err = db.AutoMigrate()
+	err = db.AutoMigrate(&models.Brand{})
 
 	if err != nil {
 		logrus.Fatalf("error during migration: %s", err.Error())
