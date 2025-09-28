@@ -27,10 +27,18 @@ type Brand interface {
 	GetBrandsInSelectedObjects(name string) ([]models.SelectedObject, error)
 }
 
+type Category interface {
+	Create(buffer models.UpdateCategory) error
+	Update(id int, buffer models.UpdateCategory) error
+	Delete(id int) error
+	Select(name string) ([]models.SelectedObject, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Brand
+	Category
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -38,5 +46,6 @@ func NewService(repos *repository.Repository) *Service {
 		Authorization: NewAuthService(repos.Authorization),
 		User:          NewUserService(repos.User),
 		Brand:         NewBrandService(repos.Brand),
+		Category:      NewCategoryService(repos.Category),
 	}
 }

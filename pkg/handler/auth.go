@@ -21,7 +21,7 @@ type signInInput struct {
 // @Failure      400    {object}  errorResponse
 // @Failure      500    {object}  errorResponse
 // @Router       /api/auth/signIn [post]
-func (h *Handler) singIn(c *gin.Context) {
+func (h *Handler) signIn(c *gin.Context) {
 	var input signInInput
 
 	if err := c.BindJSON(&input); err != nil {

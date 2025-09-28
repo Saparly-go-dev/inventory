@@ -9,3 +9,10 @@ type DeviceAttribute struct {
 	CreatedAt   string `json:"created_at" db:"created_at"`
 	UpdatedAt   string `json:"updated_at" db:"updated_at"`
 }
+
+type UpdateDeviceAttribute struct {
+	DeviceId    int    `json:"device_id"`
+	AttributeId int    `json:"attribute_id"`
+	Options     string `json:"options"`
+	Info        string `json:"info"`
+}

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	_ "inventory/docs"
+	docs "inventory/docs"
 	"inventory/pkg/service"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +20,14 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
+	docs.SwaggerInfo.BasePath = "/swagger/"
+
 	router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	{
 
-		api.POST("/auth/singIn", h.singIn)
+		api.POST("/auth/signIn", h.signIn)
 
 		users := api.Group("/users")
 		{
