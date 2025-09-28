@@ -27,6 +27,14 @@ type Brand interface {
 	GetBrandsInSelectedObjects(name string) ([]models.SelectedObject, error)
 }
 
+type Model interface {
+	Create(buffer models.UpdateModel) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateModel) error
+	Delete(id int) error
+	GetModelsInSelectedObjects(name string) ([]models.SelectedObject, error)
+}
+
 type Category interface {
 	Create(buffer models.UpdateCategory) error
 	Update(id int, buffer models.UpdateCategory) error
@@ -39,6 +47,7 @@ type Repository struct {
 	Authorization
 	Brand
 	Category
+	Model
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -47,5 +56,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		User:          NewUserPostgres(db),
 		Brand:         NewBrandPostgres(db),
 		Category:      NewCategoryPostgres(db),
+		Model:         NewModelPostgres(db),
 	}
 }

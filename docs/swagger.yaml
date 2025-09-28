@@ -59,6 +59,15 @@ definitions:
       name:
         type: string
     type: object
+  models.UpdateModel:
+    properties:
+      brand_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   models.User:
     properties:
       created_at:
@@ -187,35 +196,6 @@ paths:
       summary: Get paginated brands
       tags:
       - brands
-    post:
-      consumes:
-      - application/json
-      description: Creates a new brand with the provided data
-      parameters:
-      - description: Brand creation data
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateBrand'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: '#/definitions/handler.statusResponse'
-        "400":
-          description: Invalid input data
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-      summary: Create a new brand
-      tags:
-      - brands
     put:
       consumes:
       - application/json
@@ -250,6 +230,36 @@ paths:
       summary: Update brand
       tags:
       - brands
+  /api/brands/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new brand with the provided data
+      parameters:
+      - description: Brand creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateBrand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new brand
+      tags:
+      - brands
   /api/brands/selected:
     get:
       consumes:
@@ -259,7 +269,6 @@ paths:
       - description: Selected object name
         in: query
         name: name
-        required: true
         type: string
       produces:
       - application/json
@@ -279,6 +288,164 @@ paths:
       summary: Get brands by selected object
       tags:
       - brands
+  /api/models:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a model by ID
+      parameters:
+      - description: Model ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete model
+      tags:
+      - models
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of models, optionally filtered by name
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Filter by model name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of models
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated models
+      tags:
+      - models
+    post:
+      consumes:
+      - application/json
+      description: Creates a new model with the provided data
+      parameters:
+      - description: Model creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new model
+      tags:
+      - models
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing model with the provided data
+      parameters:
+      - description: Model ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Model update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update model
+      tags:
+      - models
+  /api/models/selected:
+    get:
+      consumes:
+      - application/json
+      description: Returns models filtered by selected object name
+      parameters:
+      - description: Selected object name
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of models
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get models by selected object
+      tags:
+      - models
   /api/users:
     get:
       consumes:

@@ -17,7 +17,7 @@ import (
 // @Success      200    {object}  statusResponse      "Success"
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
-// @Router       /api/brands [post]
+// @Router       /api/brands/ [post]
 func (h *Handler) CreateBrand(c *gin.Context) {
 	var input models.UpdateBrand
 
@@ -136,7 +136,7 @@ func (h *Handler) DeleteBrand(c *gin.Context) {
 // @Tags         brands
 // @Accept       json
 // @Produce      json
-// @Param        name  query  string  true  "Selected object name"
+// @Param        name  query  string  false  "Selected object name"
 // @Success      200   {object}  object  "List of brands"
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"

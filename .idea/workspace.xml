@@ -4,15 +4,16 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="25.09.2025 12:08">
+    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="28.09.2025">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/category.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/category.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/device_attribute.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/device_attribute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/model.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/handler/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/auth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/brand.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/brand.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/handler/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/brand_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/brand_postgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/model_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/model_postgres.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/service.go" afterDir="false" />
     </list>
@@ -99,7 +100,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
     <MESSAGE value="25.09.2025 12:08" />
-    <option name="LAST_COMMIT_MESSAGE" value="25.09.2025 12:08" />
+    <MESSAGE value="28.09.2025" />
+    <option name="LAST_COMMIT_MESSAGE" value="28.09.2025" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

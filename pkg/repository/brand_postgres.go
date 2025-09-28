@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"inventory/models"
 	"time"
 
@@ -115,9 +116,10 @@ func (r *BrandPostgres) Delete(id int) error {
 
 func (r *BrandPostgres) GetBrandsInSelectedObjects(name string) ([]models.SelectedObject, error) {
 	var list []models.Brand
-	var result []models.SelectedObject
+	result := []models.SelectedObject{}
+	fmt.Print("-", name)
 
-	get_request := r.db.Model(&models.SelectedObject{})
+	get_request := r.db.Model(&models.Brand{})
 
 	if len(name) > 0 {
 		get_request = get_request.Where("name ILIKE ?", "%"+name+"%")
@@ -130,6 +132,7 @@ func (r *BrandPostgres) GetBrandsInSelectedObjects(name string) ([]models.Select
 
 		element.Id = item.Id
 		element.Name = item.Name
+		result = append(result, element)
 	}
 
 	return result, nil

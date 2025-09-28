@@ -20,7 +20,7 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	docs.SwaggerInfo.BasePath = "/swagger/"
+	docs.SwaggerInfo.BasePath = "/"
 
 	router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -46,6 +46,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			brands.PUT("/", h.UpdateBrand)
 			brands.DELETE("/", h.DeleteBrand)
 			brands.GET("/selected", h.GetBrandBySelectedObject)
+		}
+
+		models := api.Group("/models")
+		{
+			models.POST("/", h.CreateModel)
+			models.GET("/", h.GetModelPage)
+			models.PUT("/", h.UpdateModel)
+			models.DELETE("/", h.DeleteModel)
+			models.GET("/selected", h.GetModelBySelectedObject)
 		}
 
 	}
