@@ -50,6 +50,13 @@ definitions:
       username:
         type: string
     type: object
+  models.UpdateAttribute:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   models.UpdateBrand:
     properties:
       description:
@@ -98,6 +105,164 @@ info:
   title: Inventory App API
   version: "1.0"
 paths:
+  /api/attributes:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a attribute by ID
+      parameters:
+      - description: Attribute ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete attribute
+      tags:
+      - attributes
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of attributes, optionally filtered by
+        name
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Filter by attribute name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of attributes
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated attributes
+      tags:
+      - attributes
+    post:
+      consumes:
+      - application/json
+      description: Creates a new attribute with the provided data
+      parameters:
+      - description: Attribute creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAttribute'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new attribute
+      tags:
+      - attributes
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing attribute with the provided data
+      parameters:
+      - description: Attribute ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Attribute update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAttribute'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update attribute
+      tags:
+      - attributes
+  /api/attributes/selected:
+    get:
+      consumes:
+      - application/json
+      description: Returns attributes filtered by selected object name
+      parameters:
+      - description: Selected object name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of attributes
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get attributes by selected object
+      tags:
+      - attributes
   /api/auth/signIn:
     post:
       consumes:
@@ -426,7 +591,6 @@ paths:
       - description: Selected object name
         in: query
         name: name
-        required: true
         type: string
       produces:
       - application/json

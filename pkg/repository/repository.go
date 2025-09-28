@@ -42,12 +42,21 @@ type Category interface {
 	Select(name string) ([]models.SelectedObject, error)
 }
 
+type Attribute interface {
+	Create(buffer models.UpdateAttribute) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateAttribute) error
+	Delete(id int) error
+	GetAttributesInSelectedObjects(name string) ([]models.SelectedObject, error)
+}
+
 type Repository struct {
 	User
 	Authorization
 	Brand
 	Category
 	Model
+	Attribute
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -57,5 +66,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Brand:         NewBrandPostgres(db),
 		Category:      NewCategoryPostgres(db),
 		Model:         NewModelPostgres(db),
+		Attribute:     NewAttributePostgres(db),
 	}
 }

@@ -57,6 +57,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			models.GET("/selected", h.GetModelBySelectedObject)
 		}
 
+		attributes := api.Group("/attributes")
+		{
+			attributes.POST("/", h.CreateAttribute)
+			attributes.GET("/", h.GetAttributePage)
+			attributes.PUT("/", h.UpdateAttribute)
+			attributes.DELETE("/", h.DeleteAttribute)
+			attributes.GET("/selected", h.GetAttributeBySelectedObject)
+		}
+
 	}
 
 	return router

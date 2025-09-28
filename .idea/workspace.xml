@@ -6,14 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="28.09.2025">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/docs/docs.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/swagger.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/handler/brand.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/brand.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/attribute.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/attribute.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/repository/brand_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/brand_postgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/repository/model_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/model_postgres.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/service.go" afterDir="false" />
     </list>

@@ -42,12 +42,21 @@ type Model interface {
 	GetModelsInSelectedObjects(name string) ([]models.SelectedObject, error)
 }
 
+type Attribute interface {
+	Create(buffer models.UpdateAttribute) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateAttribute) error
+	Delete(id int) error
+	GetAttributesInSelectedObjects(name string) ([]models.SelectedObject, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Brand
 	Category
 	Model
+	Attribute
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -57,5 +66,6 @@ func NewService(repos *repository.Repository) *Service {
 		Brand:         NewBrandService(repos.Brand),
 		Category:      NewCategoryService(repos.Category),
 		Model:         NewModelService(repos.Model),
+		Attribute:     NewAttributeService(repos.Attribute),
 	}
 }
