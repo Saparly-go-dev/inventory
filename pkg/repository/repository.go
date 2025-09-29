@@ -50,6 +50,18 @@ type Attribute interface {
 	GetAttributesInSelectedObjects(name string) ([]models.SelectedObject, error)
 }
 
+type Device interface {
+	Create(buffer models.UpdateDevice) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateDevice) error
+	Delete(id int) error
+}
+
+type DeviceAttribute interface {
+	Update(id int, buffer models.UpdateDeviceAttribute) error
+	Delete(id int) error
+}
+
 type Repository struct {
 	User
 	Authorization
@@ -57,15 +69,19 @@ type Repository struct {
 	Category
 	Model
 	Attribute
+	Device
+	DeviceAttribute
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Authorization: NewAuthPostgres(db),
-		User:          NewUserPostgres(db),
-		Brand:         NewBrandPostgres(db),
-		Category:      NewCategoryPostgres(db),
-		Model:         NewModelPostgres(db),
-		Attribute:     NewAttributePostgres(db),
+		Authorization:   NewAuthPostgres(db),
+		User:            NewUserPostgres(db),
+		Brand:           NewBrandPostgres(db),
+		Category:        NewCategoryPostgres(db),
+		Model:           NewModelPostgres(db),
+		Attribute:       NewAttributePostgres(db),
+		Device:          NewDevicePostgres(db),
+		DeviceAttribute: NewDeviceAttributePostgres(db),
 	}
 }

@@ -66,6 +66,32 @@ definitions:
       name:
         type: string
     type: object
+  models.UpdateDevice:
+    properties:
+      brand_id:
+        type: integer
+      category_id:
+        type: integer
+      description:
+        type: string
+      info:
+        type: string
+      model_id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.UpdateDeviceAttribute:
+    properties:
+      attribute_id:
+        type: integer
+      device_id:
+        type: integer
+      info:
+        type: string
+      options:
+        type: string
+    type: object
   models.UpdateModel:
     properties:
       brand_id:
@@ -453,6 +479,261 @@ paths:
       summary: Get brands by selected object
       tags:
       - brands
+  /api/device-attributes:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a device attribute by ID
+      parameters:
+      - description: Device attribute ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete device attribute
+      tags:
+      - device_attributes
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of device attributes
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of device attributes
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated device attributes
+      tags:
+      - device_attributes
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing device attribute with the provided data
+      parameters:
+      - description: Device attribute ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Device attribute update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDeviceAttribute'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update device attribute
+      tags:
+      - device_attributes
+  /api/device-attributes/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new device attribute with the provided data
+      parameters:
+      - description: Device attribute creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDeviceAttribute'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new device attribute
+      tags:
+      - device_attributes
+  /api/devices:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a device by ID
+      parameters:
+      - description: Device ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete device
+      tags:
+      - devices
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of devices, optionally filtered by name
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Filter by device name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of devices
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated devices
+      tags:
+      - devices
+    post:
+      consumes:
+      - application/json
+      description: Creates a new device with the provided data
+      parameters:
+      - description: Device creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDevice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new device
+      tags:
+      - devices
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing device with the provided data
+      parameters:
+      - description: Device ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Device update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDevice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update device
+      tags:
+      - devices
   /api/models:
     delete:
       consumes:

@@ -50,6 +50,18 @@ type Attribute interface {
 	GetAttributesInSelectedObjects(name string) ([]models.SelectedObject, error)
 }
 
+type Device interface {
+	Create(buffer models.UpdateDevice) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateDevice) error
+	Delete(id int) error
+}
+
+type DeviceAttribute interface {
+	Update(id int, buffer models.UpdateDeviceAttribute) error
+	Delete(id int) error
+}
+
 type Service struct {
 	Authorization
 	User
@@ -57,15 +69,19 @@ type Service struct {
 	Category
 	Model
 	Attribute
+	Device
+	DeviceAttribute
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		User:          NewUserService(repos.User),
-		Brand:         NewBrandService(repos.Brand),
-		Category:      NewCategoryService(repos.Category),
-		Model:         NewModelService(repos.Model),
-		Attribute:     NewAttributeService(repos.Attribute),
+		Authorization:   NewAuthService(repos.Authorization),
+		User:            NewUserService(repos.User),
+		Brand:           NewBrandService(repos.Brand),
+		Category:        NewCategoryService(repos.Category),
+		Model:           NewModelService(repos.Model),
+		Attribute:       NewAttributeService(repos.Attribute),
+		Device:          NewDeviceService(repos.Device),
+		DeviceAttribute: NewDeviceAttributeService(repos.DeviceAttribute),
 	}
 }

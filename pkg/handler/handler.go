@@ -66,6 +66,20 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			attributes.GET("/selected", h.GetAttributeBySelectedObject)
 		}
 
+		devices := api.Group("/devices")
+		{
+			devices.POST("/", h.CreateDevice)
+			devices.GET("/", h.GetDevicePage)
+			devices.PUT("/", h.UpdateDevice)
+			devices.DELETE("/", h.DeleteDevice)
+		}
+
+		device_attributes := api.Group("/device-attributes")
+		{
+			device_attributes.PUT("/", h.UpdateDeviceAttribute)
+			device_attributes.DELETE("/", h.DeleteDeviceAttribute)
+		}
+
 	}
 
 	return router
