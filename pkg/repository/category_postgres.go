@@ -18,16 +18,15 @@ func NewCategoryPostgres(db *gorm.DB) *CategoryPostgres {
 }
 
 func (r *CategoryPostgres) Create(buffer models.UpdateCategory) error {
-	var count int64
+	var is_have int64
 
-	is_already_have_request := r.db.Model(&models.Category{}).Where("name = ?", buffer.Name).Count(&count)
-
-	if is_already_have_request.Error != nil {
-		return is_already_have_request.Error
+	check_request := r.db.Model(&models.Category{}).Where("name = ?", buffer.Name).Count(&is_have)
+	if check_request.Error != nil {
+		return check_request.Error
 	}
 
-	if count == 0 {
-		return errors.New("category already exist")
+	if is_have > 0 {
+		return errors.New("Already exists")
 	}
 
 	newCategory := models.Category{
@@ -35,9 +34,9 @@ func (r *CategoryPostgres) Create(buffer models.UpdateCategory) error {
 		Description: buffer.Description,
 		Info:        buffer.Info,
 		Icon:        buffer.Icon,
+		ParentId:    buffer.ParentId,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-		ParentId:    buffer.ParentId,
 	}
 
 	create_request := r.db.Model(&models.Category{}).Create(&newCategory)
@@ -48,27 +47,37 @@ func (r *CategoryPostgres) Create(buffer models.UpdateCategory) error {
 	return nil
 }
 
+func (r *CategoryPostgres) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
+	var page models.Paginator
+	var list []models.Category
+	var count int64
+
+	offset := (pageNumber - 1) * pageSize
+
+	get_list_request := r.db.Model(&models.Category{})
+
+	if len(name) > 0 {
+		get_list_request = get_list_request.Where("name ILIKE ?", "%"+name+"%")
+	}
+
+	get_list_request.Count(&count)
+	get_list_request.Offset(offset).Limit(pageSize).Find(&list)
+
+	page = CreatePaginator(list, int(count), pageSize, pageNumber)
+	return page, nil
+}
+
 func (r *CategoryPostgres) Update(id int, buffer models.UpdateCategory) error {
 	var count int64
 
-	is_have_request := r.db.Model(&models.Category{}).Where("id = ?", id).Count(&count)
-	if is_have_request.Error != nil {
-		return is_have_request.Error
+	check_request := r.db.Model(&models.Category{}).Where("id = ?", id).Count(&count)
+
+	if check_request.Error != nil {
+		return check_request.Error
 	}
 
 	if count == 0 {
-		return errors.New("category does not exist")
-	}
-
-	is_already_have_request := r.db.Model(&models.Category{}).Where("id != ?", id).
-		Where("name = ?", buffer.Name).Count(&count)
-
-	if is_already_have_request.Error != nil {
-		return is_already_have_request.Error
-	}
-
-	if count == 0 {
-		return errors.New("category name already exist")
+		return errors.New("Not Found")
 	}
 
 	updateData := map[string]interface{}{
@@ -76,6 +85,7 @@ func (r *CategoryPostgres) Update(id int, buffer models.UpdateCategory) error {
 		"description": buffer.Description,
 		"info":        buffer.Info,
 		"icon":        buffer.Icon,
+		"parent_id":   buffer.ParentId,
 		"updated_at":  time.Now(),
 	}
 
@@ -90,13 +100,14 @@ func (r *CategoryPostgres) Update(id int, buffer models.UpdateCategory) error {
 func (r *CategoryPostgres) Delete(id int) error {
 	var count int64
 
-	is_have_request := r.db.Model(&models.Category{}).Where("id = ?", id).Count(&count)
-	if is_have_request.Error != nil {
-		return is_have_request.Error
+	check_request := r.db.Model(&models.Category{}).Where("id = ?", id).Count(&count)
+
+	if check_request.Error != nil {
+		return check_request.Error
 	}
 
 	if count == 0 {
-		return errors.New("category does not exist")
+		return errors.New("Not Found")
 	}
 
 	delete_request := r.db.Model(&models.Category{}).Where("id = ?", id).Delete(&models.Category{})
@@ -108,24 +119,25 @@ func (r *CategoryPostgres) Delete(id int) error {
 }
 
 func (r *CategoryPostgres) Select(name string) ([]models.SelectedObject, error) {
-	var categories []models.Category
+	var list []models.Category
 	result := []models.SelectedObject{}
+	fmt.Print("-", name)
 
-	get_categories_request := r.db.Model(&models.Category{}).Where("name ILIKE ?", "%"+name+"%").Find(&categories)
+	get_request := r.db.Model(&models.Category{})
 
-	if get_categories_request.Error != nil {
-		fmt.Println(get_categories_request.Error)
+	if len(name) > 0 {
+		get_request = get_request.Where("name ILIKE ?", "%"+name+"%")
 	}
 
-	for _, item := range categories {
-		var data models.SelectedObject
+	get_request.Find(&list)
 
-		data.Id = item.Id
-		data.Name = item.Name
+	for _, item := range list {
+		var element models.SelectedObject
 
-		result = append(result, data)
+		element.Id = item.Id
+		element.Name = item.Name
+		result = append(result, element)
 	}
 
 	return result, nil
-
 }

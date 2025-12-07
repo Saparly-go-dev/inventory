@@ -66,6 +66,19 @@ definitions:
       name:
         type: string
     type: object
+  models.UpdateCategory:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+      info:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+    type: object
   models.UpdateDevice:
     properties:
       brand_id:
@@ -479,6 +492,165 @@ paths:
       summary: Get brands by selected object
       tags:
       - brands
+  /api/categories:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a category by ID
+      parameters:
+      - description: Category ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of categories, optionally filtered by
+        name
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Filter by category name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of categories
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated categories
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing category with the provided data
+      parameters:
+      - description: Category ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Category update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCategory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update category
+      tags:
+      - categories
+  /api/categories/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new category with the provided data
+      parameters:
+      - description: Category creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCategory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new category
+      tags:
+      - categories
+  /api/categories/selected:
+    get:
+      consumes:
+      - application/json
+      description: Returns categories filtered by selected object name
+      parameters:
+      - description: Selected object name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get categories by selected object
+      tags:
+      - categories
   /api/device-attributes:
     delete:
       consumes:
@@ -508,37 +680,33 @@ paths:
       summary: Delete device attribute
       tags:
       - device_attributes
-    get:
+    post:
       consumes:
       - application/json
-      description: Returns a paginated list of device attributes
+      description: Creates a new device attribute with the provided data
       parameters:
-      - description: Number of items per page
-        in: query
-        name: page_size
+      - description: Device attribute creation data
+        in: body
+        name: input
         required: true
-        type: integer
-      - description: Page number to retrieve
-        in: query
-        name: page_number
-        required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/models.UpdateDeviceAttribute'
       produces:
       - application/json
       responses:
         "200":
-          description: Paginated list of device attributes
+          description: Success
           schema:
-            type: object
+            $ref: '#/definitions/handler.statusResponse'
         "400":
-          description: Invalid query parameters
+          description: Invalid input data
           schema:
             $ref: '#/definitions/handler.errorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
-      summary: Get paginated device attributes
+      summary: Create a new device attribute
       tags:
       - device_attributes
     put:
@@ -573,36 +741,6 @@ paths:
           schema:
             $ref: '#/definitions/handler.errorResponse'
       summary: Update device attribute
-      tags:
-      - device_attributes
-  /api/device-attributes/:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new device attribute with the provided data
-      parameters:
-      - description: Device attribute creation data
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateDeviceAttribute'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: '#/definitions/handler.statusResponse'
-        "400":
-          description: Invalid input data
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-      summary: Create a new device attribute
       tags:
       - device_attributes
   /api/devices:

@@ -15,13 +15,11 @@ type Category struct {
 }
 
 type UpdateCategory struct {
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Info        string    `json:"info"`
-	Icon        string    `json:"icon"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	ParentId    *int      `json:"parent_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Info        string `json:"info"`
+	Icon        string `json:"icon"`
+	ParentId    *int   `json:"parent_id"`
 }
 
 type ReadCategory struct {

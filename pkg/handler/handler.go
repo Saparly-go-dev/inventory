@@ -48,6 +48,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			brands.GET("/selected", h.GetBrandBySelectedObject)
 		}
 
+		categories := api.Group("/categories")
+		{
+			categories.POST("/", h.CreateCategory)
+			categories.GET("/", h.GetCategoryPage)
+			categories.PUT("/", h.UpdateCategory)
+			categories.DELETE("/", h.DeleteCategory)
+			categories.GET("/selected", h.GetCategoryBySelectedObject)
+		}
+
 		models := api.Group("/models")
 		{
 			models.POST("/", h.CreateModel)
@@ -72,12 +81,26 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			devices.GET("/", h.GetDevicePage)
 			devices.PUT("/", h.UpdateDevice)
 			devices.DELETE("/", h.DeleteDevice)
+			devices.POST("/assign", h.AssignDeviceToEmployee)
+			devices.POST("/return", h.ReturnDeviceFromEmployee)
+			devices.GET("/available", h.GetAvailableDevices)
 		}
 
 		device_attributes := api.Group("/device-attributes")
 		{
+			device_attributes.POST("/", h.CreateDeviceAttribute)
 			device_attributes.PUT("/", h.UpdateDeviceAttribute)
 			device_attributes.DELETE("/", h.DeleteDeviceAttribute)
+		}
+
+		employees := api.Group("/employees")
+		{
+			employees.POST("/", h.CreateEmployee)
+			employees.GET("", h.GetEmployeePage)
+			employees.PUT("", h.UpdateEmployee)
+			employees.DELETE("", h.DeleteEmployee)
+			employees.GET("/selected", h.GetEmployeeBySelectedObject)
+			employees.GET("/devices", h.GetEmployeeDevices)
 		}
 
 	}

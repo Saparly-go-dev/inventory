@@ -37,6 +37,7 @@ type Model interface {
 
 type Category interface {
 	Create(buffer models.UpdateCategory) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
 	Update(id int, buffer models.UpdateCategory) error
 	Delete(id int) error
 	Select(name string) ([]models.SelectedObject, error)
@@ -58,8 +59,24 @@ type Device interface {
 }
 
 type DeviceAttribute interface {
+	Create(buffer models.UpdateDeviceAttribute) error
 	Update(id int, buffer models.UpdateDeviceAttribute) error
 	Delete(id int) error
+}
+
+type Employee interface {
+	Create(buffer models.Employee) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.Employee) error
+	Delete(id int) error
+	GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error)
+}
+
+type DeviceAssignment interface {
+	AssignDeviceToEmployee(deviceId, employeeId int) error
+	ReturnDeviceFromEmployee(deviceId, employeeId int) error
+	GetEmployeeDevices(employeeId int) ([]models.Device, error)
+	GetAvailableDevices() ([]models.Device, error)
 }
 
 type Repository struct {
@@ -71,17 +88,21 @@ type Repository struct {
 	Attribute
 	Device
 	DeviceAttribute
+	Employee
+	DeviceAssignment
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Authorization:   NewAuthPostgres(db),
-		User:            NewUserPostgres(db),
-		Brand:           NewBrandPostgres(db),
-		Category:        NewCategoryPostgres(db),
-		Model:           NewModelPostgres(db),
-		Attribute:       NewAttributePostgres(db),
-		Device:          NewDevicePostgres(db),
-		DeviceAttribute: NewDeviceAttributePostgres(db),
+		Authorization:    NewAuthPostgres(db),
+		User:             NewUserPostgres(db),
+		Brand:            NewBrandPostgres(db),
+		Category:         NewCategoryPostgres(db),
+		Model:            NewModelPostgres(db),
+		Attribute:        NewAttributePostgres(db),
+		Device:           NewDevicePostgres(db),
+		DeviceAttribute:  NewDeviceAttributePostgres(db),
+		Employee:         NewEmployeePostgres(db),
+		DeviceAssignment: NewDeviceAssignmentPostgres(db),
 	}
 }

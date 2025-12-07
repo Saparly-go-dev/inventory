@@ -76,6 +76,7 @@ func (r *DevicePostgres) Update(id int, buffer models.UpdateDevice) error {
 		"brand_id":    buffer.BrandId,
 		"model_id":    buffer.ModelId,
 		"category_id": buffer.CategoryId,
+		"status":      buffer.Status,
 		"updated_at":  time.Now(),
 	}
 

@@ -41,6 +41,33 @@ func (h *Handler) UpdateDeviceAttribute(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"Success"})
 }
 
+// @Summary      Create a new device attribute
+// @Description  Creates a new device attribute with the provided data
+// @Tags         device_attributes
+// @Accept       json
+// @Produce      json
+// @Param        input  body      models.UpdateDeviceAttribute  true  "Device attribute creation data"
+// @Success      200    {object}  statusResponse      "Success"
+// @Failure      400    {object}  errorResponse       "Invalid input data"
+// @Failure      500    {object}  errorResponse       "Internal server error"
+// @Router       /api/device-attributes [post]
+func (h *Handler) CreateDeviceAttribute(c *gin.Context) {
+	var input models.UpdateDeviceAttribute
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := h.services.DeviceAttribute.Create(input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"Success"})
+}
+
 // @Summary      Delete device attribute
 // @Description  Deletes a device attribute by ID
 // @Tags         device_attributes

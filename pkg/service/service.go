@@ -29,6 +29,7 @@ type Brand interface {
 
 type Category interface {
 	Create(buffer models.UpdateCategory) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
 	Update(id int, buffer models.UpdateCategory) error
 	Delete(id int) error
 	Select(name string) ([]models.SelectedObject, error)
@@ -58,8 +59,24 @@ type Device interface {
 }
 
 type DeviceAttribute interface {
+	Create(buffer models.UpdateDeviceAttribute) error
 	Update(id int, buffer models.UpdateDeviceAttribute) error
 	Delete(id int) error
+}
+
+type Employee interface {
+	Create(buffer models.Employee) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.Employee) error
+	Delete(id int) error
+	GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error)
+}
+
+type DeviceAssignment interface {
+	AssignDeviceToEmployee(deviceId, employeeId int) error
+	ReturnDeviceFromEmployee(deviceId, employeeId int) error
+	GetEmployeeDevices(employeeId int) ([]models.Device, error)
+	GetAvailableDevices() ([]models.Device, error)
 }
 
 type Service struct {
@@ -71,17 +88,21 @@ type Service struct {
 	Attribute
 	Device
 	DeviceAttribute
+	Employee
+	DeviceAssignment
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization:   NewAuthService(repos.Authorization),
-		User:            NewUserService(repos.User),
-		Brand:           NewBrandService(repos.Brand),
-		Category:        NewCategoryService(repos.Category),
-		Model:           NewModelService(repos.Model),
-		Attribute:       NewAttributeService(repos.Attribute),
-		Device:          NewDeviceService(repos.Device),
-		DeviceAttribute: NewDeviceAttributeService(repos.DeviceAttribute),
+		Authorization:    NewAuthService(repos.Authorization),
+		User:             NewUserService(repos.User),
+		Brand:            NewBrandService(repos.Brand),
+		Category:         NewCategoryService(repos.Category),
+		Model:            NewModelService(repos.Model),
+		Attribute:        NewAttributeService(repos.Attribute),
+		Device:           NewDeviceService(repos.Device),
+		DeviceAttribute:  NewDeviceAttributeService(repos.DeviceAttribute),
+		Employee:         NewEmployeeService(repos.Employee),
+		DeviceAssignment: NewDeviceAssignmentService(repos.DeviceAssignment),
 	}
 }

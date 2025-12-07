@@ -17,6 +17,10 @@ func (s *CategoryService) Create(buffer models.UpdateCategory) error {
 	return s.repo.Create(buffer)
 }
 
+func (s *CategoryService) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
+	return s.repo.GetPage(name, pageSize, pageNumber)
+}
+
 func (s *CategoryService) Update(id int, buffer models.UpdateCategory) error {
 	return s.repo.Update(id, buffer)
 }

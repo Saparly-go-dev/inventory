@@ -12,6 +12,11 @@ type DeviceAttributeService struct {
 func NewDeviceAttributeService(repo repository.DeviceAttribute) *DeviceAttributeService {
 	return &DeviceAttributeService{repo: repo}
 }
+
+func (s *DeviceAttributeService) Create(buffer models.UpdateDeviceAttribute) error {
+	return s.repo.Create(buffer)
+}
+
 func (s *DeviceAttributeService) Update(id int, buffer models.UpdateDeviceAttribute) error {
 	return s.repo.Update(id, buffer)
 }

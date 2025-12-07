@@ -7,6 +7,7 @@ type Device struct {
 	Name        string            `json:"name" db:"name"`
 	Description string            `json:"description" db:"description"`
 	Info        string            `json:"info" db:"info"`
+	Status      string            `json:"status" db:"status"` //in_stock, assigned, repair, written_off
 	BrandId     int               `json:"brand_id" db:"brand_id"`
 	ModelId     int               `json:"model_id" db:"model_id"`
 	CategoryId  int               `json:"category_id" db:"category_id"`
@@ -19,11 +20,11 @@ type Device struct {
 }
 
 type UpdateDevice struct {
-	Name             string `json:"name"`
-	Description      string `json:"description"`
-	Info             string `json:"info"`
-	BrandId          int    `json:"brand_id"`
-	ModelId          int    `json:"model_id"`
-	CategoryId       int    `json:"category_id"`
-	AttributeOptions DeviceAttribute
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Info        string `json:"info"`
+	Status      string `json:"status"`
+	BrandId     int    `json:"brand_id"`
+	ModelId     int    `json:"model_id"`
+	CategoryId  int    `json:"category_id"`
 }
