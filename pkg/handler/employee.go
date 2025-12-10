@@ -4,6 +4,7 @@ import (
 	"inventory/models"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +20,7 @@ import (
 // @Failure      500    {object}  errorResponse          "Internal server error"
 // @Router       /api/employees/ [post]
 func (h *Handler) CreateEmployee(c *gin.Context) {
-	var input models.Employee
+	var input models.UpdateEmployee
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -36,16 +37,17 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 }
 
 // @Summary      Get paginated employees
-// @Description  Returns a paginated list of employees, optionally filtered by full name
+// @Description  Returns a paginated list of employees, optionally filtered by full name and room numbers
 // @Tags         employees
 // @Accept       json
 // @Produce      json
-// @Param        page_size    query     int     true   "Number of items per page"
-// @Param        page_number  query     int     true   "Page number to retrieve"
-// @Param        name         query     string  false  "Filter by employee full name"
-// @Success      200          {object}  object  "Paginated list of employees"
-// @Failure      400          {object}  errorResponse  "Invalid query parameters"
-// @Failure      500          {object}  errorResponse  "Internal server error"
+// @Param        page_size     query     int     true   "Number of items per page"
+// @Param        page_number   query     int     true   "Page number to retrieve"
+// @Param        name          query     string  false  "Filter by employee full name"
+// @Param        room_numbers  query     string  false  "Filter by comma-separated room numbers"
+// @Success      200           {object}  object  "Paginated list of employees"
+// @Failure      400           {object}  errorResponse  "Invalid query parameters"
+// @Failure      500           {object}  errorResponse  "Internal server error"
 // @Router       /api/employees [get]
 func (h *Handler) GetEmployeePage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
@@ -61,8 +63,19 @@ func (h *Handler) GetEmployeePage(c *gin.Context) {
 	}
 
 	name := c.Query("name")
+	roomNumbersStr := c.Query("room_numbers")
+	var roomNumbers []int
+	if roomNumbersStr != "" {
+		roomNumberStrs := strings.Split(roomNumbersStr, ",")
+		for _, s := range roomNumberStrs {
+			n, err := strconv.Atoi(s)
+			if err == nil {
+				roomNumbers = append(roomNumbers, n)
+			}
+		}
+	}
 
-	result, err := h.services.Employee.GetPage(name, pageSize, pageNumber)
+	result, err := h.services.Employee.GetPage(name, roomNumbers, pageSize, pageNumber)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -83,7 +96,7 @@ func (h *Handler) GetEmployeePage(c *gin.Context) {
 // @Failure      500    {object}  errorResponse         "Internal server error"
 // @Router       /api/employees [put]
 func (h *Handler) UpdateEmployee(c *gin.Context) {
-	var input models.Employee
+	var input models.UpdateEmployee
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

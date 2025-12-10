@@ -8,6 +8,7 @@ export interface Employee {
   department?: string;
   email?: string;
   phone?: string;
+  room_number: number;
 }
 
 // структура для создания/обновления
@@ -17,6 +18,7 @@ export interface UpdateEmployee {
   department?: string;
   email?: string;
   phone?: string;
+  room_number: number;
 }
 
 // подгони под свой Paginator, если названия полей другие
@@ -36,13 +38,19 @@ export interface SelectedObject {
 export async function getEmployeesPage(
   pageSize: number,
   pageNumber: number,
-  name?: string
+  name?: string,
+  roomNumbers?: number[]
 ) {
   const params: any = {
     page_size: pageSize,
     page_number: pageNumber,
   };
-  if (name) params.name = name;
+  if (name) {
+    params.name = name;
+  }
+  if (roomNumbers && roomNumbers.length > 0) {
+    params.room_numbers = roomNumbers.join(",");
+  }
 
   const res = await api.get<Paginator<Employee>>("/api/employees", { params });
   return res.data;
@@ -50,6 +58,10 @@ export async function getEmployeesPage(
 
 export async function createEmployee(data: UpdateEmployee) {
   await api.post("/api/employees/", data);
+}
+
+export async function updateEmployee(id: number, data: UpdateEmployee) {
+  await api.put("/api/employees", data, { params: { id } });
 }
 
 export async function deleteEmployee(id: number) {

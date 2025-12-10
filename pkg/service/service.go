@@ -65,9 +65,9 @@ type DeviceAttribute interface {
 }
 
 type Employee interface {
-	Create(buffer models.Employee) error
-	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
-	Update(id int, buffer models.Employee) error
+	Create(buffer models.UpdateEmployee) error
+	GetPage(name string, roomNumbers []int, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateEmployee) error
 	Delete(id int) error
 	GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error)
 }

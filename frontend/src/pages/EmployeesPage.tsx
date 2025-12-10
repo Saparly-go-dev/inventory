@@ -3,22 +3,23 @@ import { Link } from "react-router-dom";
 import {
   getEmployeesPage,
   createEmployee,
+  updateEmployee,
   deleteEmployee,
 } from "../api/employees";
 import type {
   Employee,
-  UpdateEmployee  
+  UpdateEmployee
 } from "../api/employees";
 import { handleApiError } from "../api/client";
 
 const PAGE_SIZE = 10;
 
 export default function EmployeesPage() {
-  console.log("PrintLn")
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [roomFilter, setRoomFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,15 +29,16 @@ export default function EmployeesPage() {
     department: "",
     email: "",
     phone: "",
+    room_number: 0,
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const page = await getEmployeesPage(PAGE_SIZE, pageNumber, search);
-      // подгони поля под свой Paginator
-      // здесь предполагается page.items и page.total_pages
+      const roomNumbers = roomFilter.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      const page = await getEmployeesPage(PAGE_SIZE, pageNumber, search, roomNumbers);
       setEmployees(page.items);
       setTotalPages(page.total_pages);
     } catch (e) {
@@ -44,30 +46,23 @@ export default function EmployeesPage() {
     } finally {
       setLoading(false);
     }
-  }, [pageNumber, search]);
+  }, [pageNumber, search, roomFilter]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  async function onCreate(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
       setError(null);
-      await createEmployee(form);
-      setForm({
-        full_name: "",
-        position: "",
-        department: "",
-        email: "",
-        phone: "",
-      });
-      // перезагрузим первую страницу
-      if (pageNumber !== 1) {
-        setPageNumber(1);
+      if (editId === null) {
+        await createEmployee(form);
       } else {
-        await load();
+        await updateEmployee(editId, form);
       }
+      resetForm();
+      await load();
     } catch (e) {
       setError(handleApiError(e));
     }
@@ -84,11 +79,36 @@ export default function EmployeesPage() {
     }
   }
 
+  function onEditClick(e: Employee) {
+    setEditId(e.id);
+    setForm({
+      full_name: e.full_name,
+      position: e.position,
+      department: e.department,
+      email: e.email,
+      phone: e.phone,
+      room_number: e.room_number,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function resetForm() {
+    setEditId(null);
+    setForm({
+      full_name: "",
+      position: "",
+      department: "",
+      email: "",
+      phone: "",
+      room_number: 0,
+    });
+  }
+
   return (
     <div>
       <h2>Employees</h2>
 
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
         <input
           placeholder="Search by name..."
           value={search}
@@ -97,10 +117,18 @@ export default function EmployeesPage() {
             setSearch(e.target.value);
           }}
         />
+        <input
+          placeholder="Filter by rooms (e.g. 101,202)..."
+          value={roomFilter}
+          onChange={(e) => {
+            setPageNumber(1);
+            setRoomFilter(e.target.value);
+          }}
+        />
       </div>
 
-      <form onSubmit={onCreate} style={{ marginBottom: 24 }}>
-        <h3>Create employee</h3>
+      <form onSubmit={onSubmit} style={{ marginBottom: 24 }}>
+        <h3>{editId === null ? "Create employee" : `Edit employee #${editId}`}</h3>
         <input
           required
           placeholder="Full name"
@@ -127,7 +155,14 @@ export default function EmployeesPage() {
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
         />
-        <button type="submit">Create</button>
+        <input
+          type="number"
+          placeholder="Room number"
+          value={form.room_number || ""}
+          onChange={(e) => setForm({ ...form, room_number: Number(e.target.value) })}
+        />
+        <button type="submit">{editId === null ? "Create" : "Save"}</button>
+        {editId !== null && <button type="button" onClick={resetForm}>Cancel</button>}
       </form>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
@@ -142,6 +177,7 @@ export default function EmployeesPage() {
             <th>Department</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Room</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -154,15 +190,17 @@ export default function EmployeesPage() {
               <td>{e.department}</td>
               <td>{e.email}</td>
               <td>{e.phone}</td>
+              <td>{e.room_number}</td>
               <td>
                 <Link to={`/employee/${e.id}`}>Assign Device</Link>
+                <button onClick={() => onEditClick(e)} style={{ marginLeft: 8 }}>Edit</button>
                 <button onClick={() => onDelete(e.id)} style={{ marginLeft: 8 }}>Delete</button>
               </td>
             </tr>
           ))}
           {employees.length === 0 && !loading && (
             <tr>
-              <td colSpan={7}>No employees</td>
+              <td colSpan={8}>No employees</td>
             </tr>
           )}
         </tbody>

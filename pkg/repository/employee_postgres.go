@@ -15,7 +15,7 @@ func NewEmployeePostgres(db *gorm.DB) *EmployeePostgres {
 	return &EmployeePostgres{db: db}
 }
 
-func (r *EmployeePostgres) Create(buffer models.Employee) error {
+func (r *EmployeePostgres) Create(buffer models.UpdateEmployee) error {
 	var isHave int64
 
 	if len(buffer.FullName) > 0 {
@@ -34,6 +34,7 @@ func (r *EmployeePostgres) Create(buffer models.Employee) error {
 		Department: buffer.Department,
 		Email:      buffer.Email,
 		Phone:      buffer.Phone,
+		RoomNumber: buffer.RoomNumber,
 	}
 
 	createRequest := r.db.Model(&models.Employee{}).Create(&newEmployee)
@@ -44,7 +45,7 @@ func (r *EmployeePostgres) Create(buffer models.Employee) error {
 	return nil
 }
 
-func (r *EmployeePostgres) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
+func (r *EmployeePostgres) GetPage(name string, roomNumbers []int, pageSize, pageNumber int) (models.Paginator, error) {
 	var page models.Paginator
 	var list []models.Employee
 	var count int64
@@ -57,6 +58,10 @@ func (r *EmployeePostgres) GetPage(name string, pageSize, pageNumber int) (model
 		getListRequest = getListRequest.Where("full_name ILIKE ?", "%"+name+"%")
 	}
 
+	if len(roomNumbers) > 0 {
+		getListRequest = getListRequest.Where("room_number IN (?)", roomNumbers)
+	}
+
 	getListRequest.Count(&count)
 	getListRequest.Offset(offset).Limit(pageSize).Find(&list)
 
@@ -64,7 +69,7 @@ func (r *EmployeePostgres) GetPage(name string, pageSize, pageNumber int) (model
 	return page, nil
 }
 
-func (r *EmployeePostgres) Update(id int, buffer models.Employee) error {
+func (r *EmployeePostgres) Update(id int, buffer models.UpdateEmployee) error {
 	var count int64
 
 	checkRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Count(&count)
@@ -77,11 +82,12 @@ func (r *EmployeePostgres) Update(id int, buffer models.Employee) error {
 	}
 
 	updateData := map[string]interface{}{
-		"full_name":  buffer.FullName,
-		"position":   buffer.Position,
-		"department": buffer.Department,
-		"email":      buffer.Email,
-		"phone":      buffer.Phone,
+		"full_name":   buffer.FullName,
+		"position":    buffer.Position,
+		"department":  buffer.Department,
+		"email":       buffer.Email,
+		"phone":       buffer.Phone,
+		"room_number": buffer.RoomNumber,
 	}
 
 	updateRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Updates(updateData)

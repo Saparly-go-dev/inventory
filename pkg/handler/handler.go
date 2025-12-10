@@ -20,6 +20,8 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
+	router.Static("/uploads", "./uploads")
+
 	docs.SwaggerInfo.BasePath = "/"
 
 	router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

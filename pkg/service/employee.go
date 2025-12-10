@@ -13,15 +13,15 @@ func NewEmployeeService(repo repository.Employee) *EmployeeService {
 	return &EmployeeService{repo: repo}
 }
 
-func (s *EmployeeService) Create(buffer models.Employee) error {
+func (s *EmployeeService) Create(buffer models.UpdateEmployee) error {
 	return s.repo.Create(buffer)
 }
 
-func (s *EmployeeService) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
-	return s.repo.GetPage(name, pageSize, pageNumber)
+func (s *EmployeeService) GetPage(name string, roomNumbers []int, pageSize, pageNumber int) (models.Paginator, error) {
+	return s.repo.GetPage(name, roomNumbers, pageSize, pageNumber)
 }
 
-func (s *EmployeeService) Update(id int, buffer models.Employee) error {
+func (s *EmployeeService) Update(id int, buffer models.UpdateEmployee) error {
 	return s.repo.Update(id, buffer)
 }
 
