@@ -1,8 +1,10 @@
 // src/api/client.ts
 import axios from "axios";
 
+export const API_BASE_URL = "http://localhost:8080"; // если у бэка другой порт/префикс — поменяй
+
 export const api = axios.create({
-  baseURL: "http://localhost:8080", // если у бэка другой порт/префикс — поменяй
+  baseURL: API_BASE_URL,
 });
 
 // Простой helper для ошибок

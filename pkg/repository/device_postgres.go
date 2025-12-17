@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"inventory/models"
 	"time"
 
@@ -17,6 +18,8 @@ func NewDevicePostgres(db *gorm.DB) *DevicePostgres {
 }
 
 func (r *DevicePostgres) Create(buffer models.UpdateDevice) error {
+	fmt.Println("geldi", buffer)
+
 	newDevice := models.Device{
 		Name:        buffer.Name,
 		Description: buffer.Description,
@@ -25,7 +28,7 @@ func (r *DevicePostgres) Create(buffer models.UpdateDevice) error {
 		BrandId:     buffer.BrandId,
 		ModelId:     buffer.ModelId,
 		CategoryId:  buffer.CategoryId,
-		Status:      buffer.Status,
+		Status:      "in_stock",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}

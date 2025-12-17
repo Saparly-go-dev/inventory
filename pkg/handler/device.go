@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"inventory/models"
 	"io"
 	"mime/multipart"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary      Create a new device
@@ -32,10 +33,32 @@ import (
 // @Router       /api/devices [post]
 func (h *Handler) CreateDevice(c *gin.Context) {
 	var input models.UpdateDevice
-	if err := c.ShouldBind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+
+	brandID, err := strconv.Atoi(c.PostForm("brand_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid brand_id param")
 		return
 	}
+
+	modelID, err := strconv.Atoi(c.PostForm("model_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid model_id param")
+		return
+	}
+
+	categoryID, err := strconv.Atoi(c.PostForm("category_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid category_id param")
+		return
+	}
+
+	input.Name = c.PostForm("name")
+	input.Description = c.PostForm("description")
+	input.Info = c.PostForm("info")
+	input.Status = c.PostForm("status")
+	input.BrandId = brandID
+	input.ModelId = modelID
+	input.CategoryId = categoryID
 
 	file, err := c.FormFile("photo")
 	if err == nil {
@@ -113,16 +136,38 @@ func (h *Handler) GetDevicePage(c *gin.Context) {
 // @Router       /api/devices [put]
 func (h *Handler) UpdateDevice(c *gin.Context) {
 	var input models.UpdateDevice
-	if err := c.ShouldBind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
 
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
 	}
+
+	brandID, err := strconv.Atoi(c.PostForm("brand_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid brand_id param")
+		return
+	}
+
+	modelID, err := strconv.Atoi(c.PostForm("model_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid model_id param")
+		return
+	}
+
+	categoryID, err := strconv.Atoi(c.PostForm("category_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid category_id param")
+		return
+	}
+
+	input.Name = c.PostForm("name")
+	input.Description = c.PostForm("description")
+	input.Info = c.PostForm("info")
+	input.Status = c.PostForm("status")
+	input.BrandId = brandID
+	input.ModelId = modelID
+	input.CategoryId = categoryID
 
 	file, err := c.FormFile("photo")
 	if err == nil {

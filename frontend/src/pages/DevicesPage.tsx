@@ -8,11 +8,18 @@ import {
   type Device,
   type UpdateDevice,
 } from "../api/devices";
-import { handleApiError } from "../api/client";
+import { handleApiError, API_BASE_URL } from "../api/client";
 
 const PAGE_SIZE = 10;
 
 const STATUS_OPTIONS = ["in_stock", "assigned", "repair", "written_off"];
+
+function getImageUrl(path: string | null | undefined) {
+  if (!path) return "";
+  if (path.startsWith("data:") || path.startsWith("http")) return path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  return `${API_BASE_URL}/${cleanPath}`;
+}
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -34,6 +41,7 @@ export default function DevicesPage() {
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   async function loadDevices() {
     try {
@@ -286,13 +294,15 @@ export default function DevicesPage() {
               <div style={{ fontSize: 12, color: "#aaa" }}>Current photo:</div>
               {/* если нужно через бэкенд-сервер, можно потом поменять src на http://localhost:8080/<path> */}
               <img
-                src={form.photo}
+                src={getImageUrl(form.photo)}
                 alt="device"
+                onClick={() => setPreviewImage(getImageUrl(form.photo))}
                 style={{
                   maxHeight: 80,
                   borderRadius: 4,
                   border: "1px solid #444",
                   objectFit: "cover",
+                  cursor: "pointer",
                 }}
                 onError={(e) => {
                   // если путь не резолвится — просто прячем картинку
@@ -428,13 +438,13 @@ export default function DevicesPage() {
               Status
             </th>
             <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Brand ID
+              Brand
             </th>
             <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Model ID
+              Model
             </th>
             <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Category ID
+              Categor
             </th>
             <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
               Photo
@@ -457,24 +467,26 @@ export default function DevicesPage() {
                 {d.status}
               </td>
               <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.brand_id}
+                {d.brand.name}
               </td>
               <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.model_id}
+                {d.model.name}
               </td>
               <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.category_id}
+                {d.category.name}
               </td>
               <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
                 {d.photo && (
                   <img
-                    src={d.photo}
+                    src={getImageUrl(d.photo)}
                     alt="device"
+                    onClick={() => setPreviewImage(getImageUrl(d.photo))}
                     style={{
                       maxHeight: 40,
                       borderRadius: 4,
                       border: "1px solid #444",
                       objectFit: "cover",
+                      cursor: "pointer",
                     }}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).style.display =
@@ -557,6 +569,37 @@ export default function DevicesPage() {
           Next
         </button>
       </div>
+
+      {previewImage && (
+        <div
+          onClick={() => setPreviewImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            cursor: "zoom-out",
+          }}
+        >
+          <img
+            src={previewImage}
+            alt="Preview"
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              borderRadius: 8,
+              boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+              border: "1px solid #444",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

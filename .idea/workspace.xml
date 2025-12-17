@@ -4,24 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="">
+    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="added photo to device and rooms to employees">
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/devices.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/devices.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/employees.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/employees.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/device.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/device.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/employee.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/employee.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DevicesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DevicesPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/handler/device.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/device.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/handler/employee.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/employee.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/handler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/repository/device_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/device_postgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/repository/employee_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/employee_postgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/service/employee.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/employee.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,34 +39,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginOnboardingV2&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;saparly&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/saparly/GolandProjects/inventory&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/home/saparly/GolandProjects/inventory/main.go&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.GoLinterPluginOnboarding": "true",
+    "RunOnceActivity.GoLinterPluginOnboardingV2": "true",
+    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "saparly",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "/home/saparly/GolandProjects/inventory",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/home/saparly/GolandProjects/inventory/main.go",
+    "ts.external.directory.path": "/home/saparly/GolandProjects/inventory/frontend/node_modules/typescript/lib"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -116,6 +106,7 @@
     <MESSAGE value="28.09.2025" />
     <MESSAGE value="29.08.2025" />
     <MESSAGE value="add fronend(model,brands, employees are working)" />
-    <option name="LAST_COMMIT_MESSAGE" value="add fronend(model,brands, employees are working)" />
+    <MESSAGE value="added photo to device and rooms to employees" />
+    <option name="LAST_COMMIT_MESSAGE" value="added photo to device and rooms to employees" />
   </component>
 </project>
