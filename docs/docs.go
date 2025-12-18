@@ -975,9 +975,9 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Updates an existing device with the provided data",
+                "description": "Updates an existing device with form data. Attributes should be a JSON string.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -995,13 +995,64 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Device update data",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UpdateDevice"
-                        }
+                        "type": "string",
+                        "description": "Device name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device info",
+                        "name": "info",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device status",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "brand_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Model ID",
+                        "name": "model_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attributes as a JSON string array",
+                        "name": "attributes",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Device photo",
+                        "name": "photo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1026,9 +1077,9 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Creates a new device with the provided data",
+                "description": "Creates a new device with form data. Attributes should be a JSON string.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1039,13 +1090,64 @@ const docTemplate = `{
                 "summary": "Create a new device",
                 "parameters": [
                     {
-                        "description": "Device creation data",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UpdateDevice"
-                        }
+                        "type": "string",
+                        "description": "Device name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device info",
+                        "name": "info",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device status",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "brand_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Model ID",
+                        "name": "model_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attributes as a JSON string array",
+                        "name": "attributes",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Device photo",
+                        "name": "photo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1099,6 +1201,416 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid ID parameter",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/devices/assign": {
+            "post": {
+                "description": "Assigns a device to an employee (creates active assignment and sets device status to 'assigned')",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Assign device to employee",
+                "parameters": [
+                    {
+                        "description": "Device and employee IDs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.deviceAssignmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/devices/available": {
+            "get": {
+                "description": "Returns all devices with status 'in_stock'",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Get available devices",
+                "responses": {
+                    "200": {
+                        "description": "List of available devices",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/devices/return": {
+            "post": {
+                "description": "Marks device as returned from employee (closes assignment and sets device status to 'in_stock')",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Return device from employee",
+                "parameters": [
+                    {
+                        "description": "Device and employee IDs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.deviceAssignmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees": {
+            "get": {
+                "description": "Returns a paginated list of employees, optionally filtered by full name and room numbers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Get paginated employees",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number to retrieve",
+                        "name": "page_number",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by employee full name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by comma-separated room numbers",
+                        "name": "room_numbers",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of employees",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an existing employee with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Update employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee update data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateEmployee"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data or ID",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an employee by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Delete employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID parameter",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/": {
+            "post": {
+                "description": "Creates a new employee with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Create a new employee",
+                "parameters": [
+                    {
+                        "description": "Employee creation data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateEmployee"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/devices": {
+            "get": {
+                "description": "Returns all currently assigned devices for a specific employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Get employee devices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employee_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of devices",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/selected": {
+            "get": {
+                "description": "Returns employees filtered by selected object name (full name)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Get employees by selected object",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Selected object name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of employees",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
                         "schema": {
                             "$ref": "#/definitions/handler.errorResponse"
                         }
@@ -1324,6 +1836,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Selected object name",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand id",
+                        "name": "brand_id",
                         "in": "query"
                     }
                 ],
@@ -1658,6 +2176,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.deviceAssignmentInput": {
+            "type": "object",
+            "required": [
+                "device_id",
+                "employee_id"
+            ],
+            "properties": {
+                "device_id": {
+                    "type": "integer"
+                },
+                "employee_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.errorResponse": {
             "type": "object",
             "properties": {
@@ -1780,29 +2313,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateDevice": {
-            "type": "object",
-            "properties": {
-                "brand_id": {
-                    "type": "integer"
-                },
-                "category_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "info": {
-                    "type": "string"
-                },
-                "model_id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UpdateDeviceAttribute": {
             "type": "object",
             "properties": {
@@ -1817,6 +2327,29 @@ const docTemplate = `{
                 },
                 "options": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UpdateEmployee": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "room_number": {
+                    "type": "integer"
                 }
             }
         },

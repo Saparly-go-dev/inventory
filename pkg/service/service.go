@@ -40,7 +40,7 @@ type Model interface {
 	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
 	Update(id int, buffer models.UpdateModel) error
 	Delete(id int) error
-	GetModelsInSelectedObjects(name string) ([]models.SelectedObject, error)
+	GetModelsInSelectedObjects(name string, brandId int) ([]models.SelectedObject, error)
 }
 
 type Attribute interface {

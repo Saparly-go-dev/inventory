@@ -137,6 +137,7 @@ func (h *Handler) DeleteModel(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        name  query  string  false  "Selected object name"
+// @Param		 brand_id query int	  false	 "Brand id"
 // @Success      200   {object}  object  "List of models"
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
@@ -144,7 +145,12 @@ func (h *Handler) DeleteModel(c *gin.Context) {
 func (h *Handler) GetModelBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 
-	result, err := h.services.Model.GetModelsInSelectedObjects(name)
+	brandId, err := strconv.Atoi(c.Query("brand_id"))
+	if err != nil {
+		brandId = 0
+	}
+
+	result, err := h.services.Model.GetModelsInSelectedObjects(name, brandId)
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

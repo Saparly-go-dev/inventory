@@ -1,5 +1,15 @@
 basePath: /
 definitions:
+  handler.deviceAssignmentInput:
+    properties:
+      device_id:
+        type: integer
+      employee_id:
+        type: integer
+    required:
+    - device_id
+    - employee_id
+    type: object
   handler.errorResponse:
     properties:
       message:
@@ -79,21 +89,6 @@ definitions:
       parent_id:
         type: integer
     type: object
-  models.UpdateDevice:
-    properties:
-      brand_id:
-        type: integer
-      category_id:
-        type: integer
-      description:
-        type: string
-      info:
-        type: string
-      model_id:
-        type: integer
-      name:
-        type: string
-    type: object
   models.UpdateDeviceAttribute:
     properties:
       attribute_id:
@@ -104,6 +99,21 @@ definitions:
         type: string
       options:
         type: string
+    type: object
+  models.UpdateEmployee:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      phone:
+        type: string
+      position:
+        type: string
+      room_number:
+        type: integer
     type: object
   models.UpdateModel:
     properties:
@@ -811,15 +821,52 @@ paths:
       - devices
     post:
       consumes:
-      - application/json
-      description: Creates a new device with the provided data
+      - multipart/form-data
+      description: Creates a new device with form data. Attributes should be a JSON
+        string.
       parameters:
-      - description: Device creation data
-        in: body
-        name: input
+      - description: Device name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/models.UpdateDevice'
+        type: string
+      - description: Device description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Device info
+        in: formData
+        name: info
+        type: string
+      - description: Device status
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Brand ID
+        in: formData
+        name: brand_id
+        required: true
+        type: integer
+      - description: Model ID
+        in: formData
+        name: model_id
+        required: true
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Attributes as a JSON string array
+        in: formData
+        name: attributes
+        type: string
+      - description: Device photo
+        in: formData
+        name: photo
+        type: file
       produces:
       - application/json
       responses:
@@ -840,20 +887,57 @@ paths:
       - devices
     put:
       consumes:
-      - application/json
-      description: Updates an existing device with the provided data
+      - multipart/form-data
+      description: Updates an existing device with form data. Attributes should be
+        a JSON string.
       parameters:
       - description: Device ID
         in: query
         name: id
         required: true
         type: integer
-      - description: Device update data
-        in: body
-        name: input
+      - description: Device name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/models.UpdateDevice'
+        type: string
+      - description: Device description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Device info
+        in: formData
+        name: info
+        type: string
+      - description: Device status
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Brand ID
+        in: formData
+        name: brand_id
+        required: true
+        type: integer
+      - description: Model ID
+        in: formData
+        name: model_id
+        required: true
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Attributes as a JSON string array
+        in: formData
+        name: attributes
+        type: string
+      - description: Device photo
+        in: formData
+        name: photo
+        type: file
       produces:
       - application/json
       responses:
@@ -872,6 +956,279 @@ paths:
       summary: Update device
       tags:
       - devices
+  /api/devices/assign:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a device to an employee (creates active assignment and
+        sets device status to 'assigned')
+      parameters:
+      - description: Device and employee IDs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.deviceAssignmentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Assign device to employee
+      tags:
+      - devices
+  /api/devices/available:
+    get:
+      consumes:
+      - application/json
+      description: Returns all devices with status 'in_stock'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of available devices
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get available devices
+      tags:
+      - devices
+  /api/devices/return:
+    post:
+      consumes:
+      - application/json
+      description: Marks device as returned from employee (closes assignment and sets
+        device status to 'in_stock')
+      parameters:
+      - description: Device and employee IDs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.deviceAssignmentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Return device from employee
+      tags:
+      - devices
+  /api/employees:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an employee by ID
+      parameters:
+      - description: Employee ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid ID parameter
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete employee
+      tags:
+      - employees
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of employees, optionally filtered by full
+        name and room numbers
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Page number to retrieve
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Filter by employee full name
+        in: query
+        name: name
+        type: string
+      - description: Filter by comma-separated room numbers
+        in: query
+        name: room_numbers
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of employees
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get paginated employees
+      tags:
+      - employees
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing employee with the provided data
+      parameters:
+      - description: Employee ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Employee update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEmployee'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data or ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Update employee
+      tags:
+      - employees
+  /api/employees/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new employee with the provided data
+      parameters:
+      - description: Employee creation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEmployee'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create a new employee
+      tags:
+      - employees
+  /api/employees/devices:
+    get:
+      consumes:
+      - application/json
+      description: Returns all currently assigned devices for a specific employee
+      parameters:
+      - description: Employee ID
+        in: query
+        name: employee_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of devices
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get employee devices
+      tags:
+      - devices
+  /api/employees/selected:
+    get:
+      consumes:
+      - application/json
+      description: Returns employees filtered by selected object name (full name)
+      parameters:
+      - description: Selected object name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of employees
+          schema:
+            type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get employees by selected object
+      tags:
+      - employees
   /api/models:
     delete:
       consumes:
@@ -1011,6 +1368,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: Brand id
+        in: query
+        name: brand_id
+        type: integer
       produces:
       - application/json
       responses:

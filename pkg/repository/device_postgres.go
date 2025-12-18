@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 	"inventory/models"
 	"time"
 
@@ -18,27 +17,44 @@ func NewDevicePostgres(db *gorm.DB) *DevicePostgres {
 }
 
 func (r *DevicePostgres) Create(buffer models.UpdateDevice) error {
-	fmt.Println("geldi", buffer)
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		newDevice := models.Device{
+			Name:        buffer.Name,
+			Description: buffer.Description,
+			Info:        buffer.Info,
+			Photo:       buffer.Photo,
+			BrandId:     buffer.BrandId,
+			ModelId:     buffer.ModelId,
+			CategoryId:  buffer.CategoryId,
+			Status:      "in_stock",
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		}
 
-	newDevice := models.Device{
-		Name:        buffer.Name,
-		Description: buffer.Description,
-		Info:        buffer.Info,
-		Photo:       buffer.Photo,
-		BrandId:     buffer.BrandId,
-		ModelId:     buffer.ModelId,
-		CategoryId:  buffer.CategoryId,
-		Status:      "in_stock",
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
+		if err := tx.Model(&models.Device{}).Create(&newDevice).Error; err != nil {
+			return err
+		}
 
-	create_request := r.db.Model(&models.Device{}).Create(&newDevice)
-	if create_request.Error != nil {
-		return create_request.Error
-	}
+		if len(buffer.Attributes) > 0 {
+			for _, attr := range buffer.Attributes {
+				newDeviceAttribute := models.DeviceAttribute{
+					DeviceId:    newDevice.Id,
+					AttributeId: attr.AttributeId,
+					Options:     attr.Options,
+					Info:        attr.Info,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				}
+				if err := tx.Model(&models.DeviceAttribute{}).Create(&newDeviceAttribute).Error; err != nil {
+					return err
+				}
+			}
+		}
 
-	return nil
+		return nil
+	})
+
+	return err
 }
 
 func (r *DevicePostgres) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
@@ -62,54 +78,67 @@ func (r *DevicePostgres) GetPage(name string, pageSize, pageNumber int) (models.
 }
 
 func (r *DevicePostgres) Update(id int, buffer models.UpdateDevice) error {
-	var count int64
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		var count int64
+		if err := tx.Model(&models.Device{}).Where("id = ?", id).Count(&count).Error; err != nil {
+			return err
+		}
+		if count == 0 {
+			return errors.New("device not found")
+		}
 
-	check_request := r.db.Model(&models.Device{}).Where("id = ?", id).Count(&count)
+		updateData := map[string]interface{}{
+			"name":        buffer.Name,
+			"description": buffer.Description,
+			"info":        buffer.Info,
+			"photo":       buffer.Photo,
+			"brand_id":    buffer.BrandId,
+			"model_id":    buffer.ModelId,
+			"category_id": buffer.CategoryId,
+			"status":      buffer.Status,
+			"updated_at":  time.Now(),
+		}
 
-	if check_request.Error != nil {
-		return check_request.Error
-	}
+		if err := tx.Model(&models.Device{}).Where("id = ?", id).Updates(updateData).Error; err != nil {
+			return err
+		}
 
-	if count == 0 {
-		return errors.New("Not Found")
-	}
+		if err := tx.Where("device_id = ?", id).Delete(&models.DeviceAttribute{}).Error; err != nil {
+			return err
+		}
 
-	updateData := map[string]interface{}{
-		"name":        buffer.Name,
-		"description": buffer.Description,
-		"info":        buffer.Info,
-		"photo":       buffer.Photo,
-		"brand_id":    buffer.BrandId,
-		"model_id":    buffer.ModelId,
-		"category_id": buffer.CategoryId,
-		"status":      buffer.Status,
-		"updated_at":  time.Now(),
-	}
+		if len(buffer.Attributes) > 0 {
+			for _, attr := range buffer.Attributes {
+				newDeviceAttribute := models.DeviceAttribute{
+					DeviceId:    id,
+					AttributeId: attr.AttributeId,
+					Options:     attr.Options,
+					Info:        attr.Info,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				}
+				if err := tx.Model(&models.DeviceAttribute{}).Create(&newDeviceAttribute).Error; err != nil {
+					return err
+				}
+			}
+		}
 
-	update_request := r.db.Model(&models.Device{}).Where("id = ?", id).Updates(updateData)
-	if update_request.Error != nil {
-		return update_request.Error
-	}
+		return nil
+	})
 
-	return nil
+	return err
 }
 
 func (r *DevicePostgres) Delete(id int) error {
-	var count int64
-
-	check_request := r.db.Model(&models.Device{}).Where("id = ?", id).Count(&count)
-
-	if check_request.Error != nil {
-		return check_request.Error
+	// The GORM model has `constraint:OnDelete:CASCADE` for attributes,
+	// so the database will automatically delete related device_attribute records.
+	result := r.db.Where("id = ?", id).Delete(&models.Device{})
+	if result.Error != nil {
+		return result.Error
 	}
 
-	if count == 0 {
-		return errors.New("Not Found")
-	}
-
-	delete_request := r.db.Model(&models.Device{}).Where("id = ?", id).Delete(&models.Device{})
-	if delete_request.Error != nil {
-		return delete_request.Error
+	if result.RowsAffected == 0 {
+		return errors.New("device not found")
 	}
 
 	return nil

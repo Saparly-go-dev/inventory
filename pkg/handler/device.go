@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"inventory/models"
 	"io"
@@ -15,7 +16,7 @@ import (
 )
 
 // @Summary      Create a new device
-// @Description  Creates a new device with the provided data
+// @Description  Creates a new device with form data. Attributes should be a JSON string.
 // @Tags         devices
 // @Accept       mpfd
 // @Produce      json
@@ -26,6 +27,7 @@ import (
 // @Param        brand_id     formData  int                   true  "Brand ID"
 // @Param        model_id     formData  int                   true  "Model ID"
 // @Param        category_id  formData  int                   true  "Category ID"
+// @Param        attributes   formData  string                false "Attributes as a JSON string array"
 // @Param        photo        formData  file                  false "Device photo"
 // @Success      200          {object}  statusResponse        "Success"
 // @Failure      400          {object}  errorResponse         "Invalid input data"
@@ -60,6 +62,18 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 	input.ModelId = modelID
 	input.CategoryId = categoryID
 
+	// Handle attributes from JSON string
+	attributesString := c.PostForm("attributes")
+	if attributesString != "" {
+		var attributes []models.UpdateDeviceAttribute
+		if err := json.Unmarshal([]byte(attributesString), &attributes); err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid attributes json format")
+			return
+		}
+		input.Attributes = attributes
+	}
+
+	// Handle file upload
 	file, err := c.FormFile("photo")
 	if err == nil {
 		filePath, err := uploadFile(file)
@@ -70,8 +84,7 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 		input.Photo = filePath
 	}
 
-	err = h.services.Device.Create(input)
-	if err != nil {
+	if err := h.services.Device.Create(input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -117,7 +130,7 @@ func (h *Handler) GetDevicePage(c *gin.Context) {
 }
 
 // @Summary      Update device
-// @Description  Updates an existing device with the provided data
+// @Description  Updates an existing device with form data. Attributes should be a JSON string.
 // @Tags         devices
 // @Accept       mpfd
 // @Produce      json
@@ -129,6 +142,7 @@ func (h *Handler) GetDevicePage(c *gin.Context) {
 // @Param        brand_id     formData  int                   true  "Brand ID"
 // @Param        model_id     formData  int                   true  "Model ID"
 // @Param        category_id  formData  int                   true  "Category ID"
+// @Param        attributes   formData  string                false "Attributes as a JSON string array"
 // @Param        photo        formData  file                  false "Device photo"
 // @Success      200          {object}  statusResponse        "Success"
 // @Failure      400          {object}  errorResponse         "Invalid input data or ID"
@@ -169,6 +183,18 @@ func (h *Handler) UpdateDevice(c *gin.Context) {
 	input.ModelId = modelID
 	input.CategoryId = categoryID
 
+	// Handle attributes from JSON string
+	attributesString := c.PostForm("attributes")
+	if attributesString != "" {
+		var attributes []models.UpdateDeviceAttribute
+		if err := json.Unmarshal([]byte(attributesString), &attributes); err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid attributes json format")
+			return
+		}
+		input.Attributes = attributes
+	}
+
+	// Handle file upload
 	file, err := c.FormFile("photo")
 	if err == nil {
 		filePath, err := uploadFile(file)
@@ -179,8 +205,7 @@ func (h *Handler) UpdateDevice(c *gin.Context) {
 		input.Photo = filePath
 	}
 
-	err = h.services.Device.Update(id, input)
-	if err != nil {
+	if err := h.services.Device.Update(id, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

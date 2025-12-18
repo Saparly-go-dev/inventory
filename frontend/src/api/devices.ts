@@ -102,9 +102,7 @@ export async function createDevice(data: UpdateDevice, file: File | null) {
     formData.append("photo", file);
   }
 
-  await api.post("/api/devices", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  await api.post("/api/devices", formData);
 }
 
 // UPDATE: если файла нет — отправляем строковое поле photo со старым путём,
@@ -134,7 +132,6 @@ export async function updateDevice(
 
   await api.put("/api/devices", formData, {
     params: { id },
-    headers: { "Content-Type": "multipart/form-data" },
   });
 }
 

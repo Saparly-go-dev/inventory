@@ -115,7 +115,7 @@ func (r *AttributePostgres) GetAttributesInSelectedObjects(name string) ([]model
 	var list []models.Attribute
 	var result []models.SelectedObject
 
-	get_request := r.db.Model(&models.SelectedObject{})
+	get_request := r.db.Model(&models.Attribute{})
 
 	if len(name) > 0 {
 		get_request = get_request.Where("name ILIKE ?", "%"+name+"%")
@@ -128,6 +128,8 @@ func (r *AttributePostgres) GetAttributesInSelectedObjects(name string) ([]model
 
 		element.Id = item.Id
 		element.Name = item.Name
+
+		result = append(result, element)
 	}
 
 	return result, nil

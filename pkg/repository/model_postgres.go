@@ -113,11 +113,15 @@ func (r *ModelPostgres) Delete(id int) error {
 	return nil
 }
 
-func (r *ModelPostgres) GetModelsInSelectedObjects(name string) ([]models.SelectedObject, error) {
+func (r *ModelPostgres) GetModelsInSelectedObjects(name string, brandId int) ([]models.SelectedObject, error) {
 	var list []models.Model
 	result := []models.SelectedObject{}
 
 	get_request := r.db.Model(&models.Model{})
+
+	if brandId > 0 {
+		get_request = get_request.Where("brand_id = ?", brandId)
+	}
 
 	if len(name) > 0 {
 		get_request = get_request.Where("name ILIKE ?", "%"+name+"%")

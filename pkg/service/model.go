@@ -29,6 +29,6 @@ func (s *ModelService) Delete(id int) error {
 	return s.repo.Delete(id)
 }
 
-func (s *ModelService) GetModelsInSelectedObjects(name string) ([]models.SelectedObject, error) {
-	return s.repo.GetModelsInSelectedObjects(name)
+func (s *ModelService) GetModelsInSelectedObjects(name string, brandId int) ([]models.SelectedObject, error) {
+	return s.repo.GetModelsInSelectedObjects(name, brandId)
 }

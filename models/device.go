@@ -21,12 +21,13 @@ type Device struct {
 }
 
 type UpdateDevice struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Info        string `json:"info"`
-	Photo       string `json:"photo"`
-	Status      string `json:"status"`
-	BrandId     int    `json:"brand_id"`
-	ModelId     int    `json:"model_id"`
-	CategoryId  int    `json:"category_id"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
+	Info        string                  `json:"info"`
+	Photo       string                  `json:"photo"`
+	Status      string                  `json:"status"`
+	BrandId     int                     `json:"brand_id"`
+	ModelId     int                     `json:"model_id"`
+	CategoryId  int                     `json:"category_id"`
+	Attributes  []UpdateDeviceAttribute `json:"attributes"`
 }

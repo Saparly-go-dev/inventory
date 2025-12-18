@@ -8,6 +8,9 @@ import {
   type Device,
   type UpdateDevice,
 } from "../api/devices";
+import { getBrandsSelected, type SelectedObject as BrandSelected } from "../api/brands";
+import { getModelsSelected, type SelectedObject as ModelSelected } from "../api/models";
+import { getCategoriesSelected, type SelectedObject as CategorySelected } from "../api/categories";
 import { handleApiError, API_BASE_URL } from "../api/client";
 
 const PAGE_SIZE = 10;
@@ -42,6 +45,43 @@ export default function DevicesPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Lists for dropdowns
+  const [brandsList, setBrandsList] = useState<BrandSelected[]>([]);
+  const [modelsList, setModelsList] = useState<ModelSelected[]>([]);
+  const [categoriesList, setCategoriesList] = useState<CategorySelected[]>([]);
+
+  useEffect(() => {
+    // Load initial dropdown options (Brands, Categories)
+    // Models will be loaded when a brand is selected
+    Promise.all([
+      getBrandsSelected(),
+      getCategoriesSelected(),
+    ])
+      .then(([brands, categories]) => {
+        setBrandsList(brands);
+        setCategoriesList(categories);
+      })
+      .catch((e) => console.error("Failed to load dropdown options", e));
+  }, []);
+
+  // When brand_id changes, load models
+  useEffect(() => {
+    setModelsList([]); // Clear models when brand changes
+    if (form.brand_id) {
+      // If we are editing (editId !== null) and just loaded the form with a model_id,
+      // we might want to preserve it. But if user manually changed brand, we should reset model.
+      // For simplicity, we just load valid models for this brand.
+      getModelsSelected(form.brand_id)
+        .then(setModelsList)
+        .catch((e) => console.error("Failed to load models", e));
+    }
+  }, [form.brand_id]);
+
+  // If user changed brand manually, we might want to reset model_id if it's not valid for new brand.
+  // But strictly speaking, the useEffect above just reloads the list. 
+  // If the currently selected model_id is not in the new list, the select will probably show nothing or first option.
+  // Let's reset model_id in the onChange handler, it's safer.
 
   async function loadDevices() {
     try {
@@ -322,63 +362,91 @@ export default function DevicesPage() {
             marginTop: 4,
           }}
         >
-          <input
-            type="number"
-            placeholder="Brand ID"
-            value={form.brand_id || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                brand_id: e.target.value ? Number(e.target.value) : 0,
-              })
-            }
-            style={{
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 12, color: "#aaa" }}>Brand</label>
+            <select
+              value={form.brand_id}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  brand_id: Number(e.target.value),
+                  model_id: 0, // Reset model when brand changes
+                })
+              }
+              style={{
+                padding: 6,
+                borderRadius: 4,
+                border: "1px solid #444",
+                background: "#222",
+                color: "#eee",
+              }}
+            >
+              <option value={0} disabled>Select Brand</option>
+              {brandsList.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <input
-            type="number"
-            placeholder="Model ID"
-            value={form.model_id || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                model_id: e.target.value ? Number(e.target.value) : 0,
-              })
-            }
-            style={{
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 12, color: "#aaa" }}>Model</label>
+            <select
+              value={form.model_id}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  model_id: Number(e.target.value),
+                })
+              }
+              style={{
+                padding: 6,
+                borderRadius: 4,
+                border: "1px solid #444",
+                background: "#222",
+                color: "#eee",
+              }}
+              disabled={!form.brand_id} // Disable if no brand selected
+            >
+              <option value={0} disabled>Select Model</option>
+              {modelsList.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <input
-            type="number"
-            placeholder="Category ID"
-            value={form.category_id || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                category_id: e.target.value ? Number(e.target.value) : 0,
-              })
-            }
-            style={{
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 12, color: "#aaa" }}>Category</label>
+            <select
+              value={form.category_id}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  category_id: Number(e.target.value),
+                })
+              }
+              style={{
+                padding: 6,
+                borderRadius: 4,
+                border: "1px solid #444",
+                background: "#222",
+                color: "#eee",
+              }}
+            >
+              <option value={0} disabled>Select Category</option>
+              {categoriesList.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
+
 
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <button
@@ -412,11 +480,12 @@ export default function DevicesPage() {
             </button>
           )}
         </div>
-      </form>
+      </form >
 
       {error && (
         <div style={{ color: "tomato", marginBottom: 12 }}>{error}</div>
-      )}
+      )
+      }
       {loading && <div>Loading...</div>}
 
       <table
@@ -570,36 +639,38 @@ export default function DevicesPage() {
         </button>
       </div>
 
-      {previewImage && (
-        <div
-          onClick={() => setPreviewImage(null)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            cursor: "zoom-out",
-          }}
-        >
-          <img
-            src={previewImage}
-            alt="Preview"
+      {
+        previewImage && (
+          <div
+            onClick={() => setPreviewImage(null)}
             style={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              borderRadius: 8,
-              boxShadow: "0 0 20px rgba(0,0,0,0.5)",
-              border: "1px solid #444",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              background: "rgba(0,0,0,0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              cursor: "zoom-out",
             }}
-          />
-        </div>
-      )}
-    </div>
+          >
+            <img
+              src={previewImage}
+              alt="Preview"
+              style={{
+                maxWidth: "90%",
+                maxHeight: "90%",
+                borderRadius: 8,
+                boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+                border: "1px solid #444",
+              }}
+            />
+          </div>
+        )
+      }
+    </div >
   );
 }

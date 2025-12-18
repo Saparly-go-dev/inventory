@@ -13,12 +13,12 @@ export interface ModelItem {
 }
 
 interface BrandType {
-    id: number;
-    name: string;
-    description: string;
-    info: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  name: string;
+  description: string;
+  info: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UpdateModel {
@@ -68,8 +68,11 @@ export async function deleteModel(id: number) {
   await api.delete("/api/models", { params: { id } });
 }
 
-export async function getModelsSelected(name?: string) {
-  const params = name ? { name } : {};
+export async function getModelsSelected(brand_id?: number, name?: string) {
+  const params: any = {};
+  if (name) params.name = name;
+  if (brand_id) params.brand_id = brand_id;
+
   const res = await api.get<SelectedObject[]>("/api/models/selected", {
     params,
   });
