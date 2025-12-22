@@ -1,0 +1,223 @@
+package repository
+
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+	"inventory/models"
+	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+type EmployeePostgres struct {
+	db *gorm.DB
+}
+
+func NewEmployeePostgres(db *gorm.DB) *EmployeePostgres {
+	return &EmployeePostgres{db: db}
+}
+
+func (r *EmployeePostgres) SyncEmployeesFromMySQL() error {
+	// MySQL Connection
+	mysqlDSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		viper.GetString("mysql.username"),
+		viper.GetString("mysql.password"),
+		viper.GetString("mysql.host"),
+		viper.GetString("mysql.port"),
+		viper.GetString("mysql.dbname"),
+	)
+	mysqlDB, err := sql.Open("mysql", mysqlDSN)
+	if err != nil {
+		return fmt.Errorf("failed to connect to mysql: %w", err)
+	}
+	defer mysqlDB.Close()
+
+	if err = mysqlDB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping mysql: %w", err)
+	}
+
+	// Fetch employees from MySQL where deleted_at is NULL
+	rows, err := mysqlDB.Query("SELECT name, surname, email, phone FROM Info_info_employee WHERE deleted_at IS NULL")
+	if err != nil {
+		return fmt.Errorf("failed to query mysql: %w", err)
+	}
+	defer rows.Close()
+
+	var employeesToSync []models.Employee
+	for rows.Next() {
+		var name, surname, email sql.NullString
+		var phone sql.NullString
+
+		if err := rows.Scan(&name, &surname, &email, &phone); err != nil {
+			fmt.Printf("failed to scan employee row: %v\n", err)
+			continue
+		}
+
+		if !email.Valid || email.String == "" {
+			// Email is the conflict key, so we must have it.
+			continue
+		}
+
+		emp := models.Employee{
+			FullName:   strings.TrimSpace(name.String + " " + surname.String),
+			Email:      email.String,
+			Phone:      phone.String, // If phone is NULL in DB, phone.String will be an empty string
+			Position:   "",           // Default value
+			Department: "",           // Default value
+			RoomNumber: 0,            // Default value
+		}
+		employeesToSync = append(employeesToSync, emp)
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error iterating mysql rows: %w", err)
+	}
+
+	if len(employeesToSync) == 0 {
+		return nil // Nothing to sync
+	}
+
+	// Upsert into PostgreSQL
+	// If an employee with the same email exists, update full_name and phone. Otherwise, insert a new one.
+	err = r.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "email"}},
+		DoUpdates: clause.AssignmentColumns([]string{"full_name", "phone"}),
+	}).Create(&employeesToSync).Error
+
+	if err != nil {
+		return fmt.Errorf("failed to upsert employees to postgres: %w", err)
+	}
+
+	return nil
+}
+
+func (r *EmployeePostgres) Create(buffer models.UpdateEmployee) error {
+	var isHave int64
+
+	if len(buffer.FullName) > 0 {
+		checkRequest := r.db.Model(&models.Employee{}).Where("full_name = ?", buffer.FullName).Count(&isHave)
+		if checkRequest.Error != nil {
+			return checkRequest.Error
+		}
+		if isHave > 0 {
+			return errors.New("Already exists")
+		}
+	}
+
+	newEmployee := models.Employee{
+		FullName:   buffer.FullName,
+		Position:   buffer.Position,
+		Department: buffer.Department,
+		Email:      buffer.Email,
+		Phone:      buffer.Phone,
+		RoomNumber: buffer.RoomNumber,
+	}
+
+	createRequest := r.db.Model(&models.Employee{}).Create(&newEmployee)
+	if createRequest.Error != nil {
+		return createRequest.Error
+	}
+
+	return nil
+}
+
+func (r *EmployeePostgres) GetPage(name string, roomNumbers []int, pageSize, pageNumber int) (models.Paginator, error) {
+	var page models.Paginator
+	var list []models.Employee
+	var count int64
+
+	offset := (pageNumber - 1) * pageSize
+
+	getListRequest := r.db.Model(&models.Employee{})
+
+	if len(name) > 0 {
+		getListRequest = getListRequest.Where("full_name ILIKE ?", "%"+name+"%")
+	}
+
+	if len(roomNumbers) > 0 {
+		getListRequest = getListRequest.Where("room_number IN (?)", roomNumbers)
+	}
+
+	getListRequest.Count(&count)
+	getListRequest.Offset(offset).Limit(pageSize).Find(&list)
+
+	page = CreatePaginator(list, int(count), pageSize, pageNumber)
+	return page, nil
+}
+
+func (r *EmployeePostgres) Update(id int, buffer models.UpdateEmployee) error {
+	var count int64
+
+	checkRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Count(&count)
+	if checkRequest.Error != nil {
+		return checkRequest.Error
+	}
+
+	if count == 0 {
+		return errors.New("Not Found")
+	}
+
+	updateData := map[string]interface{}{
+		"full_name":   buffer.FullName,
+		"position":    buffer.Position,
+		"department":  buffer.Department,
+		"email":       buffer.Email,
+		"phone":       buffer.Phone,
+		"room_number": buffer.RoomNumber,
+	}
+
+	updateRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Updates(updateData)
+	if updateRequest.Error != nil {
+		return updateRequest.Error
+	}
+
+	return nil
+}
+
+func (r *EmployeePostgres) Delete(id int) error {
+	var count int64
+
+	checkRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Count(&count)
+	if checkRequest.Error != nil {
+		return checkRequest.Error
+	}
+
+	if count == 0 {
+		return errors.New("Not Found")
+	}
+
+	deleteRequest := r.db.Model(&models.Employee{}).Where("id = ?", id).Delete(&models.Employee{})
+	if deleteRequest.Error != nil {
+		return deleteRequest.Error
+	}
+
+	return nil
+}
+
+func (r *EmployeePostgres) GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error) {
+	var list []models.Employee
+	result := []models.SelectedObject{}
+
+	getRequest := r.db.Model(&models.Employee{})
+
+	if len(name) > 0 {
+		getRequest = getRequest.Where("full_name ILIKE ?", "%"+name+"%")
+	}
+
+	getRequest.Find(&list)
+
+	for _, item := range list {
+		var element models.SelectedObject
+
+		element.Id = item.Id
+		element.Name = item.FullName
+
+		result = append(result, element)
+	}
+
+	return result, nil
+}

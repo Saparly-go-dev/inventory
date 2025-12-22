@@ -79,6 +79,11 @@ type DeviceAssignment interface {
 	GetAvailableDevices() ([]models.Device, error)
 }
 
+type Dashboard interface {
+	GetAllDevices(filters DeviceFilters) ([]DashboardDevice, error)
+	ExportAllDevicesToExcel(devices []DashboardDevice) ([]byte, error)
+}
+
 type Repository struct {
 	User
 	Authorization
@@ -90,6 +95,7 @@ type Repository struct {
 	DeviceAttribute
 	Employee
 	DeviceAssignment
+	Dashboard
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -104,5 +110,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		DeviceAttribute:  NewDeviceAttributePostgres(db),
 		Employee:         NewEmployeePostgres(db),
 		DeviceAssignment: NewDeviceAssignmentPostgres(db),
+		Dashboard:        NewDashboardPostgres(db),
 	}
 }

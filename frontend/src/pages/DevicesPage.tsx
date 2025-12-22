@@ -11,10 +11,10 @@ import {
 import { getBrandsSelected, type SelectedObject as BrandSelected } from "../api/brands";
 import { getModelsSelected, type SelectedObject as ModelSelected } from "../api/models";
 import { getCategoriesSelected, type SelectedObject as CategorySelected } from "../api/categories";
+import { getAttributesSelected, type SelectedObject as AttributeSelected } from "../api/attributes";
 import { handleApiError, API_BASE_URL } from "../api/client";
 
 const PAGE_SIZE = 10;
-
 const STATUS_OPTIONS = ["in_stock", "assigned", "repair", "written_off"];
 
 function getImageUrl(path: string | null | undefined) {
@@ -23,6 +23,16 @@ function getImageUrl(path: string | null | undefined) {
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${API_BASE_URL}/${cleanPath}`;
 }
+
+const statusBadgeClass = (status: string) => {
+  switch (status) {
+    case 'in_stock': return 'badge status-success';
+    case 'assigned': return 'badge status-primary';
+    case 'repair': return 'badge status-warning';
+    case 'written_off': return 'badge status-danger';
+    default: return 'badge';
+  }
+};
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -41,6 +51,7 @@ export default function DevicesPage() {
     model_id: 0,
     category_id: 0,
     photo: "",
+    attributes: [],
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -50,38 +61,30 @@ export default function DevicesPage() {
   const [brandsList, setBrandsList] = useState<BrandSelected[]>([]);
   const [modelsList, setModelsList] = useState<ModelSelected[]>([]);
   const [categoriesList, setCategoriesList] = useState<CategorySelected[]>([]);
+  const [attributesList, setAttributesList] = useState<AttributeSelected[]>([]);
 
   useEffect(() => {
-    // Load initial dropdown options (Brands, Categories)
-    // Models will be loaded when a brand is selected
     Promise.all([
       getBrandsSelected(),
       getCategoriesSelected(),
+      getAttributesSelected(),
     ])
-      .then(([brands, categories]) => {
+      .then(([brands, categories, attributes]) => {
         setBrandsList(brands);
         setCategoriesList(categories);
+        setAttributesList(attributes);
       })
       .catch((e) => console.error("Failed to load dropdown options", e));
   }, []);
 
-  // When brand_id changes, load models
   useEffect(() => {
-    setModelsList([]); // Clear models when brand changes
+    setModelsList([]);
     if (form.brand_id) {
-      // If we are editing (editId !== null) and just loaded the form with a model_id,
-      // we might want to preserve it. But if user manually changed brand, we should reset model.
-      // For simplicity, we just load valid models for this brand.
       getModelsSelected(form.brand_id)
         .then(setModelsList)
         .catch((e) => console.error("Failed to load models", e));
     }
   }, [form.brand_id]);
-
-  // If user changed brand manually, we might want to reset model_id if it's not valid for new brand.
-  // But strictly speaking, the useEffect above just reloads the list. 
-  // If the currently selected model_id is not in the new list, the select will probably show nothing or first option.
-  // Let's reset model_id in the onChange handler, it's safer.
 
   async function loadDevices() {
     try {
@@ -111,25 +114,12 @@ export default function DevicesPage() {
 
     try {
       setError(null);
-
       if (editId === null) {
         await createDevice(form, photoFile);
       } else {
         await updateDevice(editId, form, photoFile);
       }
-
-      setForm({
-        name: "",
-        description: "",
-        info: "",
-        status: "in_stock",
-        brand_id: 0,
-        model_id: 0,
-        category_id: 0,
-        photo: "",
-      });
-      setPhotoFile(null);
-      setEditId(null);
+      resetForm();
       setPageNumber(1);
       await loadDevices();
     } catch (e) {
@@ -139,7 +129,6 @@ export default function DevicesPage() {
 
   async function onDelete(id: number) {
     if (!confirm("Delete device?")) return;
-
     try {
       setError(null);
       await deleteDevice(id);
@@ -159,9 +148,14 @@ export default function DevicesPage() {
       brand_id: d.brand_id,
       model_id: d.model_id,
       category_id: d.category_id,
-      photo: d.photo, // текущий путь к фото
+      photo: d.photo,
+      attributes: d.attributes?.map(a => ({
+        attribute_id: a.attribute_id,
+        options: a.options,
+        info: a.info
+      })) || [],
     });
-    setPhotoFile(null); // пока не выбрали новое фото
+    setPhotoFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -176,501 +170,350 @@ export default function DevicesPage() {
       model_id: 0,
       category_id: 0,
       photo: "",
+      attributes: [],
     });
     setPhotoFile(null);
   }
 
   return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>Devices</h2>
-
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-        <input
-          style={{
-            flex: 1,
-            padding: 6,
-            borderRadius: 4,
-            border: "1px solid #444",
-            background: "#222",
-            color: "#eee",
-          }}
-          placeholder="Search by device name..."
-          value={search}
-          onChange={(e) => {
-            setPageNumber(1);
-            setSearch(e.target.value);
-          }}
-        />
+    <div className="page-animate">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h2>Devices</h2>
+        <div style={{ width: '300px' }}>
+          <input
+            type="text"
+            placeholder="Search devices..."
+            value={search}
+            onChange={(e) => {
+              setPageNumber(1);
+              setSearch(e.target.value);
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
       </div>
 
-      <form
-        onSubmit={onSubmit}
-        style={{
-          marginBottom: 24,
-          display: "grid",
-          gap: 8,
-          maxWidth: 640,
-          padding: 16,
-          borderRadius: 8,
-          background: "#181818",
-          border: "1px solid #333",
-        }}
-      >
-        <h3 style={{ marginBottom: 4 }}>
-          {editId === null ? "Create device" : `Edit device #${editId}`}
+      <div className="card" style={{ marginBottom: 32 }}>
+        <h3 style={{ marginBottom: 16 }}>
+          {editId === null ? "Create New Device" : `Edit Device #${editId}`}
         </h3>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 8,
-            gridTemplateColumns: "1fr 1fr",
-            columnGap: 12,
-          }}
-        >
-          <input
-            required
-            placeholder="Device name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            style={{
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
-
-          <select
-            value={form.status}
-            onChange={(e) =>
-              setForm({ ...form, status: e.target.value || "in_stock" })
-            }
-            style={{
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-
-          <input
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
-            style={{
-              gridColumn: "1 / -1",
-              padding: 6,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
-        </div>
-
-        <textarea
-          placeholder="Info"
-          value={form.info}
-          onChange={(e) => setForm({ ...form, info: e.target.value })}
-          rows={3}
-          style={{
-            padding: 6,
-            borderRadius: 4,
-            border: "1px solid #444",
-            background: "#222",
-            color: "#eee",
-            resize: "vertical",
-          }}
-        />
-
-        {/* загрузка фото */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-            marginTop: 4,
-          }}
-        >
-          <label style={{ fontSize: 13, color: "#ccc" }}>Photo</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setPhotoFile(e.target.files && e.target.files[0]
-                ? e.target.files[0]
-                : null)
-            }
-            style={{
-              padding: 4,
-              borderRadius: 4,
-              border: "1px solid #444",
-              background: "#222",
-              color: "#eee",
-            }}
-          />
-
-          {/* превью, если есть путь и сейчас редактируем */}
-          {form.photo && (
-            <div
-              style={{
-                marginTop: 8,
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <div style={{ fontSize: 12, color: "#aaa" }}>Current photo:</div>
-              {/* если нужно через бэкенд-сервер, можно потом поменять src на http://localhost:8080/<path> */}
-              <img
-                src={getImageUrl(form.photo)}
-                alt="device"
-                onClick={() => setPreviewImage(getImageUrl(form.photo))}
-                style={{
-                  maxHeight: 80,
-                  borderRadius: 4,
-                  border: "1px solid #444",
-                  objectFit: "cover",
-                  cursor: "pointer",
-                }}
-                onError={(e) => {
-                  // если путь не резолвится — просто прячем картинку
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
+        <form onSubmit={onSubmit} style={{ display: 'grid', gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Device Name</label>
+              <input
+                required
+                placeholder="Enter device name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
-              <span style={{ fontSize: 11, color: "#666" }}>{form.photo}</span>
             </div>
-          )}
-        </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 8,
-            marginTop: 4,
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label style={{ fontSize: 12, color: "#aaa" }}>Brand</label>
-            <select
-              value={form.brand_id}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  brand_id: Number(e.target.value),
-                  model_id: 0, // Reset model when brand changes
-                })
-              }
-              style={{
-                padding: 6,
-                borderRadius: 4,
-                border: "1px solid #444",
-                background: "#222",
-                color: "#eee",
-              }}
-            >
-              <option value={0} disabled>Select Brand</option>
-              {brandsList.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Status</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value || "in_stock" })}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label style={{ fontSize: 12, color: "#aaa" }}>Model</label>
-            <select
-              value={form.model_id}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  model_id: Number(e.target.value),
-                })
-              }
-              style={{
-                padding: 6,
-                borderRadius: 4,
-                border: "1px solid #444",
-                background: "#222",
-                color: "#eee",
-              }}
-              disabled={!form.brand_id} // Disable if no brand selected
-            >
-              <option value={0} disabled>Select Model</option>
-              {modelsList.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="text-sm text-muted">Description</label>
+            <input
+              placeholder="Short description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label style={{ fontSize: 12, color: "#aaa" }}>Category</label>
-            <select
-              value={form.category_id}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  category_id: Number(e.target.value),
-                })
-              }
-              style={{
-                padding: 6,
-                borderRadius: 4,
-                border: "1px solid #444",
-                background: "#222",
-                color: "#eee",
-              }}
-            >
-              <option value={0} disabled>Select Category</option>
-              {categoriesList.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="text-sm text-muted">Detailed Info</label>
+            <textarea
+              placeholder="Additional information"
+              value={form.info}
+              onChange={(e) => setForm({ ...form, info: e.target.value })}
+              rows={3}
+            />
           </div>
-        </div>
 
+          {/* Photo Section */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="text-sm text-muted">Photo</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhotoFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
+            />
 
+            {form.photo && (
+              <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                <span className="text-sm text-muted">Current:</span>
+                <img
+                  src={getImageUrl(form.photo)}
+                  alt="device"
+                  onClick={() => setPreviewImage(getImageUrl(form.photo))}
+                  style={{
+                    height: 60,
+                    borderRadius: 6,
+                    border: "1px solid var(--border-color)",
+                    objectFit: "cover",
+                    cursor: "pointer",
+                  }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              </div>
+            )}
+          </div>
 
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button
-            type="submit"
-            style={{
-              padding: "6px 12px",
-              borderRadius: 4,
-              border: "none",
-              background: "#3b82f6",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            {editId === null ? "Create" : "Save"}
-          </button>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label className="text-sm text-muted">Brand</label>
+              <select
+                value={form.brand_id}
+                onChange={(e) => setForm({ ...form, brand_id: Number(e.target.value), model_id: 0 })}
+              >
+                <option value={0} disabled>Select Brand</option>
+                {brandsList.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
 
-          {editId !== null && (
-            <button
-              type="button"
-              onClick={resetForm}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 4,
-                border: "1px solid #555",
-                background: "transparent",
-                color: "#eee",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label className="text-sm text-muted">Model</label>
+              <select
+                value={form.model_id}
+                onChange={(e) => setForm({ ...form, model_id: Number(e.target.value) })}
+                disabled={!form.brand_id}
+              >
+                <option value={0} disabled>Select Model</option>
+                {modelsList.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label className="text-sm text-muted">Category</label>
+              <select
+                value={form.category_id}
+                onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
+              >
+                <option value={0} disabled>Select Category</option>
+                {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Attributes Section */}
+          <div style={{ marginTop: 8, padding: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-hover)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <label className="text-sm font-semibold">Attributes</label>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, attributes: [...(form.attributes || []), { attribute_id: 0, options: "", info: "" }] })}
+                className="btn btn-secondary"
+                style={{ fontSize: 12, padding: '4px 8px' }}
+              >
+                + Add Attribute
+              </button>
+            </div>
+
+            {form.attributes?.map((attr, index) => (
+              <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <select
+                  value={attr.attribute_id}
+                  onChange={(e) => {
+                    const newAttributes = [...(form.attributes || [])];
+                    newAttributes[index].attribute_id = Number(e.target.value);
+                    setForm({ ...form, attributes: newAttributes });
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <option value={0} disabled>Select Attribute</option>
+                  {attributesList.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+                <input
+                  placeholder="Value"
+                  value={attr.options}
+                  onChange={(e) => {
+                    const newAttributes = [...(form.attributes || [])];
+                    newAttributes[index].options = e.target.value;
+                    setForm({ ...form, attributes: newAttributes });
+                  }}
+                  style={{ flex: 1 }}
+                />
+                <input
+                  placeholder="Info"
+                  value={attr.info}
+                  onChange={(e) => {
+                    const newAttributes = [...(form.attributes || [])];
+                    newAttributes[index].info = e.target.value;
+                    setForm({ ...form, attributes: newAttributes });
+                  }}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newAttributes = (form.attributes || []).filter((_, i) => i !== index);
+                    setForm({ ...form, attributes: newAttributes });
+                  }}
+                  className="btn btn-danger"
+                  style={{ padding: '0 12px' }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            <button type="submit" className="btn btn-primary">
+              {editId === null ? "Create Device" : "Save Changes"}
             </button>
-          )}
-        </div>
-      </form >
+            {editId !== null && (
+              <button type="button" onClick={resetForm} className="btn btn-secondary">
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
       {error && (
-        <div style={{ color: "tomato", marginBottom: 12 }}>{error}</div>
-      )
-      }
-      {loading && <div>Loading...</div>}
+        <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          background: "#181818",
-          borderRadius: 8,
-          overflow: "hidden",
-        }}
-      >
-        <thead>
-          <tr style={{ background: "#222" }}>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>ID</th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Name
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Status
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Brand
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Model
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Categor
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Photo
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {devices.map((d) => (
-            <tr key={d.id}>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.id}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.name}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.status}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.brand.name}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.model.name}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.category.name}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {d.photo && (
-                  <img
-                    src={getImageUrl(d.photo)}
-                    alt="device"
-                    onClick={() => setPreviewImage(getImageUrl(d.photo))}
-                    style={{
-                      maxHeight: 40,
-                      borderRadius: 4,
-                      border: "1px solid #444",
-                      objectFit: "cover",
-                      cursor: "pointer",
-                    }}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display =
-                        "none";
-                    }}
-                  />
-                )}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                <button
-                  onClick={() => onEditClick(d)}
-                  style={{
-                    marginRight: 8,
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    border: "none",
-                    background: "#10b981",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(d.id)}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    border: "none",
-                    background: "#ef4444",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-          {devices.length === 0 && !loading && (
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Loading devices...</div>}
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan={8} style={{ padding: 8, textAlign: "center" }}>
-                No devices
-              </td>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Category</th>
+              <th>Photo</th>
+              <th>Attributes</th>
+              <th>Actions</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {devices.map((d) => (
+              <tr key={d.id}>
+                <td>{d.id}</td>
+                <td style={{ fontWeight: 500 }}>{d.name}</td>
+                <td><span className={statusBadgeClass(d.status)}>{d.status}</span></td>
+                <td>{d.brand.name}</td>
+                <td>{d.model.name}</td>
+                <td>{d.category.name}</td>
+                <td>
+                  {d.photo && (
+                    <img
+                      src={getImageUrl(d.photo)}
+                      alt="device"
+                      onClick={() => setPreviewImage(getImageUrl(d.photo))}
+                      style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 4, cursor: 'pointer', border: '1px solid var(--border-color)' }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                    />
+                  )}
+                </td>
+                <td>
+                  {d.attributes && d.attributes.length > 0 ? (
+                    <div style={{ fontSize: 13 }}>
+                      {d.attributes.map((attr) => {
+                        const attrName = attributesList.find((a) => a.id === attr.attribute_id)?.name || "Unknown";
+                        return (
+                          <div key={attr.id} style={{ marginBottom: 2 }}>
+                            <span style={{ color: 'var(--text-muted)' }}>{attrName}:</span> {attr.options}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>-</span>
+                  )}
+                </td>
+                <td>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Edit</button>
+                    <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Del</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {devices.length === 0 && !loading && (
+              <tr>
+                <td colSpan={9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                  No devices found. Create one above!
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <button
           disabled={pageNumber <= 1}
           onClick={() => setPageNumber((p) => p - 1)}
-          style={{
-            padding: "4px 10px",
-            marginRight: 8,
-            borderRadius: 4,
-            border: "1px solid #555",
-            background: "#222",
-            color: "#eee",
-          }}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
         >
-          Prev
+          Previous
         </button>
-        <span>
-          Page {pageNumber} / {totalPages}
+        <span style={{ color: 'var(--text-muted)' }}>
+          Page {pageNumber} of {totalPages}
         </span>
         <button
           disabled={pageNumber >= totalPages}
           onClick={() => setPageNumber((p) => p + 1)}
-          style={{
-            padding: "4px 10px",
-            marginLeft: 8,
-            borderRadius: 4,
-            border: "1px solid #555",
-            background: "#222",
-            color: "#eee",
-          }}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
         >
           Next
         </button>
       </div>
 
-      {
-        previewImage && (
-          <div
-            onClick={() => setPreviewImage(null)}
+      {previewImage && (
+        <div
+          onClick={() => setPreviewImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.85)",
+            backdropFilter: 'blur(4px)',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            cursor: "zoom-out",
+          }}
+        >
+          <img
+            src={previewImage}
+            alt="Preview"
             style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              background: "rgba(0,0,0,0.8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-              cursor: "zoom-out",
+              maxWidth: "90%",
+              maxHeight: "90%",
+              borderRadius: 8,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
             }}
-          >
-            <img
-              src={previewImage}
-              alt="Preview"
-              style={{
-                maxWidth: "90%",
-                maxHeight: "90%",
-                borderRadius: 8,
-                boxShadow: "0 0 20px rgba(0,0,0,0.5)",
-                border: "1px solid #444",
-              }}
-            />
-          </div>
-        )
-      }
-    </div >
+          />
+        </div>
+      )}
+    </div>
   );
 }

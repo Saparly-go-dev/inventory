@@ -105,6 +105,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			employees.GET("/devices", h.GetEmployeeDevices)
 		}
 
+		dashboard := api.Group("/dashboard")
+		{
+			dashboard.GET("/devices", h.getAllDevices)
+			dashboard.GET("/devices/export", h.exportAllDevices)
+		}
+
 	}
 
 	return router

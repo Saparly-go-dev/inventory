@@ -42,6 +42,13 @@ export interface Device {
   brand: RelatedBrand;
   model: RelatedModel;
   category: RelatedCategory;
+  attributes?: {
+    id: number;
+    device_id: number;
+    attribute_id: number;
+    options: string;
+    info: string;
+  }[];
 }
 
 export interface UpdateDevice {
@@ -53,6 +60,7 @@ export interface UpdateDevice {
   model_id: number;
   category_id: number;
   photo?: string; // старый путь, чтобы не терять фото при апдейте
+  attributes?: { attribute_id: number; options: string; info: string }[];
 }
 
 export interface Paginator<T> {
@@ -97,6 +105,11 @@ export async function createDevice(data: UpdateDevice, file: File | null) {
   formData.append("model_id", String(data.model_id));
   formData.append("category_id", String(data.category_id));
 
+  // Serialize and append attributes
+  if (data.attributes && data.attributes.length > 0) {
+    formData.append("attributes", JSON.stringify(data.attributes));
+  }
+
   // при создании старого пути нет, фотку передаём только файлом
   if (file) {
     formData.append("photo", file);
@@ -121,6 +134,11 @@ export async function updateDevice(
   formData.append("brand_id", String(data.brand_id));
   formData.append("model_id", String(data.model_id));
   formData.append("category_id", String(data.category_id));
+
+  // Serialize and append attributes
+  if (data.attributes && data.attributes.length > 0) {
+    formData.append("attributes", JSON.stringify(data.attributes));
+  }
 
   if (file) {
     // если загружаем новую фотку — отправляем только файл

@@ -79,6 +79,11 @@ type DeviceAssignment interface {
 	GetAvailableDevices() ([]models.Device, error)
 }
 
+type Dashboard interface {
+	GetAllDevices(filters repository.DeviceFilters) ([]repository.DashboardDevice, error)
+	ExportAllDevicesToExcel(filters repository.DeviceFilters) ([]byte, error)
+}
+
 type Service struct {
 	Authorization
 	User
@@ -90,6 +95,7 @@ type Service struct {
 	DeviceAttribute
 	Employee
 	DeviceAssignment
+	Dashboard
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -104,5 +110,6 @@ func NewService(repos *repository.Repository) *Service {
 		DeviceAttribute:  NewDeviceAttributeService(repos.DeviceAttribute),
 		Employee:         NewEmployeeService(repos.Employee),
 		DeviceAssignment: NewDeviceAssignmentService(repos.DeviceAssignment),
+		Dashboard:        NewDashboardService(repos.Dashboard),
 	}
 }

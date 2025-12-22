@@ -17,43 +17,50 @@ func NewDevicePostgres(db *gorm.DB) *DevicePostgres {
 }
 
 func (r *DevicePostgres) Create(buffer models.UpdateDevice) error {
+	// Начало транзакции. Это гарантирует, что все операции будут выполнены как единое целое.
 	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// Создание основной модели устройства из полученных данных.
 		newDevice := models.Device{
 			Name:        buffer.Name,
 			Description: buffer.Description,
 			Info:        buffer.Info,
-			Photo:       buffer.Photo,
+			Photo:       buffer.Photo, // Путь к файлу, сохраненный на шаге 3
 			BrandId:     buffer.BrandId,
 			ModelId:     buffer.ModelId,
 			CategoryId:  buffer.CategoryId,
-			Status:      "in_stock",
+			Status:      "in_stock", // Статус по умолчанию
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 		}
 
+		// Выполнение SQL INSERT для таблицы 'devices'.
 		if err := tx.Model(&models.Device{}).Create(&newDevice).Error; err != nil {
-			return err
+			return err // Если ошибка, транзакция будет отменена.
 		}
 
+		// Если были переданы атрибуты, они также добавляются в базу.
 		if len(buffer.Attributes) > 0 {
 			for _, attr := range buffer.Attributes {
 				newDeviceAttribute := models.DeviceAttribute{
-					DeviceId:    newDevice.Id,
+					DeviceId:    newDevice.Id, // ID только что созданного устройства
 					AttributeId: attr.AttributeId,
 					Options:     attr.Options,
 					Info:        attr.Info,
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
 				}
+				// Выполнение SQL INSERT для таблицы 'device_attributes'.
 				if err := tx.Model(&models.DeviceAttribute{}).Create(&newDeviceAttribute).Error; err != nil {
-					return err
+					return err // Если ошибка, транзакция будет отменена.
 				}
 			}
 		}
 
+		// Если все прошло без ошибок, возвращаем nil.
 		return nil
 	})
 
+	// Возвращаем результат транзакции.
 	return err
 }
 

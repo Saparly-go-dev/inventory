@@ -779,6 +779,155 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/dashboard/devices": {
+            "get": {
+                "description": "Get a list of all devices with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Get All Devices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Model ID",
+                        "name": "model_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "brand_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Room Number",
+                        "name": "room_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employee_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Device"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dashboard/devices/export": {
+            "get": {
+                "description": "Export a list of all devices to an Excel file with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Export All Devices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Model ID",
+                        "name": "model_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "brand_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Room Number",
+                        "name": "room_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employee_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/device-attributes": {
             "put": {
                 "description": "Updates an existing device attribute with the provided data",
@@ -2222,6 +2371,87 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Attribute": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceAttribute"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Brand": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Category": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Change_Password": {
             "type": "object",
             "properties": {
@@ -2264,6 +2494,115 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Device": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceAttribute"
+                    }
+                },
+                "brand": {
+                    "$ref": "#/definitions/models.Brand"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "category": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "model": {
+                    "$ref": "#/definitions/models.Model"
+                },
+                "model_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "photo": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "in_stock, assigned, repair, written_off",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DeviceAttribute": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "$ref": "#/definitions/models.Attribute"
+                },
+                "attribute_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "device_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Model": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "$ref": "#/definitions/models.Brand"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

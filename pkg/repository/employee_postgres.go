@@ -1,10 +1,16 @@
 package repository
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"inventory/models"
+	"strings"
 
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type EmployeePostgres struct {
@@ -13,6 +19,107 @@ type EmployeePostgres struct {
 
 func NewEmployeePostgres(db *gorm.DB) *EmployeePostgres {
 	return &EmployeePostgres{db: db}
+}
+
+type Info struct {
+	Infos string `json:"infos"`
+	Info  string `json:"info"`
+}
+
+func (r *EmployeePostgres) SyncEmployeesFromMySQL() error {
+	// MySQL Connection
+	mysqlDSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		viper.GetString("mysql.username"),
+		viper.GetString("mysql.password"),
+		viper.GetString("mysql.host"),
+		viper.GetString("mysql.port"),
+		viper.GetString("mysql.dbname"),
+	)
+	mysqlDB, err := sql.Open("mysql", mysqlDSN)
+	if err != nil {
+		return fmt.Errorf("failed to connect to mysql: %w", err)
+	}
+	defer mysqlDB.Close()
+
+	if err = mysqlDB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping mysql: %w", err)
+	}
+
+	// Fetch employees from MySQL where deleted_at is NULL
+	rows, err := mysqlDB.Query("SELECT name, surname, infos, phone FROM Info_info_employee WHERE deleted_at IS NULL")
+	if err != nil {
+		return fmt.Errorf("failed to query mysql: %w", err)
+	}
+	defer rows.Close()
+
+	var employeesToSync []models.Employee
+	for rows.Next() {
+		var name, surname, infos, phone sql.NullString
+
+		if err := rows.Scan(&name, &surname, &infos, &phone); err != nil {
+			fmt.Printf("failed to scan employee row: %v\n", err)
+			continue
+		}
+
+		var extractedEmail, extractedPhone string
+
+		if infos.Valid && infos.String != "" {
+			var infoSlice []Info
+			// The infos field might be a JSON array, attempt to unmarshal it
+			if err := json.Unmarshal([]byte(infos.String), &infoSlice); err == nil {
+				for _, info := range infoSlice {
+					if strings.Contains(strings.ToLower(info.Infos), "email") {
+						extractedEmail = info.Info
+					}
+					if strings.Contains(strings.ToLower(info.Infos), "telefon") {
+						extractedPhone = info.Info
+					}
+				}
+			}
+		}
+
+		if extractedEmail == "" {
+			// Email is the conflict key, so we must have it.
+			continue
+		}
+
+		// Prioritize phone from infos, fallback to the phone column
+		finalPhone := phone.String
+		if extractedPhone != "" {
+			finalPhone = extractedPhone
+		}
+
+		emp := models.Employee{
+			FullName:   strings.TrimSpace(name.String + " " + surname.String),
+			Email:      extractedEmail,
+			Phone:      finalPhone,
+			Position:   "", // Default value
+			Department: "", // Default value
+			RoomNumber: 0,  // Default value
+		}
+		employeesToSync = append(employeesToSync, emp)
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error iterating mysql rows: %w", err)
+	}
+
+	if len(employeesToSync) == 0 {
+		return nil // Nothing to sync
+	}
+
+	// Upsert into PostgreSQL
+	// If an employee with the same email exists, update full_name and phone. Otherwise, insert a new one.
+	err = r.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "email"}},
+		DoUpdates: clause.AssignmentColumns([]string{"full_name", "phone"}),
+	}).Create(&employeesToSync).Error
+
+	if err != nil {
+		return fmt.Errorf("failed to upsert employees to postgres: %w", err)
+	}
+
+	return nil
 }
 
 func (r *EmployeePostgres) Create(buffer models.UpdateEmployee) error {
