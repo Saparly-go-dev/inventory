@@ -108,7 +108,7 @@ export default function DevicesPage() {
     e.preventDefault();
 
     if (!form.brand_id || !form.model_id) {
-      setError("Select brand_id and model_id");
+      setError("Brend we modeli saýlaň");
       return;
     }
 
@@ -128,7 +128,7 @@ export default function DevicesPage() {
   }
 
   async function onDelete(id: number) {
-    if (!confirm("Delete device?")) return;
+    if (!confirm("Enjamy pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
       await deleteDevice(id);
@@ -178,11 +178,11 @@ export default function DevicesPage() {
   return (
     <div className="page-animate">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2>Devices</h2>
+        <h2>Enjamlar</h2>
         <div style={{ width: '300px' }}>
           <input
             type="text"
-            placeholder="Search devices..."
+            placeholder="Enjam ady boýunça gözleg..."
             value={search}
             onChange={(e) => {
               setPageNumber(1);
@@ -195,23 +195,23 @@ export default function DevicesPage() {
 
       <div className="card" style={{ marginBottom: 32 }}>
         <h3 style={{ marginBottom: 16 }}>
-          {editId === null ? "Create New Device" : `Edit Device #${editId}`}
+          {editId === null ? "Enjam döret" : `Enjamy üýtget #${editId}`}
         </h3>
 
         <form onSubmit={onSubmit} style={{ display: 'grid', gap: 16 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label className="text-sm text-muted">Device Name</label>
+              <label className="text-sm text-muted">Enjamyň ady</label>
               <input
                 required
-                placeholder="Enter device name"
+                placeholder="Ady ýazyň"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label className="text-sm text-muted">Status</label>
+              <label className="text-sm text-muted">Ýagdaýy</label>
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value || "in_stock" })}
@@ -224,18 +224,18 @@ export default function DevicesPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Description</label>
+            <label className="text-sm text-muted">Düşündiriş</label>
             <input
-              placeholder="Short description"
+              placeholder="Gysgaça düşündiriş"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Detailed Info</label>
+            <label className="text-sm text-muted">Giňişleýin maglumat</label>
             <textarea
-              placeholder="Additional information"
+              placeholder="Goşmaça maglumat"
               value={form.info}
               onChange={(e) => setForm({ ...form, info: e.target.value })}
               rows={3}
@@ -244,7 +244,7 @@ export default function DevicesPage() {
 
           {/* Photo Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Photo</label>
+            <label className="text-sm text-muted">Surat</label>
             <input
               type="file"
               accept="image/*"
@@ -253,7 +253,7 @@ export default function DevicesPage() {
 
             {form.photo && (
               <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 12 }}>
-                <span className="text-sm text-muted">Current:</span>
+                <span className="text-sm text-muted">Häzirki surat:</span>
                 <img
                   src={getImageUrl(form.photo)}
                   alt="device"
@@ -273,12 +273,12 @@ export default function DevicesPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label className="text-sm text-muted">Brand</label>
+              <label className="text-sm text-muted">Brend</label>
               <select
                 value={form.brand_id}
                 onChange={(e) => setForm({ ...form, brand_id: Number(e.target.value), model_id: 0 })}
               >
-                <option value={0} disabled>Select Brand</option>
+                <option value={0} disabled>Brend saýlaň</option>
                 {brandsList.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
@@ -290,18 +290,18 @@ export default function DevicesPage() {
                 onChange={(e) => setForm({ ...form, model_id: Number(e.target.value) })}
                 disabled={!form.brand_id}
               >
-                <option value={0} disabled>Select Model</option>
+                <option value={0} disabled>Model saýlaň</option>
                 {modelsList.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label className="text-sm text-muted">Category</label>
+              <label className="text-sm text-muted">Kategoriýa</label>
               <select
                 value={form.category_id}
                 onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
               >
-                <option value={0} disabled>Select Category</option>
+                <option value={0} disabled>Kategoriýa saýlaň</option>
                 {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
@@ -310,14 +310,14 @@ export default function DevicesPage() {
           {/* Attributes Section */}
           <div style={{ marginTop: 8, padding: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-hover)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <label className="text-sm font-semibold">Attributes</label>
+              <label className="text-sm font-semibold">Aýratynlyklar</label>
               <button
                 type="button"
                 onClick={() => setForm({ ...form, attributes: [...(form.attributes || []), { attribute_id: 0, options: "", info: "" }] })}
                 className="btn btn-secondary"
                 style={{ fontSize: 12, padding: '4px 8px' }}
               >
-                + Add Attribute
+                + Aýratynlyk goş
               </button>
             </div>
 
@@ -332,11 +332,11 @@ export default function DevicesPage() {
                   }}
                   style={{ flex: 1 }}
                 >
-                  <option value={0} disabled>Select Attribute</option>
+                  <option value={0} disabled>Aýratynlyk saýlaň</option>
                   {attributesList.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
                 <input
-                  placeholder="Value"
+                  placeholder="Bahasy"
                   value={attr.options}
                   onChange={(e) => {
                     const newAttributes = [...(form.attributes || [])];
@@ -346,7 +346,7 @@ export default function DevicesPage() {
                   style={{ flex: 1 }}
                 />
                 <input
-                  placeholder="Info"
+                  placeholder="Maglumat"
                   value={attr.info}
                   onChange={(e) => {
                     const newAttributes = [...(form.attributes || [])];
@@ -372,11 +372,11 @@ export default function DevicesPage() {
 
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <button type="submit" className="btn btn-primary">
-              {editId === null ? "Create Device" : "Save Changes"}
+              {editId === null ? "Döret" : "Ýatda sakla"}
             </button>
             {editId !== null && (
               <button type="button" onClick={resetForm} className="btn btn-secondary">
-                Cancel
+                Yza
               </button>
             )}
           </div>
@@ -389,21 +389,21 @@ export default function DevicesPage() {
         </div>
       )}
 
-      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Loading devices...</div>}
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Ýüklenýär...</div>}
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Brand</th>
+              <th>Ady</th>
+              <th>Ýagdaýy</th>
+              <th>Brend</th>
               <th>Model</th>
-              <th>Category</th>
-              <th>Photo</th>
-              <th>Attributes</th>
-              <th>Actions</th>
+              <th>Kategoriýa</th>
+              <th>Surat</th>
+              <th>Aýratynlyklar</th>
+              <th>Hereketler</th>
             </tr>
           </thead>
           <tbody>
@@ -430,7 +430,7 @@ export default function DevicesPage() {
                   {d.attributes && d.attributes.length > 0 ? (
                     <div style={{ fontSize: 13 }}>
                       {d.attributes.map((attr) => {
-                        const attrName = attributesList.find((a) => a.id === attr.attribute_id)?.name || "Unknown";
+                        const attrName = attributesList.find((a) => a.id === attr.attribute_id)?.name || "Näsaz";
                         return (
                           <div key={attr.id} style={{ marginBottom: 2 }}>
                             <span style={{ color: 'var(--text-muted)' }}>{attrName}:</span> {attr.options}
@@ -444,8 +444,8 @@ export default function DevicesPage() {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Edit</button>
-                    <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Del</button>
+                    <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
                   </div>
                 </td>
               </tr>
@@ -453,7 +453,7 @@ export default function DevicesPage() {
             {devices.length === 0 && !loading && (
               <tr>
                 <td colSpan={9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
-                  No devices found. Create one above!
+                  Enjam tapylmady. Ýokarda täzesini dörediň!
                 </td>
               </tr>
             )}
@@ -468,10 +468,10 @@ export default function DevicesPage() {
           className="btn btn-secondary"
           style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
         >
-          Previous
+          Yza
         </button>
         <span style={{ color: 'var(--text-muted)' }}>
-          Page {pageNumber} of {totalPages}
+          Sahypa {pageNumber} / {totalPages}
         </span>
         <button
           disabled={pageNumber >= totalPages}
@@ -479,7 +479,7 @@ export default function DevicesPage() {
           className="btn btn-secondary"
           style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
         >
-          Next
+          Öňe
         </button>
       </div>
 

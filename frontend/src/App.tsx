@@ -31,19 +31,19 @@ function App() {
     <div className="app-container">
       <header className="app-header justify-center">
         <div className="brand-section">
-          <h1>Inventory App</h1>
-          <span>Manage assets efficiently</span>
+          <h1>Inwentar Ulgamy</h1>
+          <span>Dolandyryş ulgamy</span>
         </div>
 
         <nav className="nav-links">
-          <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Dashboard</NavLink>
-          <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Employees</NavLink>
-          <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Devices</NavLink>
-          <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Available</NavLink>
-          <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Assign</NavLink>
-          <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Brands</NavLink>
-          <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Models</NavLink>
-          <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Attributes</NavLink>
+          <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Panel</NavLink>
+          <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Işgärler</NavLink>
+          <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Enjamlar</NavLink>
+          <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Elýeterli</NavLink>
+          <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Berkidilme</NavLink>
+          <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Brendler</NavLink>
+          <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Modeller</NavLink>
+          <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Aýratynlyklar</NavLink>
         </nav>
 
         <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle Theme" title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>

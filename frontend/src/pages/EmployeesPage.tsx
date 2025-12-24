@@ -1,3 +1,4 @@
+// src/pages/EmployeesPage.tsx
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -69,7 +70,7 @@ export default function EmployeesPage() {
   }
 
   async function onDelete(id: number) {
-    if (!confirm("Delete employee?")) return;
+    if (!confirm("Işgäri pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
       await deleteEmployee(id);
@@ -105,122 +106,168 @@ export default function EmployeesPage() {
   }
 
   return (
-    <div>
-      <h2>Employees</h2>
-
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-        <input
-          placeholder="Search by name..."
-          value={search}
-          onChange={(e) => {
-            setPageNumber(1);
-            setSearch(e.target.value);
-          }}
-        />
-        <input
-          placeholder="Filter by rooms (e.g. 101,202)..."
-          value={roomFilter}
-          onChange={(e) => {
-            setPageNumber(1);
-            setRoomFilter(e.target.value);
-          }}
-        />
+    <div className="page-animate">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h2>Işgärler</h2>
+        <div style={{ display: 'flex', gap: 12, width: '400px' }}>
+          <input
+            placeholder="Ady boýunça gözleg..."
+            value={search}
+            onChange={(e) => {
+              setPageNumber(1);
+              setSearch(e.target.value);
+            }}
+            style={{ flex: 1 }}
+          />
+          <input
+            placeholder="Otaglar (mysal: 101,202)..."
+            value={roomFilter}
+            onChange={(e) => {
+              setPageNumber(1);
+              setRoomFilter(e.target.value);
+            }}
+            style={{ flex: 1 }}
+          />
+        </div>
       </div>
 
-      <form onSubmit={onSubmit} style={{ marginBottom: 24 }}>
-        <h3>{editId === null ? "Create employee" : `Edit employee #${editId}`}</h3>
-        <input
-          required
-          placeholder="Full name"
-          value={form.full_name}
-          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-        />
-        <input
-          placeholder="Position"
-          value={form.position}
-          onChange={(e) => setForm({ ...form, position: e.target.value })}
-        />
-        <input
-          placeholder="Department"
-          value={form.department}
-          onChange={(e) => setForm({ ...form, department: e.target.value })}
-        />
-        <input
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-        <input
-          placeholder="Phone"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Room number"
-          value={form.room_number || ""}
-          onChange={(e) => setForm({ ...form, room_number: Number(e.target.value) })}
-        />
-        <button type="submit">{editId === null ? "Create" : "Save"}</button>
-        {editId !== null && <button type="button" onClick={resetForm}>Cancel</button>}
-      </form>
+      <div className="card" style={{ marginBottom: 32 }}>
+        <h3 style={{ marginBottom: 16 }}>{editId === null ? "Işgär döret" : `Işgäri üýtget #${editId}`}</h3>
+        <form onSubmit={onSubmit} style={{ display: "grid", gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Doly ady (F.A.A)</label>
+              <input
+                required
+                placeholder="Doly ady"
+                value={form.full_name}
+                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Wezipe</label>
+              <input
+                placeholder="Wezipe"
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Bölüm</label>
+              <input
+                placeholder="Bölüm"
+                value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })}
+              />
+            </div>
+          </div>
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {loading && <div>Loading...</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Email</label>
+              <input
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Telefon</label>
+              <input
+                placeholder="Telefon"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label className="text-sm text-muted">Otag belgisi</label>
+              <input
+                type="number"
+                placeholder="Otag"
+                value={form.room_number || ""}
+                onChange={(e) => setForm({ ...form, room_number: Number(e.target.value) })}
+              />
+            </div>
+          </div>
 
-      <table border={1} cellPadding={4}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Full name</th>
-            <th>Position</th>
-            <th>Department</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Room</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((e) => (
-            <tr key={e.id}>
-              <td>{e.id}</td>
-              <td>{e.full_name}</td>
-              <td>{e.position}</td>
-              <td>{e.department}</td>
-              <td>{e.email}</td>
-              <td>{e.phone}</td>
-              <td>{e.room_number}</td>
-              <td>
-                <Link to={`/employee/${e.id}`}>Assign Device</Link>
-                <button onClick={() => onEditClick(e)} style={{ marginLeft: 8 }}>Edit</button>
-                <button onClick={() => onDelete(e.id)} style={{ marginLeft: 8 }}>Delete</button>
-              </td>
-            </tr>
-          ))}
-          {employees.length === 0 && !loading && (
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            <button type="submit" className="btn btn-primary">{editId === null ? "Döret" : "Ýatda sakla"}</button>
+            {editId !== null && <button type="button" onClick={resetForm} className="btn btn-secondary">Yza</button>}
+          </div>
+        </form>
+      </div>
+
+      {error && (
+        <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Ýüklenýär...</div>}
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan={8}>No employees</td>
+              <th>ID</th>
+              <th>Doly ady</th>
+              <th>Wezipe</th>
+              <th>Bölüm</th>
+              <th>Email</th>
+              <th>Tel</th>
+              <th>Otag</th>
+              <th>Hereketler</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {employees.map((e) => (
+              <tr key={e.id}>
+                <td>{e.id}</td>
+                <td style={{ fontWeight: 500 }}>{e.full_name}</td>
+                <td>{e.position}</td>
+                <td>{e.department}</td>
+                <td>{e.email}</td>
+                <td>{e.phone}</td>
+                <td>{e.room_number || "-"}</td>
+                <td>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <Link to={`/assign?employee_id=${e.id}`} className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: 12, height: 24, textDecoration: 'none' }}> Berkits </Link>
+                    <button onClick={() => onEditClick(e)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={() => onDelete(e.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {employees.length === 0 && !loading && (
+              <tr>
+                <td colSpan={8} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                  Işgärler tapylmady
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <button
           disabled={pageNumber <= 1}
           onClick={() => setPageNumber((p) => p - 1)}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
         >
-          Prev
+          Yza
         </button>
-        <span style={{ margin: "0 8px" }}>
-          Page {pageNumber} / {totalPages}
+        <span style={{ margin: "0 8px", color: 'var(--text-muted)' }}>
+          Sahypa {pageNumber} / {totalPages}
         </span>
         <button
           disabled={pageNumber >= totalPages}
           onClick={() => setPageNumber((p) => p + 1)}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
         >
-          Next
+          Öňe
         </button>
       </div>
     </div>

@@ -73,7 +73,7 @@ export default function ModelsPage() {
     e.preventDefault();
 
     if (!form.brand_id) {
-      setError("Select brand");
+      setError("Brend saýlaň");
       return;
     }
 
@@ -94,7 +94,7 @@ export default function ModelsPage() {
   }
 
   async function onDelete(id: number) {
-    if (!confirm("Delete model?")) return;
+    if (!confirm("Modeli pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
       await deleteModel(id);
@@ -122,10 +122,10 @@ export default function ModelsPage() {
   return (
     <div className="page-animate">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2>Models</h2>
+        <h2>Modeller</h2>
         <div style={{ width: '300px' }}>
           <input
-            placeholder="Search by model name..."
+            placeholder="Model ady boýunça gözleg..."
             value={search}
             onChange={(e) => {
               setPageNumber(1);
@@ -138,31 +138,31 @@ export default function ModelsPage() {
 
       <div className="card" style={{ marginBottom: 32, maxWidth: 640 }}>
         <h3 style={{ marginBottom: 16 }}>
-          {editId === null ? "Create Model" : `Edit Model #${editId}`}
+          {editId === null ? "Model döret" : `Modeli üýtget #${editId}`}
         </h3>
 
         <form onSubmit={onSubmit} style={{ display: "grid", gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Model Name</label>
+            <label className="text-sm text-muted">Modeliň ady</label>
             <input
               required
-              placeholder="Model name"
+              placeholder="Ady"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Description</label>
+            <label className="text-sm text-muted">Düşündiriş</label>
             <input
-              placeholder="Description"
+              placeholder="Düşündiriş"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sm text-muted">Brand</label>
+            <label className="text-sm text-muted">Brend</label>
             <select
               value={form.brand_id || ""}
               onChange={(e) =>
@@ -172,7 +172,7 @@ export default function ModelsPage() {
                 })
               }
             >
-              <option value="">Select brand...</option>
+              <option value="">Brend saýlaň...</option>
               {brands.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
@@ -183,12 +183,12 @@ export default function ModelsPage() {
 
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <button type="submit" className="btn btn-primary">
-              {editId === null ? "Create" : "Save Changes"}
+              {editId === null ? "Döret" : "Ýatda sakla"}
             </button>
 
             {editId !== null && (
               <button type="button" onClick={resetForm} className="btn btn-secondary">
-                Cancel
+                Yza
               </button>
             )}
           </div>
@@ -201,17 +201,17 @@ export default function ModelsPage() {
         </div>
       )}
 
-      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Loading...</div>}
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Ýüklenýär...</div>}
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Brand</th>
-              <th>Actions</th>
+              <th>Ady</th>
+              <th>Düşündiriş</th>
+              <th>Brend</th>
+              <th>Hereketler</th>
             </tr>
           </thead>
           <tbody>
@@ -223,8 +223,8 @@ export default function ModelsPage() {
                 <td>{m.brand.name}</td>
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditClick(m)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Edit</button>
-                    <button onClick={() => onDelete(m.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Del</button>
+                    <button onClick={() => onEditClick(m)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={() => onDelete(m.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
                   </div>
                 </td>
               </tr>
@@ -232,7 +232,7 @@ export default function ModelsPage() {
             {models.length === 0 && !loading && (
               <tr>
                 <td colSpan={5} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
-                  No models found
+                  Modeller tapylmady
                 </td>
               </tr>
             )}
@@ -247,10 +247,10 @@ export default function ModelsPage() {
           className="btn btn-secondary"
           style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
         >
-          Previous
+          Yza
         </button>
         <span style={{ color: 'var(--text-muted)' }}>
-          Page {pageNumber} / {totalPages}
+          Sahypa {pageNumber} / {totalPages}
         </span>
         <button
           disabled={pageNumber >= totalPages}
@@ -258,7 +258,7 @@ export default function ModelsPage() {
           className="btn btn-secondary"
           style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
         >
-          Next
+          Öňe
         </button>
       </div>
     </div>

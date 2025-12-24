@@ -32,7 +32,6 @@ export default function AttributesPage() {
       setError(null);
 
       const page = await getAttributePage(PAGE_SIZE, pageNumber, search);
-      // если у пагинатора другие поля — подправь здесь
       setAttributes(page.items);
       setTotalPages(page.total_pages);
     } catch (e) {
@@ -68,7 +67,7 @@ export default function AttributesPage() {
   }
 
   async function onDelete(id: number) {
-    if (!confirm("Delete attribute?")) return;
+    if (!confirm("Aýratynlygy pozmak isleýärsiňizmi?")) return;
 
     try {
       setError(null);
@@ -94,226 +93,127 @@ export default function AttributesPage() {
   }
 
   return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>Attributes</h2>
-
-      {/* поиск */}
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-        <input
-          style={{
-            flex: 1,
-            padding: 6,
-            borderRadius: 4,
-            border: "1px solid #444",
-            background: "#222",
-            color: "#eee",
-          }}
-          placeholder="Search by attribute name..."
-          value={search}
-          onChange={(e) => {
-            setPageNumber(1);
-            setSearch(e.target.value);
-          }}
-        />
+    <div className="page-animate">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h2>Aýratynlyklar</h2>
+        <div style={{ width: '300px' }}>
+          <input
+            placeholder="Gözleg..."
+            value={search}
+            onChange={(e) => {
+              setPageNumber(1);
+              setSearch(e.target.value);
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
       </div>
 
-      {/* форма создания / редактирования */}
-      <form
-        onSubmit={onSubmit}
-        style={{
-          marginBottom: 24,
-          display: "grid",
-          gap: 8,
-          maxWidth: 480,
-          padding: 16,
-          borderRadius: 8,
-          background: "#181818",
-          border: "1px solid #333",
-        }}
-      >
-        <h3 style={{ marginBottom: 4 }}>
-          {editId === null ? "Create attribute" : `Edit attribute #${editId}`}
+      <div className="card" style={{ marginBottom: 32, maxWidth: 640 }}>
+        <h3 style={{ marginBottom: 16 }}>
+          {editId === null ? "Aýratynlyk döret" : `Aýratynlygy üýtget #${editId}`}
         </h3>
 
-        <input
-          required
-          placeholder="Attribute name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          style={{
-            padding: 6,
-            borderRadius: 4,
-            border: "1px solid #444",
-            background: "#222",
-            color: "#eee",
-          }}
-        />
+        <form onSubmit={onSubmit} style={{ display: "grid", gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="text-sm text-muted">Ady</label>
+            <input
+              required
+              placeholder="Ady"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+          </div>
 
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-          rows={3}
-          style={{
-            padding: 6,
-            borderRadius: 4,
-            border: "1px solid #444",
-            background: "#222",
-            color: "#eee",
-            resize: "vertical",
-          }}
-        />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label className="text-sm text-muted">Düşündiriş</label>
+            <textarea
+              placeholder="Düşündiriş"
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              rows={3}
+              style={{ resize: "vertical" }}
+            />
+          </div>
 
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button
-            type="submit"
-            style={{
-              padding: "6px 12px",
-              borderRadius: 4,
-              border: "none",
-              background: "#3b82f6",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            {editId === null ? "Create" : "Save"}
-          </button>
-
-          {editId !== null && (
-            <button
-              type="button"
-              onClick={resetForm}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 4,
-                border: "1px solid #555",
-                background: "transparent",
-                color: "#eee",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            <button type="submit" className="btn btn-primary">
+              {editId === null ? "Döret" : "Ýatda sakla"}
             </button>
-          )}
-        </div>
-      </form>
+
+            {editId !== null && (
+              <button type="button" onClick={resetForm} className="btn btn-secondary">
+                Yza
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
       {error && (
-        <div style={{ color: "tomato", marginBottom: 12 }}>{error}</div>
+        <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
+          {error}
+        </div>
       )}
-      {loading && <div>Loading...</div>}
 
-      {/* таблица атрибутов */}
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          background: "#181818",
-          borderRadius: 8,
-          overflow: "hidden",
-        }}
-      >
-        <thead>
-          <tr style={{ background: "#222" }}>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>ID</th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Name
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Description
-            </th>
-            <th style={{ padding: 8, borderBottom: "1px solid #333" }}>
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {attributes.map((a) => (
-            <tr key={a.id}>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {a.id}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {a.name}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                {a.description}
-              </td>
-              <td style={{ padding: 8, borderBottom: "1px solid #222" }}>
-                <button
-                  onClick={() => onEditClick(a)}
-                  style={{
-                    marginRight: 8,
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    border: "none",
-                    background: "#10b981",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(a.id)}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    border: "none",
-                    background: "#ef4444",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-          {attributes.length === 0 && !loading && (
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Ýüklenýär...</div>}
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan={4} style={{ padding: 8, textAlign: "center" }}>
-                No attributes
-              </td>
+              <th>ID</th>
+              <th>Ady</th>
+              <th>Düşündiriş</th>
+              <th>Hereketler</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {attributes.map((a) => (
+              <tr key={a.id}>
+                <td>{a.id}</td>
+                <td style={{ fontWeight: 500 }}>{a.name}</td>
+                <td>{a.description}</td>
+                <td>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => onEditClick(a)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={() => onDelete(a.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {attributes.length === 0 && !loading && (
+              <tr>
+                <td colSpan={4} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                  Aýratynlyklar ýok
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* пагинация */}
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <button
           disabled={pageNumber <= 1}
           onClick={() => setPageNumber((p) => p - 1)}
-          style={{
-            padding: "4px 10px",
-            marginRight: 8,
-            borderRadius: 4,
-            border: "1px solid #555",
-            background: "#222",
-            color: "#eee",
-          }}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
         >
-          Prev
+          Yza
         </button>
-        <span>
-          Page {pageNumber} / {totalPages}
+        <span style={{ color: 'var(--text-muted)' }}>
+          Sahypa {pageNumber} / {totalPages}
         </span>
         <button
           disabled={pageNumber >= totalPages}
           onClick={() => setPageNumber((p) => p + 1)}
-          style={{
-            padding: "4px 10px",
-            marginLeft: 8,
-            borderRadius: 4,
-            border: "1px solid #555",
-            background: "#222",
-            color: "#eee",
-          }}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
         >
-          Next
+          Öňe
         </button>
       </div>
     </div>
