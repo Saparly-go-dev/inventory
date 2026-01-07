@@ -116,7 +116,7 @@ func (r *DeviceAssignmentPostgres) GetEmployeeDevices(employeeId int) ([]models.
 func (r *DeviceAssignmentPostgres) GetAvailableDevices() ([]models.Device, error) {
 	var devices []models.Device
 
-	getReq := r.db.Model(&models.Device{}).
+	getReq := r.db.Model(&models.Device{}).Preload("Category").Preload("Brand").Preload("Model").
 		Where("status = ?", "in_stock").
 		Find(&devices)
 	if getReq.Error != nil {

@@ -19,6 +19,7 @@ import (
 // @Failure      400    {object}  errorResponse          "Invalid input data"
 // @Failure      500    {object}  errorResponse          "Internal server error"
 // @Router       /api/employees/ [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateEmployee(c *gin.Context) {
 	var input models.UpdateEmployee
 
@@ -49,6 +50,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 // @Failure      400           {object}  errorResponse  "Invalid query parameters"
 // @Failure      500           {object}  errorResponse  "Internal server error"
 // @Router       /api/employees [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetEmployeePage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -95,6 +97,7 @@ func (h *Handler) GetEmployeePage(c *gin.Context) {
 // @Failure      400    {object}  errorResponse         "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse         "Internal server error"
 // @Router       /api/employees [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateEmployee(c *gin.Context) {
 	var input models.UpdateEmployee
 	if err := c.BindJSON(&input); err != nil {
@@ -127,6 +130,7 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/employees [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
@@ -153,6 +157,7 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
 // @Router       /api/employees/selected [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetEmployeeBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 
@@ -163,4 +168,77 @@ func (h *Handler) GetEmployeeBySelectedObject(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// @Summary      Get employee by ID
+// @Description  Returns employee details for a given ID
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Employee ID"
+// @Success      200  {object}  models.Employee
+// @Failure      400  {object}  errorResponse  "Invalid ID format"
+// @Failure      500  {object}  errorResponse  "Internal server error"
+// @Router       /api/employees/{id} [get]
+// @Security ApiKeyAuth
+func (h *Handler) GetEmployeeById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	employee, err := h.services.Employee.GetById(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, employee)
+}
+
+// @Summary      Get employee by ID with assigned devices
+// @Description  Returns employee details along with a list of their assigned devices and device attributes
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Employee ID"
+// @Success      200  {object}  models.EmployeeWithDevices
+// @Failure      400  {object}  errorResponse  "Invalid ID format"
+// @Failure      500  {object}  errorResponse  "Internal server error"
+// @Router       /api/employees/{id}/with-devices [get]
+// @Security ApiKeyAuth
+func (h *Handler) GetEmployeeByIdWithDevices(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	employee, err := h.services.Employee.GetByIdWithDevices(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, employee)
+}
+
+// @Summary      Sync employees from MySQL
+// @Description  Triggers a synchronization of employees from an external MySQL database
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  statusResponse  "Success"
+// @Failure      500  {object}  errorResponse   "Internal server error"
+// @Router       /api/employees/sync [post]
+// @Security ApiKeyAuth
+func (h *Handler) SyncEmployees(c *gin.Context) {
+	err := h.services.Employee.SyncEmployeesFromMySQL()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"Success"})
 }

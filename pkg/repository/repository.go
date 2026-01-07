@@ -70,6 +70,9 @@ type Employee interface {
 	Update(id int, buffer models.UpdateEmployee) error
 	Delete(id int) error
 	GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error)
+	GetById(id int) (models.Employee, error)
+	GetByIdWithDevices(id int) (models.EmployeeWithDevices, error)
+	SyncEmployeesFromMySQL() error
 }
 
 type DeviceAssignment interface {

@@ -19,6 +19,7 @@ import (
 // @Failure      400    {object}  errorResponse       "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/device-attributes [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateDeviceAttribute(c *gin.Context) {
 	var input models.UpdateDeviceAttribute
 	if err := c.BindJSON(&input); err != nil {
@@ -51,6 +52,7 @@ func (h *Handler) UpdateDeviceAttribute(c *gin.Context) {
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/device-attributes [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateDeviceAttribute(c *gin.Context) {
 	var input models.UpdateDeviceAttribute
 
@@ -78,6 +80,7 @@ func (h *Handler) CreateDeviceAttribute(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/device-attributes [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteDeviceAttribute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {

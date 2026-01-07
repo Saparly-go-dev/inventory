@@ -32,3 +32,15 @@ func (s *EmployeeService) Delete(id int) error {
 func (s *EmployeeService) GetEmployeesInSelectedObjects(name string) ([]models.SelectedObject, error) {
 	return s.repo.GetEmployeesInSelectedObjects(name)
 }
+
+func (s *EmployeeService) GetById(id int) (models.Employee, error) {
+	return s.repo.GetById(id)
+}
+
+func (s *EmployeeService) GetByIdWithDevices(id int) (models.EmployeeWithDevices, error) {
+	return s.repo.GetByIdWithDevices(id)
+}
+
+func (s *EmployeeService) SyncEmployeesFromMySQL() error {
+	return s.repo.SyncEmployeesFromMySQL()
+}

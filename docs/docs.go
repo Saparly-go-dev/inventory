@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/api/attributes": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of attributes, optionally filtered by name",
                 "consumes": [
                     "application/json"
@@ -72,6 +77,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing attribute with the provided data",
                 "consumes": [
                     "application/json"
@@ -123,6 +133,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new attribute with the provided data",
                 "consumes": [
                     "application/json"
@@ -167,6 +182,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a attribute by ID",
                 "consumes": [
                     "application/json"
@@ -211,6 +231,11 @@ const docTemplate = `{
         },
         "/api/attributes/selected": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns attributes filtered by selected object name",
                 "consumes": [
                     "application/json"
@@ -303,6 +328,11 @@ const docTemplate = `{
         },
         "/api/brands": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of brands, optionally filtered by name",
                 "consumes": [
                     "application/json"
@@ -358,6 +388,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing brand with the provided data",
                 "consumes": [
                     "application/json"
@@ -409,6 +444,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a brand by ID",
                 "consumes": [
                     "application/json"
@@ -453,6 +493,11 @@ const docTemplate = `{
         },
         "/api/brands/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new brand with the provided data",
                 "consumes": [
                     "application/json"
@@ -499,6 +544,11 @@ const docTemplate = `{
         },
         "/api/brands/selected": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns brands filtered by selected object name",
                 "consumes": [
                     "application/json"
@@ -542,6 +592,11 @@ const docTemplate = `{
         },
         "/api/categories": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of categories, optionally filtered by name",
                 "consumes": [
                     "application/json"
@@ -597,6 +652,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing category with the provided data",
                 "consumes": [
                     "application/json"
@@ -648,6 +708,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a category by ID",
                 "consumes": [
                     "application/json"
@@ -692,6 +757,11 @@ const docTemplate = `{
         },
         "/api/categories/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new category with the provided data",
                 "consumes": [
                     "application/json"
@@ -738,6 +808,11 @@ const docTemplate = `{
         },
         "/api/categories/selected": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns categories filtered by selected object name",
                 "consumes": [
                     "application/json"
@@ -781,6 +856,11 @@ const docTemplate = `{
         },
         "/api/dashboard/devices": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all devices with optional filters",
                 "consumes": [
                     "application/json"
@@ -828,6 +908,24 @@ const docTemplate = `{
                         "description": "Status",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute Options",
+                        "name": "attribute_options",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute Info",
+                        "name": "attribute_info",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -857,6 +955,11 @@ const docTemplate = `{
         },
         "/api/dashboard/devices/export": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Export a list of all devices to an Excel file with optional filters",
                 "consumes": [
                     "application/json"
@@ -904,6 +1007,24 @@ const docTemplate = `{
                         "description": "Status",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute Options",
+                        "name": "attribute_options",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute Info",
+                        "name": "attribute_info",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -930,6 +1051,11 @@ const docTemplate = `{
         },
         "/api/device-attributes": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing device attribute with the provided data",
                 "consumes": [
                     "application/json"
@@ -981,6 +1107,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new device attribute with the provided data",
                 "consumes": [
                     "application/json"
@@ -1025,6 +1156,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a device attribute by ID",
                 "consumes": [
                     "application/json"
@@ -1069,6 +1205,11 @@ const docTemplate = `{
         },
         "/api/devices": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of devices, optionally filtered by name",
                 "consumes": [
                     "application/json"
@@ -1124,6 +1265,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing device with form data. Attributes should be a JSON string.",
                 "consumes": [
                     "multipart/form-data"
@@ -1226,6 +1372,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new device with form data. Attributes should be a JSON string.",
                 "consumes": [
                     "multipart/form-data"
@@ -1321,6 +1472,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a device by ID",
                 "consumes": [
                     "application/json"
@@ -1365,6 +1521,11 @@ const docTemplate = `{
         },
         "/api/devices/assign": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Assigns a device to an employee (creates active assignment and sets device status to 'assigned')",
                 "consumes": [
                     "application/json"
@@ -1411,6 +1572,11 @@ const docTemplate = `{
         },
         "/api/devices/available": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns all devices with status 'in_stock'",
                 "consumes": [
                     "application/json"
@@ -1440,6 +1606,11 @@ const docTemplate = `{
         },
         "/api/devices/return": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Marks device as returned from employee (closes assignment and sets device status to 'in_stock')",
                 "consumes": [
                     "application/json"
@@ -1486,6 +1657,11 @@ const docTemplate = `{
         },
         "/api/employees": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of employees, optionally filtered by full name and room numbers",
                 "consumes": [
                     "application/json"
@@ -1547,6 +1723,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing employee with the provided data",
                 "consumes": [
                     "application/json"
@@ -1598,6 +1779,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes an employee by ID",
                 "consumes": [
                     "application/json"
@@ -1642,6 +1828,11 @@ const docTemplate = `{
         },
         "/api/employees/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new employee with the provided data",
                 "consumes": [
                     "application/json"
@@ -1688,6 +1879,11 @@ const docTemplate = `{
         },
         "/api/employees/devices": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns all currently assigned devices for a specific employee",
                 "consumes": [
                     "application/json"
@@ -1732,6 +1928,11 @@ const docTemplate = `{
         },
         "/api/employees/selected": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns employees filtered by selected object name (full name)",
                 "consumes": [
                     "application/json"
@@ -1773,8 +1974,145 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/employees/sync": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Triggers a synchronization of employees from an external MySQL database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Sync employees from MySQL",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/handler.statusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns employee details for a given ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Get employee by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Employee"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees/{id}/with-devices": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns employee details along with a list of their assigned devices and device attributes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Get employee by ID with assigned devices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.EmployeeWithDevices"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/models": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of models, optionally filtered by name",
                 "consumes": [
                     "application/json"
@@ -1830,6 +2168,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing model with the provided data",
                 "consumes": [
                     "application/json"
@@ -1881,6 +2224,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new model with the provided data",
                 "consumes": [
                     "application/json"
@@ -1925,6 +2273,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a model by ID",
                 "consumes": [
                     "application/json"
@@ -1969,6 +2322,11 @@ const docTemplate = `{
         },
         "/api/models/selected": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns models filtered by selected object name",
                 "consumes": [
                     "application/json"
@@ -2018,6 +2376,11 @@ const docTemplate = `{
         },
         "/api/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of users",
                 "consumes": [
                     "application/json"
@@ -2094,6 +2457,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new user",
                 "consumes": [
                     "application/json"
@@ -2140,6 +2508,11 @@ const docTemplate = `{
         },
         "/api/users/password": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Changes the password for a user account",
                 "consumes": [
                     "application/json"
@@ -2186,6 +2559,11 @@ const docTemplate = `{
         },
         "/api/users/{id}": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates an existing user's data",
                 "consumes": [
                     "application/json"
@@ -2237,6 +2615,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes a user by ID",
                 "consumes": [
                     "application/json"
@@ -2281,6 +2664,11 @@ const docTemplate = `{
         },
         "/api/users/{id}/status": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Changes the status of a user by ID",
                 "consumes": [
                     "application/json"
@@ -2578,6 +2966,64 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Employee": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "room_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.EmployeeWithDevices": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Device"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "room_number": {
+                    "type": "integer"
                 }
             }
         },

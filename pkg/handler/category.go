@@ -18,6 +18,7 @@ import (
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/categories/ [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateCategory(c *gin.Context) {
 	var input models.UpdateCategory
 
@@ -47,6 +48,7 @@ func (h *Handler) CreateCategory(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/categories [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetCategoryPage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -83,6 +85,7 @@ func (h *Handler) GetCategoryPage(c *gin.Context) {
 // @Failure      400    {object}  errorResponse       "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/categories [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateCategory(c *gin.Context) {
 	var input models.UpdateCategory
 	if err := c.BindJSON(&input); err != nil {
@@ -115,6 +118,7 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/categories [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
@@ -141,6 +145,7 @@ func (h *Handler) DeleteCategory(c *gin.Context) {
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
 // @Router       /api/categories/selected [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetCategoryBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 

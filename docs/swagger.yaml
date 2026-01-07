@@ -168,6 +168,44 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.Employee:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+      position:
+        type: string
+      room_number:
+        type: integer
+    type: object
+  models.EmployeeWithDevices:
+    properties:
+      department:
+        type: string
+      devices:
+        items:
+          $ref: '#/definitions/models.Device'
+        type: array
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+      position:
+        type: string
+      room_number:
+        type: integer
+    type: object
   models.Model:
     properties:
       brand:
@@ -305,6 +343,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete attribute
       tags:
       - attributes
@@ -343,6 +383,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated attributes
       tags:
       - attributes
@@ -372,6 +414,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new attribute
       tags:
       - attributes
@@ -406,6 +450,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update attribute
       tags:
       - attributes
@@ -434,6 +480,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get attributes by selected object
       tags:
       - attributes
@@ -495,6 +543,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete brand
       tags:
       - brands
@@ -532,6 +582,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated brands
       tags:
       - brands
@@ -566,6 +618,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update brand
       tags:
       - brands
@@ -596,6 +650,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new brand
       tags:
       - brands
@@ -624,6 +680,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get brands by selected object
       tags:
       - brands
@@ -653,6 +711,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete category
       tags:
       - categories
@@ -691,6 +751,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated categories
       tags:
       - categories
@@ -725,6 +787,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update category
       tags:
       - categories
@@ -755,6 +819,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new category
       tags:
       - categories
@@ -783,6 +849,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get categories by selected object
       tags:
       - categories
@@ -816,6 +884,18 @@ paths:
         in: query
         name: status
         type: string
+      - description: Attribute ID
+        in: query
+        name: attribute_id
+        type: integer
+      - description: Attribute Options
+        in: query
+        name: attribute_options
+        type: string
+      - description: Attribute Info
+        in: query
+        name: attribute_info
+        type: string
       produces:
       - application/json
       responses:
@@ -833,6 +913,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get All Devices
       tags:
       - dashboard
@@ -866,6 +948,18 @@ paths:
         in: query
         name: status
         type: string
+      - description: Attribute ID
+        in: query
+        name: attribute_id
+        type: integer
+      - description: Attribute Options
+        in: query
+        name: attribute_options
+        type: string
+      - description: Attribute Info
+        in: query
+        name: attribute_info
+        type: string
       produces:
       - application/octet-stream
       responses:
@@ -881,6 +975,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Export All Devices
       tags:
       - dashboard
@@ -910,6 +1006,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete device attribute
       tags:
       - device_attributes
@@ -939,6 +1037,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new device attribute
       tags:
       - device_attributes
@@ -973,6 +1073,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update device attribute
       tags:
       - device_attributes
@@ -1002,6 +1104,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete device
       tags:
       - devices
@@ -1039,6 +1143,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated devices
       tags:
       - devices
@@ -1105,6 +1211,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new device
       tags:
       - devices
@@ -1176,6 +1284,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update device
       tags:
       - devices
@@ -1207,6 +1317,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Assign device to employee
       tags:
       - devices
@@ -1226,6 +1338,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get available devices
       tags:
       - devices
@@ -1257,6 +1371,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Return device from employee
       tags:
       - devices
@@ -1286,6 +1402,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete employee
       tags:
       - employees
@@ -1328,6 +1446,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated employees
       tags:
       - employees
@@ -1362,6 +1482,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update employee
       tags:
       - employees
@@ -1392,7 +1514,72 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new employee
+      tags:
+      - employees
+  /api/employees/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns employee details for a given ID
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Employee'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get employee by ID
+      tags:
+      - employees
+  /api/employees/{id}/with-devices:
+    get:
+      consumes:
+      - application/json
+      description: Returns employee details along with a list of their assigned devices
+        and device attributes
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.EmployeeWithDevices'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get employee by ID with assigned devices
       tags:
       - employees
   /api/employees/devices:
@@ -1421,6 +1608,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get employee devices
       tags:
       - devices
@@ -1449,7 +1638,31 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get employees by selected object
+      tags:
+      - employees
+  /api/employees/sync:
+    post:
+      consumes:
+      - application/json
+      description: Triggers a synchronization of employees from an external MySQL
+        database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Sync employees from MySQL
       tags:
       - employees
   /api/models:
@@ -1478,6 +1691,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete model
       tags:
       - models
@@ -1515,6 +1730,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get paginated models
       tags:
       - models
@@ -1544,6 +1761,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new model
       tags:
       - models
@@ -1578,6 +1797,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update model
       tags:
       - models
@@ -1610,6 +1831,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get models by selected object
       tags:
       - models
@@ -1662,6 +1885,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get Users Page
       tags:
       - users
@@ -1691,6 +1916,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create User
       tags:
       - users
@@ -1720,6 +1947,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete User
       tags:
       - users
@@ -1754,6 +1983,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update User
       tags:
       - users
@@ -1783,6 +2014,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Change User Status
       tags:
       - users
@@ -1813,6 +2046,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Change user password
       tags:
       - users

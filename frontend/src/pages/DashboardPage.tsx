@@ -1,17 +1,17 @@
-// src/pages/DashboardPage.tsx
-import { useEffect, useState } from "react";
-import { getDashboardDevices, exportDashboardExcel, type DashboardDevice, type DeviceFilters } from "../api/dashboard";
-import { getBrandsSelected, type SelectedObject } from "../api/brands";
-import { getModelsSelected } from "../api/models";
-import { getCategoriesSelected } from "../api/categories";
-import { handleApiError } from "../api/client";
-
-const STATUS_OPTIONS = ["in_stock", "assigned", "repair", "written_off"];
+import { useState } from "react";
+import * as XLSX from 'xlsx';
+import { type DeviceFilters } from "../api/dashboard";
+import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
+import {
+    useDashboardDevices,
+    useBrandsList,
+    useCategoriesList,
+    useAttributesList,
+    useModelsList
+} from "../api/queries";
 
 export default function DashboardPage() {
-    const [devices, setDevices] = useState<DashboardDevice[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [exporting, setExporting] = useState(false);
 
     // Filters
     const [filters, setFilters] = useState<DeviceFilters>({
@@ -21,81 +21,81 @@ export default function DashboardPage() {
         status: "",
         room_number: 0,
         employee_id: 0,
+        name: "",
+        attribute_options: "",
+        attribute_info: "",
     });
 
-    // Dropdown lists
-    const [brandsList, setBrandsList] = useState<SelectedObject[]>([]);
-    const [modelsList, setModelsList] = useState<SelectedObject[]>([]);
-    const [categoriesList, setCategoriesList] = useState<SelectedObject[]>([]);
+    // Data Fetching with React Query
+    const { data: devices = [], isLoading: loading, isError, error } = useDashboardDevices(filters);
+    const { data: brandsList = [] } = useBrandsList();
+    const { data: categoriesList = [] } = useCategoriesList();
+    const { data: attributesList = [] } = useAttributesList();
+    const { data: modelsList = [] } = useModelsList(filters.brand_id || 0);
 
-    useEffect(() => {
-        Promise.all([
-            getBrandsSelected(),
-            getCategoriesSelected(),
-        ]).then(([brands, categories]) => {
-            setBrandsList(brands);
-            setCategoriesList(categories);
-        }).catch(console.error);
-    }, []);
-
-    useEffect(() => {
-        setModelsList([]);
-        if (filters.brand_id) {
-            getModelsSelected(filters.brand_id)
-                .then(setModelsList)
-                .catch(console.error);
-        }
-    }, [filters.brand_id]);
-
-    async function loadData() {
-        setLoading(true);
-        setError(null);
-        try {
-            const apiFilters: DeviceFilters = {
-                ...filters,
-                brand_id: filters.brand_id || undefined,
-                model_id: filters.model_id || undefined,
-                category_id: filters.category_id || undefined,
-                status: filters.status || undefined,
-                room_number: filters.room_number || undefined,
-                employee_id: filters.employee_id || undefined,
-            };
-
-            const data = await getDashboardDevices(apiFilters);
-            setDevices(data);
-        } catch (e) {
-            setError(handleApiError(e));
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        loadData();
-    }, []);
+    // Create attribute map for display
+    const attributeMap: Record<number, string> = {};
+    attributesList.forEach(a => attributeMap[a.id] = a.name);
 
     const handleExport = async () => {
+        if (exporting) return;
+        setExporting(true);
         try {
-            const apiFilters: DeviceFilters = {
-                ...filters,
-                brand_id: filters.brand_id || undefined,
-                model_id: filters.model_id || undefined,
-                category_id: filters.category_id || undefined,
-                status: filters.status || undefined,
-                room_number: filters.room_number || undefined,
-                employee_id: filters.employee_id || undefined,
-            };
-            const blob = await exportDashboardExcel(apiFilters);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `devices_export_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
+            // Use current devices data for export if available, strictly it should probably refetch to ensure all match
+            // But usually export mimics current view.
+
+            // Note: If pagination is added later, this logic needs to change to fetch ALL.
+            // For now, assuming devices contains all filtered results.
+
+            // Prepare data for Excel
+            // Match table columns EXACTLY: ID, ADY, ÝAGDAÝY, BREND, MODEL, KATEGORIÝA, BERKIDILEN, OTAG, AÝRATYNLYKLAR
+            const rows = devices.map(d => {
+                const attributesStr = d.attributes?.map(a => {
+                    const name = a.Attribute ? a.Attribute.name : (attributeMap[a.attribute_id] || `#${a.attribute_id}`);
+                    return `${name}: ${a.options || a.info}`;
+                }).join("; ") || "-";
+
+                return {
+                    "ID": d.id,
+                    "ADY": d.name,
+                    "ÝAGDAÝY": getDeviceStatusLabel(d.status),
+                    "BREND": d.brand?.name || "",
+                    "MODEL": d.model?.name || "",
+                    "KATEGORIÝA": d.category?.name || "",
+                    "BERKIDILEN": d.employee_full_name || "-",
+                    "OTAG": d.room_number || "-",
+                    "AÝRATYNLYKLAR": attributesStr
+                };
+            });
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(rows);
+
+            // Auto-width for columns
+            const wscols = [
+                { wch: 6 },  // ID
+                { wch: 25 }, // ADY
+                { wch: 15 }, // ÝAGDAÝY
+                { wch: 15 }, // BREND
+                { wch: 20 }, // MODEL
+                { wch: 15 }, // KATEGORIÝA
+                { wch: 25 }, // BERKIDILEN
+                { wch: 10 }, // OTAG
+                { wch: 50 }, // AÝRATYNLYKLAR
+            ];
+            ws['!cols'] = wscols;
+
+            XLSX.utils.book_append_sheet(wb, ws, "Devices");
+
+            // Write file
+            XLSX.writeFile(wb, `devices_export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
         } catch (e) {
-            setError(handleApiError(e));
+            console.error(e);
+            alert("Eksport ýalňyşlygy");
+        } finally {
+            setExporting(false);
         }
     };
 
@@ -140,14 +140,14 @@ export default function DashboardPage() {
                         onChange={e => setFilters({ ...filters, status: e.target.value })}
                     >
                         <option value="">Ähli Ýagdaýlar</option>
-                        {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        {STATUS_OPTIONS_MAP.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </select>
 
                     <input
                         type="number"
                         placeholder="Otag belgisi"
                         value={filters.room_number || ""}
-                        onChange={e => setFilters({ ...form.room_number, room_number: e.target.value ? Number(e.target.value) : undefined })}
+                        onChange={e => setFilters({ ...filters, room_number: e.target.value ? Number(e.target.value) : undefined })}
                     />
 
                     <input
@@ -156,21 +156,55 @@ export default function DashboardPage() {
                         value={filters.employee_id || ""}
                         onChange={e => setFilters({ ...filters, employee_id: e.target.value ? Number(e.target.value) : undefined })}
                     />
+
+                    <input
+                        type="text"
+                        placeholder="Enjamyň ady"
+                        value={filters.name || ""}
+                        onChange={e => setFilters({ ...filters, name: e.target.value })}
+                    />
+
+                    <input
+                        type="text"
+                        placeholder="Aýratynlyklar"
+                        value={filters.attribute_options || ""}
+                        onChange={e => setFilters({ ...filters, attribute_options: e.target.value })}
+                    />
+
+                    <input
+                        type="text"
+                        placeholder="info"
+                        value={filters.attribute_info || ""}
+                        onChange={e => setFilters({ ...filters, attribute_info: e.target.value })}
+                    />
                 </div>
 
                 <div style={{ display: "flex", gap: 12 }}>
-                    <button onClick={() => loadData()} className="btn btn-primary">
+                    <button
+                        onClick={() => { /* Invalidate query if needed, or just let auto-refetch happen? 
+                                            Since filters transform state, it auto-refetches. 
+                                            Button is redundant for fetch but useful for UX to "Apply" if we debounce.
+                                            For now, let's just keep it for consistency or remove. 
+                                            User might expect "Refresh". */
+                        }}
+                        className="btn btn-primary"
+                    >
                         Filtrleri ulan
                     </button>
-                    <button onClick={handleExport} className="btn badge status-success" style={{ fontSize: 14 }}>
-                        Excel-e eksport et
+                    <button
+                        onClick={handleExport}
+                        disabled={exporting}
+                        className={`btn badge ${exporting ? "status-warning" : "status-success"}`}
+                        style={{ fontSize: 14, cursor: exporting ? "wait" : "pointer" }}
+                    >
+                        {exporting ? "Eksport edilýär..." : "Excel-e eksport et"}
                     </button>
                 </div>
             </div>
 
-            {error && (
+            {isError && (
                 <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
-                    {error}
+                    {error instanceof Error ? error.message : "Maglumat ýüklenende säwlik ýüze çykdy"}
                 </div>
             )}
 
@@ -194,33 +228,35 @@ export default function DashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {devices.map(d => (
-                                    <tr key={d.id}>
-                                        <td>{d.id}</td>
-                                        <td style={{ fontWeight: 500 }}>{d.name}</td>
-                                        <td>
-                                            <span className={`badge ${d.status === 'in_stock' ? 'status-success' : 'status-warning'}`}>
-                                                {d.status}
-                                            </span>
-                                        </td>
-                                        <td>{d.brand?.name}</td>
-                                        <td>{d.model?.name}</td>
-                                        <td>{d.category?.name}</td>
-                                        <td>{d.employee_full_name || "-"}</td>
-                                        <td>{d.room_number || "-"}</td>
-                                        <td>
-                                            {d.attributes && d.attributes.length > 0 ? (
-                                                <div style={{ fontSize: 13, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                                                    {d.attributes.map(attr => (
-                                                        <span key={attr.id} className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-                                                            {attr.Attribute ? attr.Attribute.name : `#${attr.attribute_id}`}: {attr.info}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            ) : "-"}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {devices.map(d => {
+                                    return (
+                                        <tr key={d.id}>
+                                            <td>{d.id}</td>
+                                            <td style={{ fontWeight: 500 }}>{d.name}</td>
+                                            <td>
+                                                <span className={`badge ${d.status === 'in_stock' ? 'status-success' : 'status-warning'}`}>
+                                                    {getDeviceStatusLabel(d.status)}
+                                                </span>
+                                            </td>
+                                            <td>{d.brand?.name}</td>
+                                            <td>{d.model?.name}</td>
+                                            <td>{d.category?.name}</td>
+                                            <td>{d.employee_full_name || "-"}</td>
+                                            <td>{d.room_number || "-"}</td>
+                                            <td>
+                                                {d.attributes && d.attributes.length > 0 ? (
+                                                    <div style={{ fontSize: 13, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                                                        {d.attributes.map(attr => (
+                                                            <span key={attr.id} className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+                                                                {attr.Attribute ? attr.Attribute.name : (attributeMap[attr.attribute_id] || `#${attr.attribute_id}`)}: {attr.options || attr.info}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                ) : "-"}
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
                                 {devices.length === 0 && (
                                     <tr>
                                         <td colSpan={9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>

@@ -1,6 +1,6 @@
 // src/pages/EmployeesPage.tsx
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   getEmployeesPage,
   createEmployee,
@@ -16,6 +16,7 @@ import { handleApiError } from "../api/client";
 const PAGE_SIZE = 10;
 
 export default function EmployeesPage() {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -221,7 +222,7 @@ export default function EmployeesPage() {
           </thead>
           <tbody>
             {employees.map((e) => (
-              <tr key={e.id}>
+              <tr key={e.id} onDoubleClick={() => navigate(`/employees/${e.id}`)} style={{ cursor: "pointer" }}>
                 <td>{e.id}</td>
                 <td style={{ fontWeight: 500 }}>{e.full_name}</td>
                 <td>{e.position}</td>
@@ -231,9 +232,8 @@ export default function EmployeesPage() {
                 <td>{e.room_number || "-"}</td>
                 <td>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <Link to={`/assign?employee_id=${e.id}`} className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: 12, height: 24, textDecoration: 'none' }}> Berkits </Link>
-                    <button onClick={() => onEditClick(e)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
-                    <button onClick={() => onDelete(e.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                    <button onClick={(event) => { event.stopPropagation(); onEditClick(e); }} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={(event) => { event.stopPropagation(); onDelete(e.id); }} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
                   </div>
                 </td>
               </tr>

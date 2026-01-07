@@ -18,6 +18,7 @@ import (
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/attributes [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateAttribute(c *gin.Context) {
 	var input models.UpdateAttribute
 
@@ -47,6 +48,7 @@ func (h *Handler) CreateAttribute(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/attributes [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetAttributePage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -83,6 +85,7 @@ func (h *Handler) GetAttributePage(c *gin.Context) {
 // @Failure      400    {object}  errorResponse       "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/attributes [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateAttribute(c *gin.Context) {
 	var input models.UpdateAttribute
 	if err := c.BindJSON(&input); err != nil {
@@ -115,6 +118,7 @@ func (h *Handler) UpdateAttribute(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/attributes [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteAttribute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
@@ -141,6 +145,7 @@ func (h *Handler) DeleteAttribute(c *gin.Context) {
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
 // @Router       /api/attributes/selected [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetAttributeBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 

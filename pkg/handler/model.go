@@ -18,6 +18,7 @@ import (
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/models [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateModel(c *gin.Context) {
 	var input models.UpdateModel
 
@@ -47,6 +48,7 @@ func (h *Handler) CreateModel(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/models [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetModelPage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -83,6 +85,7 @@ func (h *Handler) GetModelPage(c *gin.Context) {
 // @Failure      400    {object}  errorResponse       "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/models [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateModel(c *gin.Context) {
 	var input models.UpdateModel
 	if err := c.BindJSON(&input); err != nil {
@@ -115,6 +118,7 @@ func (h *Handler) UpdateModel(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/models [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteModel(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
@@ -142,6 +146,7 @@ func (h *Handler) DeleteModel(c *gin.Context) {
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
 // @Router       /api/models/selected [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetModelBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 

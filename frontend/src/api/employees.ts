@@ -21,6 +21,10 @@ export interface UpdateEmployee {
   room_number: number;
 }
 
+export interface EmployeeWithDevices extends Employee {
+  devices: any[]; // Using any[] to match existing usage in details page, or we could import Device if available
+}
+
 // подгони под свой Paginator, если названия полей другие
 export interface Paginator<T> {
   items: T[];
@@ -82,3 +86,26 @@ export async function getEmployeeDevices(employeeId: number) {
   });
   return res.data; // []Device
 }
+
+export async function getEmployeeWithDevices(id: number) {
+  const res = await api.get<EmployeeWithDevices>(`/api/employees/${id}/with-devices`);
+  return res.data;
+}
+
+
+export async function getEmployee(id: number) {
+  // Use 'any' temporarily to handle potential Paginator or single object response dynamically
+  // or define a return type that covers both structure if needed.
+  // Given previous pattern, let's assume it returns Paginator-like structure if it shares endpoint.
+  const response = await api.get<any>(`/api/employees`, { params: { id } });
+
+  if (response.data && response.data.items && Array.isArray(response.data.items) && response.data.items.length > 0) {
+    return response.data.items[0] as Employee;
+  }
+  if (Array.isArray(response.data) && response.data.length > 0) {
+    return response.data[0] as Employee;
+  }
+  // If it returns single object directly
+  return response.data as Employee;
+}
+

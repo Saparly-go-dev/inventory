@@ -18,6 +18,7 @@ import (
 // @Failure      400    {object}  errorResponse       "Invalid input data"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/brands/ [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateBrand(c *gin.Context) {
 	var input models.UpdateBrand
 
@@ -47,6 +48,7 @@ func (h *Handler) CreateBrand(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/brands [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetBrandPage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -83,6 +85,7 @@ func (h *Handler) GetBrandPage(c *gin.Context) {
 // @Failure      400    {object}  errorResponse       "Invalid input data or ID"
 // @Failure      500    {object}  errorResponse       "Internal server error"
 // @Router       /api/brands [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateBrand(c *gin.Context) {
 	var input models.UpdateBrand
 	if err := c.BindJSON(&input); err != nil {
@@ -115,6 +118,7 @@ func (h *Handler) UpdateBrand(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/brands [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteBrand(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
@@ -141,6 +145,7 @@ func (h *Handler) DeleteBrand(c *gin.Context) {
 // @Failure      400   {object}  errorResponse  "Invalid query parameters"
 // @Failure      500   {object}  errorResponse  "Internal server error"
 // @Router       /api/brands/selected [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetBrandBySelectedObject(c *gin.Context) {
 	name := c.Query("name")
 

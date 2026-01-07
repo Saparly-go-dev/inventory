@@ -19,12 +19,15 @@ func NewDashboardPostgres(db *gorm.DB) *DashboardPostgres {
 }
 
 type DeviceFilters struct {
-	ModelID    *int
-	CategoryID *int
-	BrandID    *int
-	RoomNumber *int
-	EmployeeID *int
-	Status     *string
+	ModelID          *int
+	CategoryID       *int
+	BrandID          *int
+	RoomNumber       *int
+	EmployeeID       *int
+	Status           *string
+	AttributeID      *int
+	AttributeOptions *string
+	AttributeInfo    *string
 }
 
 type DashboardDevice struct {
@@ -50,6 +53,7 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 		Preload("Model").
 		Preload("Category")
 
+	// Базовые фильтры по устройству
 	if filters.ModelID != nil {
 		devQ = devQ.Where("devices.model_id = ?", *filters.ModelID)
 	}
@@ -61,6 +65,27 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 	}
 	if filters.Status != nil {
 		devQ = devQ.Where("devices.status = ?", *filters.Status)
+	}
+
+	// Фильтры по атрибутам
+	attributeIDOn := filters.AttributeID != nil && *filters.AttributeID > 0
+	attributeOptionsOn := filters.AttributeOptions != nil && *filters.AttributeOptions != ""
+	attributeInfoOn := filters.AttributeInfo != nil && *filters.AttributeInfo != ""
+
+	if attributeIDOn || attributeOptionsOn || attributeInfoOn {
+		devQ = devQ.
+			Joins(`JOIN device_attributes da ON da.device_id = devices.id`).
+			Distinct("devices.*")
+
+		if attributeIDOn {
+			devQ = devQ.Where(`da.attribute_id = ?`, *filters.AttributeID)
+		}
+		if attributeOptionsOn {
+			devQ = devQ.Where(`da.options ILIKE ?`, "%"+*filters.AttributeOptions+"%")
+		}
+		if attributeInfoOn {
+			devQ = devQ.Where(`da.info ILIKE ?`, "%"+*filters.AttributeInfo+"%")
+		}
 	}
 
 	if err := devQ.Find(&baseDevices).Error; err != nil {

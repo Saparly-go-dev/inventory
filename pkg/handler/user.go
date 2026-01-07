@@ -18,6 +18,7 @@ import (
 // @Failure      400    {object}  errorResponse
 // @Failure      500    {object}  errorResponse
 // @Router       /api/users [post]
+// @Security ApiKeyAuth
 func (h *Handler) createUser(c *gin.Context) {
 	var input models.CreateUser
 
@@ -52,6 +53,7 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Failure      400         {object}  errorResponse
 // @Failure      500         {object}  errorResponse
 // @Router       /api/users [get]
+// @Security ApiKeyAuth
 func (h *Handler) getUserPage(c *gin.Context) {
 
 	pageSize, err := strconv.Atoi(c.Query("pageSize"))
@@ -90,6 +92,7 @@ func (h *Handler) getUserPage(c *gin.Context) {
 // @Failure      400  {object}  errorResponse
 // @Failure      500  {object}  errorResponse
 // @Router       /api/users/{id}/status [patch]
+// @Security ApiKeyAuth
 func (h *Handler) changeUserStatus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -118,6 +121,7 @@ func (h *Handler) changeUserStatus(c *gin.Context) {
 // @Failure      400  {object}  errorResponse
 // @Failure      500  {object}  errorResponse
 // @Router       /api/users/{id} [delete]
+// @Security ApiKeyAuth
 func (h *Handler) deleteUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -147,6 +151,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 // @Failure      400    {object}  errorResponse
 // @Failure      500    {object}  errorResponse
 // @Router       /api/users/{id} [put]
+// @Security ApiKeyAuth
 func (h *Handler) updateUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -181,6 +186,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 // @Failure      400    {object}  errorResponse           "Invalid request format"
 // @Failure      500    {object}  errorResponse           "Internal server error"
 // @Router       /api/users/password [post]
+// @Security ApiKeyAuth
 func (h *Handler) changeUserPassword(c *gin.Context) {
 	var inpput models.Change_Password
 	if err := c.BindJSON(&inpput); err != nil {

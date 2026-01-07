@@ -248,3 +248,45 @@ func (r *EmployeePostgres) GetEmployeesInSelectedObjects(name string) ([]models.
 
 	return result, nil
 }
+
+func (r *EmployeePostgres) GetById(id int) (models.Employee, error) {
+	var employee models.Employee
+	err := r.db.First(&employee, id).Error
+	if err != nil {
+		return models.Employee{}, err
+	}
+	return employee, nil
+}
+
+func (r *EmployeePostgres) GetByIdWithDevices(id int) (models.EmployeeWithDevices, error) {
+	var employee models.Employee
+	if err := r.db.First(&employee, id).Error; err != nil {
+		return models.EmployeeWithDevices{}, err
+	}
+
+	var assignments []models.DeviceAssignment
+	if err := r.db.Where("employee_id = ? AND returned_at IS NULL", id).Find(&assignments).Error; err != nil {
+		return models.EmployeeWithDevices{}, err
+	}
+
+	if len(assignments) == 0 {
+		return models.EmployeeWithDevices{Employee: &employee, Devices: []models.Device{}}, nil
+	}
+
+	deviceIDs := make([]int, len(assignments))
+	for i, assignment := range assignments {
+		deviceIDs[i] = assignment.DeviceID
+	}
+
+	var devices []models.Device
+	if err := r.db.Preload("Brand").Preload("Model").Preload("Category").Preload("Attributes.Attribute").Where("id IN (?)", deviceIDs).Find(&devices).Error; err != nil {
+		return models.EmployeeWithDevices{}, err
+	}
+
+	result := models.EmployeeWithDevices{
+		Employee: &employee,
+		Devices:  devices,
+	}
+
+	return result, nil
+}

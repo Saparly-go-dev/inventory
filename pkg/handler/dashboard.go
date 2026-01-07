@@ -19,10 +19,14 @@ import (
 // @Param room_number query int false "Room Number"
 // @Param employee_id query int false "Employee ID"
 // @Param status query string false "Status"
+// @Param attribute_id query int false "Attribute ID"
+// @Param attribute_options query string false "Attribute Options"
+// @Param attribute_info query string false "Attribute Info"
 // @Success 200 {array} models.Device
 // @Failure 400 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Router /api/dashboard/devices [get]
+// @Security ApiKeyAuth
 func (h *Handler) getAllDevices(c *gin.Context) {
 	filters, err := h.parseDeviceFilters(c)
 	if err != nil {
@@ -50,10 +54,14 @@ func (h *Handler) getAllDevices(c *gin.Context) {
 // @Param room_number query int false "Room Number"
 // @Param employee_id query int false "Employee ID"
 // @Param status query string false "Status"
+// @Param attribute_id query int false "Attribute ID"
+// @Param attribute_options query string false "Attribute Options"
+// @Param attribute_info query string false "Attribute Info"
 // @Success 200 {file} file
 // @Failure 400 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Router /api/dashboard/devices/export [get]
+// @Security ApiKeyAuth
 func (h *Handler) exportAllDevices(c *gin.Context) {
 	filters, err := h.parseDeviceFilters(c)
 	if err != nil {
@@ -113,6 +121,19 @@ func (h *Handler) parseDeviceFilters(c *gin.Context) (repository.DeviceFilters, 
 	}
 	if status := c.Query("status"); status != "" {
 		filters.Status = &status
+	}
+	if attributeIDStr := c.Query("attribute_id"); attributeIDStr != "" {
+		val, err := strconv.Atoi(attributeIDStr)
+		if err != nil {
+			return filters, err
+		}
+		filters.AttributeID = &val
+	}
+	if attributeOptions := c.Query("attribute_options"); attributeOptions != "" {
+		filters.AttributeOptions = &attributeOptions
+	}
+	if attributeInfo := c.Query("attribute_info"); attributeInfo != "" {
+		filters.AttributeInfo = &attributeInfo
 	}
 
 	return filters, err

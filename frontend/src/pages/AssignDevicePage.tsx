@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { getEmployeesSelected } from "../api/employees";
 import { getAvailableDevices, assignDevice } from "../api/devices";
-import type{
+import type {
   SelectedObject
 } from "../api/employees";
-import type {Device} from "../api/devices";
+import type { Device } from "../api/devices";
 import { handleApiError } from "../api/client";
 
 export default function AssignDevicePage() {
@@ -45,7 +45,7 @@ export default function AssignDevicePage() {
     setSuccess(null);
 
     if (!employeeId || !deviceId) {
-      setError("Select employee and device");
+      setError("Işgär we enjam saýlaň");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function AssignDevicePage() {
         device_id: Number(deviceId),
         employee_id: Number(employeeId),
       });
-      setSuccess("Device assigned successfully");
+      setSuccess("Enjam üstünlikli berkidildi");
       setDeviceId("");
       await loadData();
     } catch (e) {
@@ -65,22 +65,22 @@ export default function AssignDevicePage() {
 
   return (
     <div>
-      <h2>Assign device to employee</h2>
+      <h2>Enjamy işgäre berkid</h2>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
       {success && <div style={{ color: "green" }}>{success}</div>}
-      {loading && <div>Loading...</div>}
+      {loading && <div>Ýüklenýär...</div>}
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, maxWidth: 400 }}>
         <div>
-          <label>Employee:</label>
+          <label>Işgär:</label>
           <select
             value={employeeId}
             onChange={(e) =>
               setEmployeeId(e.target.value ? Number(e.target.value) : "")
             }
           >
-            <option value="">Select employee...</option>
+            <option value="">Işgär saýlaň...</option>
             {employees.map((emp) => (
               <option key={emp.id} value={emp.id}>
                 {emp.name}
@@ -90,14 +90,14 @@ export default function AssignDevicePage() {
         </div>
 
         <div>
-          <label>Device:</label>
+          <label>Enjam:</label>
           <select
             value={deviceId}
             onChange={(e) =>
               setDeviceId(e.target.value ? Number(e.target.value) : "")
             }
           >
-            <option value="">Select device...</option>
+            <option value="">Enjam saýlaň...</option>
             {devices.map((dev) => (
               <option key={dev.id} value={dev.id}>
                 {dev.name} (#{dev.id})
@@ -107,7 +107,7 @@ export default function AssignDevicePage() {
         </div>
 
         <button type="submit" disabled={loading}>
-          Assign
+          Berkid
         </button>
       </form>
     </div>

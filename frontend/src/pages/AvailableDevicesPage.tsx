@@ -5,6 +5,7 @@ import type {
   Device
 } from "../api/devices";
 import { handleApiError } from "../api/client";
+import { getDeviceStatusLabel } from "../utils/statusUtils";
 
 export default function AvailableDevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -29,35 +30,52 @@ export default function AvailableDevicesPage() {
   }, []);
 
   return (
-    <div>
-      <h2>Available devices (in_stock)</h2>
+    <div className="page-animate">
+      <h2 style={{ marginBottom: 16 }}>Elýeterli enjamlar (ammarda)</h2>
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {loading && <div>Loading...</div>}
+      {error && (
+        <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
 
-      <table border={1} cellPadding={4}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {devices.map((d) => (
-            <tr key={d.id}>
-              <td>{d.id}</td>
-              <td>{d.name}</td>
-              <td>{d.status}</td>
-            </tr>
-          ))}
-          {devices.length === 0 && !loading && (
+      {loading && <div style={{ marginBottom: 16, color: 'var(--text-muted)' }}>Ýüklenýär...</div>}
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan={3}>No available devices</td>
+              <th>ID</th>
+              <th>Ady</th>
+              <th>Kategoriýa</th>
+              <th>Brend</th>
+              <th>Model</th>
+              <th>Ýagdaýy</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {devices.map((d) => (
+              <tr key={d.id}>
+                <td>{d.id}</td>
+                <td style={{ fontWeight: 500 }}>{d.name}</td>
+                <td>{d.category?.name || "-"}</td>
+                <td>{d.brand?.name || "-"}</td>
+                <td>{d.model?.name || "-"}</td>
+                <td>
+                  <span className="badge status-success">{getDeviceStatusLabel(d.status)}</span>
+                </td>
+              </tr>
+            ))}
+            {devices.length === 0 && !loading && (
+              <tr>
+                <td colSpan={6} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                  Elýeterli enjam ýok
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

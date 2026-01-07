@@ -28,6 +28,9 @@ export interface DeviceFilters {
     room_number?: number | null;
     employee_id?: number | null;
     status?: string | null;
+    name?: string | null;
+    attribute_options?: string | null;
+    attribute_info?: string | null;
 }
 
 export async function getDashboardDevices(filters: DeviceFilters) {
@@ -42,6 +45,9 @@ export async function getDashboardDevices(filters: DeviceFilters) {
     if (filters.room_number) params.room_number = filters.room_number;
     if (filters.employee_id) params.employee_id = filters.employee_id;
     if (filters.status) params.status = filters.status;
+    if (filters.name) params.name = filters.name;
+    if (filters.attribute_options) params.attribute_options = filters.attribute_options;
+    if (filters.attribute_info) params.attribute_info = filters.attribute_info;
 
     const res = await api.get<DashboardDevice[]>("/api/dashboard/devices", { params });
     return res.data;
@@ -56,8 +62,11 @@ export async function exportDashboardExcel(filters: DeviceFilters) {
     if (filters.room_number) params.room_number = filters.room_number;
     if (filters.employee_id) params.employee_id = filters.employee_id;
     if (filters.status) params.status = filters.status;
+    if (filters.name) params.name = filters.name;
+    if (filters.attribute_options) params.attribute_options = filters.attribute_options;
+    if (filters.attribute_info) params.info = filters.attribute_info;
 
-    const res = await api.get("/api/dashboard/export", {
+    const res = await api.get("/api/dashboard/devices/export", {
         params,
         responseType: "blob", // Important for file download
     });

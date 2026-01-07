@@ -33,6 +33,7 @@ import (
 // @Failure      400          {object}  errorResponse         "Invalid input data"
 // @Failure      500          {object}  errorResponse         "Internal server error"
 // @Router       /api/devices [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateDevice(c *gin.Context) {
 	var input models.UpdateDevice
 
@@ -104,6 +105,7 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/devices [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetDevicePage(c *gin.Context) {
 	pageSize, err := strconv.Atoi(c.Query("page_size"))
 	if err != nil {
@@ -148,6 +150,7 @@ func (h *Handler) GetDevicePage(c *gin.Context) {
 // @Failure      400          {object}  errorResponse         "Invalid input data or ID"
 // @Failure      500          {object}  errorResponse         "Internal server error"
 // @Router       /api/devices [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateDevice(c *gin.Context) {
 	var input models.UpdateDevice
 
@@ -223,6 +226,7 @@ func (h *Handler) UpdateDevice(c *gin.Context) {
 // @Failure      400  {object}  errorResponse   "Invalid ID parameter"
 // @Failure      500  {object}  errorResponse   "Internal server error"
 // @Router       /api/devices [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteDevice(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {

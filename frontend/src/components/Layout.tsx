@@ -1,0 +1,142 @@
+import React, { useEffect } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import './Layout.css';
+
+interface LayoutProps {
+    theme: 'light' | 'dark';
+    setTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>;
+}
+
+export default function Layout({ theme, setTheme }: LayoutProps) {
+    const location = useLocation();
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    };
+
+    // Helper to determine page title based on path
+    const getPageTitle = (pathname: string) => {
+        if (pathname.includes('/dashboard')) return 'Panel';
+        if (pathname.includes('/employees')) return 'Işgärler';
+        if (pathname.includes('/devices/available')) return 'Elýeterli Enjamlar';
+        if (pathname.includes('/devices')) return 'Enjamlar';
+        if (pathname.includes('/assign')) return 'Berkidilme';
+        if (pathname.includes('/brands')) return 'Brendler';
+        if (pathname.includes('/models')) return 'Modeller';
+        if (pathname.includes('/categories')) return 'Kategoriýalar';
+        if (pathname.includes('/attributes')) return 'Aýratynlyklar';
+        return 'Panel';
+    };
+
+    return (
+        <div className="layout-container">
+            {/* Sidebar Navigation */}
+            <aside className="sidebar">
+                <div className="brand-section">
+                    <h1>Inwentar Ulgamy</h1>
+                    <span>Dolandyryş ulgamy</span>
+                </div>
+
+                <nav className="nav-links">
+                    <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="dashboard" />
+                        Panel
+                    </NavLink>
+                    <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="users" />
+                        Işgärler
+                    </NavLink>
+                    <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} end>
+                        <NavIcon name="monitor" />
+                        Enjamlar
+                    </NavLink>
+                    <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="box" />
+                        Elýeterli
+                    </NavLink>
+                    <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="link" />
+                        Berkidilme
+                    </NavLink>
+
+                    <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
+
+                    <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="tag" />
+                        Brendler
+                    </NavLink>
+                    <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="layers" />
+                        Modeller
+                    </NavLink>
+                    <NavLink to="/categories" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="grid" />
+                        Kategoriýalar
+                    </NavLink>
+                    <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="settings" />
+                        Aýratynlyklar
+                    </NavLink>
+                </nav>
+
+                <div className="sidebar-footer">
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>v1.0.0</span>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="main-area">
+                <header className="top-bar">
+                    <h2 className="page-title">{getPageTitle(location.pathname)}</h2>
+                    <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme" title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>
+                        {theme === "light" ? (
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        ) : (
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        )}
+                    </button>
+                    {/* Add User Profile or other top bar items here in future */}
+                </header>
+
+                <div className="content-wrapper">
+                    <Outlet />
+                </div>
+            </main>
+        </div>
+    );
+}
+
+// Simple Icon Component to keep code clean
+function NavIcon({ name }: { name: string }) {
+    switch (name) {
+        case 'dashboard':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
+        case 'users':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
+        case 'monitor':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>;
+        case 'box':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>;
+        case 'link':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>;
+        case 'tag':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>;
+        case 'layers':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>;
+        case 'grid':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
+        case 'settings':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+        default:
+            return null;
+    }
+}

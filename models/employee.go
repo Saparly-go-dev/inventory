@@ -18,3 +18,8 @@ type UpdateEmployee struct {
 	Phone      string `json:"phone"`
 	RoomNumber int    `json:"room_number"`
 }
+
+type EmployeeWithDevices struct {
+	*Employee
+	Devices []Device `json:"devices"`
+}

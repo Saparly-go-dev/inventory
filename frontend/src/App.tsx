@@ -1,80 +1,63 @@
-// src/App.tsx
-import { NavLink, Route, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import AvailableDevicesPage from "./pages/AvailableDevicesPage";
 import AssignDevicePage from "./pages/AssignDevicePage";
+import EmployeeDetailsPage from "./pages/EmployeeDetailsPage";
 import BrandsPage from "./pages/BrandsPage";
 import ModelsPage from "./pages/ModelsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import AttributesPage from "./pages/AttributesPage";
 import DevicesPage from "./pages/DevicesPage";
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 function App() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
-    // Check local storage or system preference
     const saved = localStorage.getItem("theme");
     if (saved === "dark" || saved === "light") return saved;
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
-
   return (
-    <div className="app-container">
-      <header className="app-header justify-center">
-        <div className="brand-section">
-          <h1>Inwentar Ulgamy</h1>
-          <span>Dolandyryş ulgamy</span>
-        </div>
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
 
-        <nav className="nav-links">
-          <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Panel</NavLink>
-          <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Işgärler</NavLink>
-          <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Enjamlar</NavLink>
-          <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Elýeterli</NavLink>
-          <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Berkidilme</NavLink>
-          <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Brendler</NavLink>
-          <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Modeller</NavLink>
-          <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>Aýratynlyklar</NavLink>
-        </nav>
-
-        <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle Theme" title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>
-          {theme === "light" ? (
-            // Moon Icon
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-          ) : (
-            // Sun Icon
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          )}
-        </button>
-      </header>
-
-      <main className="main-content">
-        <Routes>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/employees" element={<EmployeesPage />} />
-          <Route path="/devices" element={<DevicesPage />} />
-          <Route path="/devices/available" element={<AvailableDevicesPage />} />
-          <Route path="/assign" element={<AssignDevicePage />} />
-          <Route path="/brands" element={<BrandsPage />} />
-          <Route path="/models" element={<ModelsPage />} />
-          <Route path="/attributes" element={<AttributesPage />} />
-          <Route path="*" element={<EmployeesPage />} />
-        </Routes>
-      </main>
-    </div>
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout theme={theme} setTheme={setTheme} />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/employees" element={<EmployeesPage />} />
+            <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+            <Route path="/devices" element={<DevicesPage />} />
+            <Route path="/devices/available" element={<AvailableDevicesPage />} />
+            <Route path="/assign" element={<AssignDevicePage />} />
+            <Route path="/brands" element={<BrandsPage />} />
+            <Route path="/models" element={<ModelsPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/attributes" element={<AttributesPage />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        </Route>
+      </Routes>
+    </QueryClientProvider>
   );
 }
 

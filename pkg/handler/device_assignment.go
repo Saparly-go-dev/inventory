@@ -23,6 +23,7 @@ type deviceAssignmentInput struct {
 // @Failure      400    {object}  errorResponse          "Invalid input data"
 // @Failure      500    {object}  errorResponse          "Internal server error"
 // @Router       /api/devices/assign [post]
+// @Security ApiKeyAuth
 func (h *Handler) AssignDeviceToEmployee(c *gin.Context) {
 	var input deviceAssignmentInput
 	if err := c.BindJSON(&input); err != nil {
@@ -54,6 +55,7 @@ func (h *Handler) AssignDeviceToEmployee(c *gin.Context) {
 // @Failure      400    {object}  errorResponse          "Invalid input data"
 // @Failure      500    {object}  errorResponse          "Internal server error"
 // @Router       /api/devices/return [post]
+// @Security ApiKeyAuth
 func (h *Handler) ReturnDeviceFromEmployee(c *gin.Context) {
 	var input deviceAssignmentInput
 	if err := c.BindJSON(&input); err != nil {
@@ -85,6 +87,7 @@ func (h *Handler) ReturnDeviceFromEmployee(c *gin.Context) {
 // @Failure      400          {object}  errorResponse  "Invalid query parameters"
 // @Failure      500          {object}  errorResponse  "Internal server error"
 // @Router       /api/employees/devices [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetEmployeeDevices(c *gin.Context) {
 	empID, err := strconv.Atoi(c.Query("employee_id"))
 	if err != nil || empID <= 0 {
@@ -109,6 +112,7 @@ func (h *Handler) GetEmployeeDevices(c *gin.Context) {
 // @Success      200  {object}  object        "List of available devices"
 // @Failure      500  {object}  errorResponse "Internal server error"
 // @Router       /api/devices/available [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetAvailableDevices(c *gin.Context) {
 	devices, err := h.services.DeviceAssignment.GetAvailableDevices()
 	if err != nil {

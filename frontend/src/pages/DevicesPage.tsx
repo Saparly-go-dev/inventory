@@ -13,9 +13,9 @@ import { getModelsSelected, type SelectedObject as ModelSelected } from "../api/
 import { getCategoriesSelected, type SelectedObject as CategorySelected } from "../api/categories";
 import { getAttributesSelected, type SelectedObject as AttributeSelected } from "../api/attributes";
 import { handleApiError, API_BASE_URL } from "../api/client";
+import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
 
 const PAGE_SIZE = 10;
-const STATUS_OPTIONS = ["in_stock", "assigned", "repair", "written_off"];
 
 function getImageUrl(path: string | null | undefined) {
   if (!path) return "";
@@ -216,8 +216,8 @@ export default function DevicesPage() {
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value || "in_stock" })}
               >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                {STATUS_OPTIONS_MAP.map((s) => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
               </select>
             </div>
@@ -411,7 +411,7 @@ export default function DevicesPage() {
               <tr key={d.id}>
                 <td>{d.id}</td>
                 <td style={{ fontWeight: 500 }}>{d.name}</td>
-                <td><span className={statusBadgeClass(d.status)}>{d.status}</span></td>
+                <td><span className={statusBadgeClass(d.status)}>{getDeviceStatusLabel(d.status)}</span></td>
                 <td>{d.brand.name}</td>
                 <td>{d.model.name}</td>
                 <td>{d.category.name}</td>
