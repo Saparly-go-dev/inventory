@@ -5,6 +5,9 @@ import {
   createDevice,
   updateDevice,
   deleteDevice,
+  cloneDevice,
+  importDevices,
+  downloadImportTemplate,
   type Device,
   type UpdateDevice,
 } from "../api/devices";
@@ -55,7 +58,17 @@ export default function DevicesPage() {
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Clone Modal
+  const [cloneId, setCloneId] = useState<number | null>(null);
+  const [cloneCount, setCloneCount] = useState(1);
+  const [showCloneModal, setShowCloneModal] = useState(false);
+
+  // Import Modal
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   // Lists for dropdowns
   const [brandsList, setBrandsList] = useState<BrandSelected[]>([]);
@@ -179,7 +192,10 @@ export default function DevicesPage() {
     <div className="page-animate">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h2>Enjamlar</h2>
-        <div style={{ width: '300px' }}>
+        <div style={{ width: '300px', display: 'flex', gap: 12 }}>
+          <button onClick={() => setShowImportModal(true)} className="btn btn-secondary">
+            Excel Import
+          </button>
           <input
             type="text"
             placeholder="Enjam ady boýunça gözleg..."
@@ -445,6 +461,7 @@ export default function DevicesPage() {
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
+                    <button onClick={() => { setCloneId(d.id); setCloneCount(1); setShowCloneModal(true); }} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: 12 }}>Klon</button>
                     <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
                   </div>
                 </td>
@@ -514,6 +531,80 @@ export default function DevicesPage() {
           />
         </div>
       )}
+
+      {/* Clone Modal */}
+      {showCloneModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          background: "rgba(0,0,0,0.5)", backdropFilter: 'blur(4px)',
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+        }}>
+          <div className="card" style={{ width: 400, background: "var(--bg-card)" }}>
+            <h3>Enjamy köpeltmek (Klon)</h3>
+            <div style={{ margin: "16px 0" }}>
+              <label>Näçe sany nusga gerek?</label>
+              <input
+                type="number"
+                min="1"
+                value={cloneCount}
+                onChange={(e) => setCloneCount(Number(e.target.value))}
+                style={{ width: "100%", marginTop: 8 }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+              <button className="btn btn-secondary" onClick={() => setShowCloneModal(false)}>Ýatyr</button>
+              <button className="btn btn-primary" onClick={async () => {
+                if (!cloneId || cloneCount <= 0) return;
+                try {
+                  await cloneDevice(cloneId, cloneCount);
+                  setShowCloneModal(false);
+                  await loadDevices();
+                } catch (e) { setError(handleApiError(e)); }
+              }}>Tassykla</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          background: "rgba(0,0,0,0.5)", backdropFilter: 'blur(4px)',
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+        }}>
+          <div className="card" style={{ width: 500, background: "var(--bg-card)" }}>
+            <h3>Excel Import</h3>
+            <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Köp enjamlary birden goşmak üçin Excel faýlyny ulan.
+              <br />
+              Şablony ýükläp alyň we dolduryň:
+              <button className="btn" style={{ marginLeft: 8, padding: '2px 8px', fontSize: 12 }} onClick={downloadImportTemplate}>
+                Şablony ýükle
+              </button>
+            </p>
+
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={(e) => setImportFile(e.target.files ? e.target.files[0] : null)}
+            />
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
+              <button className="btn btn-secondary" onClick={() => setShowImportModal(false)}>Ýatyr</button>
+              <button className="btn btn-primary" onClick={async () => {
+                if (!importFile) return;
+                try {
+                  await importDevices(importFile);
+                  setShowImportModal(false);
+                  await loadDevices();
+                } catch (e) { setError(handleApiError(e)); }
+              }}>Import et</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

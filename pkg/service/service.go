@@ -3,6 +3,7 @@ package service
 import (
 	"inventory/models"
 	"inventory/pkg/repository"
+	"mime/multipart"
 )
 
 type Authorization interface {
@@ -56,6 +57,9 @@ type Device interface {
 	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
 	Update(id int, buffer models.UpdateDevice) error
 	Delete(id int) error
+	GetById(id int) (models.Device, error)
+	Clone(id, count int) error
+	Import(file multipart.File) error
 }
 
 type DeviceAttribute interface {
@@ -109,7 +113,7 @@ func NewService(repos *repository.Repository) *Service {
 		Category:         NewCategoryService(repos.Category),
 		Model:            NewModelService(repos.Model),
 		Attribute:        NewAttributeService(repos.Attribute),
-		Device:           NewDeviceService(repos.Device),
+		Device:           NewDeviceService(repos.Device, repos.Brand, repos.Model, repos.Category),
 		DeviceAttribute:  NewDeviceAttributeService(repos.DeviceAttribute),
 		Employee:         NewEmployeeService(repos.Employee),
 		DeviceAssignment: NewDeviceAssignmentService(repos.DeviceAssignment),

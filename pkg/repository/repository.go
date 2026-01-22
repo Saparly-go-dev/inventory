@@ -56,6 +56,7 @@ type Device interface {
 	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
 	Update(id int, buffer models.UpdateDevice) error
 	Delete(id int) error
+	GetById(id int) (models.Device, error)
 }
 
 type DeviceAttribute interface {

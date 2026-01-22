@@ -1,7 +1,9 @@
 // src/api/client.ts
 import axios from "axios";
 
-export const API_BASE_URL = "http://0.0.0.0:8080"; // если у бэка другой порт/префикс — поменяй
+// Automatically use the current hostname (localhost or IP)
+const hostname = window.location.hostname;
+export const API_BASE_URL = `http://${hostname}:8080`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

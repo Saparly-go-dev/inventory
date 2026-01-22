@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xuri/excelize/v2"
 )
 
 // @Summary      Create a new device
@@ -243,6 +244,47 @@ func (h *Handler) DeleteDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"Success"})
 }
 
+// @Summary      Clone device
+// @Description  Clones a device N times
+// @Tags         devices
+// @Accept       json
+// @Produce      json
+// @Param        id     path     int  true  "Device ID"
+// @Param        input  body     map[string]int  true  "Count input"
+// @Success      200    {object}  statusResponse  "Success"
+// @Failure      400    {object}  errorResponse   "Invalid ID or input"
+// @Failure      500    {object}  errorResponse   "Internal server error"
+// @Router       /api/devices/{id}/clone [post]
+// @Security ApiKeyAuth
+func (h *Handler) CloneDevice(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	var input struct {
+		Count int `json:"count"`
+	}
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if input.Count <= 0 {
+		newErrorResponse(c, http.StatusBadRequest, "count must be greater than 0")
+		return
+	}
+
+	if err := h.services.Device.Clone(id, input.Count); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"Success"})
+}
+
 func uploadFile(file *multipart.FileHeader) (string, error) {
 	// Generate a unique file name
 	fileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(file.Filename))
@@ -268,4 +310,66 @@ func uploadFile(file *multipart.FileHeader) (string, error) {
 	}
 
 	return filePath, nil
+}
+
+// @Summary      Import devices
+// @Description  Import devices from Excel file
+// @Tags         dashboard
+// @Accept       mpfd
+// @Produce      json
+// @Param        file   formData  file  true  "Excel File"
+// @Success      200    {object}  statusResponse  "Success"
+// @Failure      400    {object}  errorResponse   "Invalid file"
+// @Failure      500    {object}  errorResponse   "Internal server error"
+// @Router       /api/dashboard/devices/import [post]
+// @Security ApiKeyAuth
+func (h *Handler) ImportDevices(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "file is required")
+		return
+	}
+
+	f, err := file.Open()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer f.Close()
+
+	if err := h.services.Device.Import(f); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"Success"})
+}
+
+// @Summary      Get import template
+// @Description  Download Excel template for devices import
+// @Tags         dashboard
+// @Produce      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+// @Success      200  {file}    file            "Excel template"
+// @Failure      500  {object}  errorResponse   "Internal server error"
+// @Router       /api/dashboard/devices/template [get]
+// @Security ApiKeyAuth
+func (h *Handler) GetImportTemplate(c *gin.Context) {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	// Create header
+	headers := []string{"Name", "Description", "Info", "Status", "Brand", "Model", "Category"}
+	for i, header := range headers {
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		f.SetCellValue("Sheet1", cell, header)
+	}
+
+	// Set buffer to response
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", "attachment; filename=devices_template.xlsx")
+
+	if err := f.Write(c.Writer); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 }

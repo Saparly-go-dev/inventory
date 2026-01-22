@@ -132,5 +132,9 @@ func (r *AttributePostgres) GetAttributesInSelectedObjects(name string) ([]model
 		result = append(result, element)
 	}
 
+	if len(result) == 0 {
+		result = []models.SelectedObject{}
+	}
+
 	return result, nil
 }

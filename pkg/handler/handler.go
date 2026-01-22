@@ -86,6 +86,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			devices.POST("/assign", h.AssignDeviceToEmployee)
 			devices.POST("/return", h.ReturnDeviceFromEmployee)
 			devices.GET("/available", h.GetAvailableDevices)
+			devices.POST("/:id/clone", h.CloneDevice)
 		}
 
 		device_attributes := api.Group("/device-attributes", h.userIdentity)
@@ -112,6 +113,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			dashboard.GET("/devices", h.getAllDevices)
 			dashboard.GET("/devices/export", h.exportAllDevices)
+			dashboard.POST("/devices/import", h.ImportDevices)
+			dashboard.GET("/devices/template", h.GetImportTemplate)
 		}
 
 	}

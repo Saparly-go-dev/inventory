@@ -64,6 +64,14 @@ func (r *DevicePostgres) Create(buffer models.UpdateDevice) error {
 	return err
 }
 
+func (r *DevicePostgres) GetById(id int) (models.Device, error) {
+	var device models.Device
+	if err := r.db.Preload("Attributes").Where("id = ?", id).First(&device).Error; err != nil {
+		return models.Device{}, err
+	}
+	return device, nil
+}
+
 func (r *DevicePostgres) GetPage(name string, pageSize, pageNumber int) (models.Paginator, error) {
 	var page models.Paginator
 	var list []models.Device

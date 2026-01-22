@@ -173,3 +173,26 @@ export async function assignDevice(input: DeviceAssignmentInput) {
 export async function returnDevice(input: DeviceAssignmentInput) {
   await api.post("/api/devices/return", input);
 }
+
+export async function cloneDevice(id: number, count: number) {
+  await api.post(`/api/devices/${id}/clone`, { count });
+}
+
+export async function importDevices(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  await api.post("/api/dashboard/devices/import", formData);
+}
+
+export async function downloadImportTemplate() {
+  const response = await api.get("/api/dashboard/devices/template", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "devices_template.xlsx");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
