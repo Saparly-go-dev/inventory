@@ -352,7 +352,7 @@ export default function DevicesPage() {
                   {attributesList.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
                 <input
-                  placeholder="Bahasy"
+                  placeholder="Düzümi"
                   value={attr.options}
                   onChange={(e) => {
                     const newAttributes = [...(form.attributes || [])];

@@ -115,6 +115,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			dashboard.GET("/devices/export", h.exportAllDevices)
 			dashboard.POST("/devices/import", h.ImportDevices)
 			dashboard.GET("/devices/template", h.GetImportTemplate)
+			dashboard.GET("/statistics", h.getStatistics)
 		}
 
 	}

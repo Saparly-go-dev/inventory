@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# Фронтенд (React + TypeScript + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Требования
 
-Currently, two official plugins are available:
+- Node.js `>= 20` (рекомендуется LTS)
+- npm
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Настройка API URL
 
-## React Compiler
+Фронтенд читает адрес API из переменной окружения:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `VITE_API_BASE_URL` (предпочтительно), например `http://10.90.36.2:8080`
+- или `VITE_API_URL` (поддерживается как алиас)
 
-## Expanding the ESLint configuration
+Если переменная не задана — фронтенд использует `http://<текущий_хост>:8080`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Пример файла: `frontend/.env.example`.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Установка и запуск (dev)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Открывать: `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Сборка
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+Артефакты: `frontend/dist/`.
+
+Локальный предпросмотр:
+
+```bash
+npm run preview -- --host 0.0.0.0 --port 4173
+```
+
+## Авторизация
+
+- JWT‑токен хранится в `localStorage` как `auth_token`.
+- Если токена нет — роуты приложения редиректят на `/login` (см. `frontend/src/components/ProtectedRoute.tsx`).
+- Если сервер возвращает `401` — токен очищается и происходит редирект на `/login` (см. `frontend/src/api/client.ts`).

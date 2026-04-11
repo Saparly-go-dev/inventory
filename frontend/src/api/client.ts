@@ -1,9 +1,25 @@
 // src/api/client.ts
 import axios from "axios";
 
-// Automatically use the current hostname (localhost or IP)
+function normalizeBaseUrl(input: string): string {
+  let base = input.trim();
+  base = base.replace(/\/+$/, "");
+
+  // Allow users to accidentally pass ".../api" without breaking all requests.
+  if (base.toLowerCase().endsWith("/api")) {
+    base = base.slice(0, -4);
+  }
+
+  return base;
+}
+
+// Prefer explicit env, fallback to current hostname.
 const hostname = window.location.hostname;
-export const API_BASE_URL = `http://${hostname}:8080`;
+const envBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL) as
+  | string
+  | undefined;
+
+export const API_BASE_URL = envBaseUrl ? normalizeBaseUrl(envBaseUrl) : `http://${hostname}:8080`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

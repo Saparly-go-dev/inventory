@@ -15,6 +15,7 @@ import ModelsPage from "./pages/ModelsPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import AttributesPage from "./pages/AttributesPage";
 import DevicesPage from "./pages/DevicesPage";
+import StatisticsPage from "./pages/StatisticsPage";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -53,6 +54,7 @@ function App() {
             <Route path="/models" element={<ModelsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/attributes" element={<AttributesPage />} />
+            <Route path="/statistics" element={<StatisticsPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Route>

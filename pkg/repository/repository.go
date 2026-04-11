@@ -88,6 +88,10 @@ type Dashboard interface {
 	ExportAllDevicesToExcel(devices []DashboardDevice) ([]byte, error)
 }
 
+type Statistics interface {
+	GetStatistics() (StatisticsData, error)
+}
+
 type Repository struct {
 	User
 	Authorization
@@ -100,6 +104,7 @@ type Repository struct {
 	Employee
 	DeviceAssignment
 	Dashboard
+	Statistics
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -115,5 +120,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Employee:         NewEmployeePostgres(db),
 		DeviceAssignment: NewDeviceAssignmentPostgres(db),
 		Dashboard:        NewDashboardPostgres(db),
+		Statistics:       NewStatisticsPostgres(db),
 	}
 }

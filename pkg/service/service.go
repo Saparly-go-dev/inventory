@@ -91,6 +91,10 @@ type Dashboard interface {
 	ExportAllDevicesToExcel(filters repository.DeviceFilters) ([]byte, error)
 }
 
+type Statistics interface {
+	GetStatistics() (repository.StatisticsData, error)
+}
+
 type Service struct {
 	Authorization
 	User
@@ -103,6 +107,7 @@ type Service struct {
 	Employee
 	DeviceAssignment
 	Dashboard
+	Statistics
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -118,5 +123,6 @@ func NewService(repos *repository.Repository) *Service {
 		Employee:         NewEmployeeService(repos.Employee),
 		DeviceAssignment: NewDeviceAssignmentService(repos.DeviceAssignment),
 		Dashboard:        NewDashboardService(repos.Dashboard),
+		Statistics:       NewStatisticsService(repos.Statistics),
 	}
 }
