@@ -120,6 +120,18 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			device_attributes.DELETE("/", deleteInventory, h.DeleteDeviceAttribute)
 		}
 
+		furnitures := api.Group("/furnitures", h.userIdentity)
+		{
+			furnitures.POST("/", createInventory, h.CreateFurniture)
+			furnitures.GET("/", readInventory, h.GetFurniturePage)
+			furnitures.PUT("/", updateInventory, h.UpdateFurniture)
+			furnitures.DELETE("/", deleteInventory, h.DeleteFurniture)
+			furnitures.GET("/available", readInventory, h.GetAvailableFurniture)
+			furnitures.GET("/:id/allocations", readInventory, h.GetFurnitureAllocations)
+			furnitures.POST("/assign", assignDevices, h.AssignFurniture)
+			furnitures.POST("/return", returnDevices, h.ReturnFurniture)
+		}
+
 		employees := api.Group("/employees", h.userIdentity)
 		{
 			employees.POST("/", createInventory, h.CreateEmployee)

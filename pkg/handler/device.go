@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,7 @@ import (
 // @Security ApiKeyAuth
 func (h *Handler) CreateDevice(c *gin.Context) {
 	var input models.UpdateDevice
+	var uploadedPhotoPath string
 
 	brandID, err := strconv.Atoi(c.PostForm("brand_id"))
 	if err != nil {
@@ -78,15 +80,17 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 	// Handle file upload
 	file, err := c.FormFile("photo")
 	if err == nil {
-		filePath, err := uploadFile(file)
+		filePath, err := uploadFile(file, "devices")
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		input.Photo = filePath
+		uploadedPhotoPath = filePath
 	}
 
 	if err := h.services.Device.Create(input); err != nil {
+		deleteUploadedFile(uploadedPhotoPath)
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -108,15 +112,8 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 // @Router       /api/devices [get]
 // @Security ApiKeyAuth
 func (h *Handler) GetDevicePage(c *gin.Context) {
-	pageSize, err := strconv.Atoi(c.Query("page_size"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	pageNumber, err := strconv.Atoi(c.Query("page_number"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	pageSize, pageNumber, ok := parsePageParams(c)
+	if !ok {
 		return
 	}
 
@@ -154,10 +151,17 @@ func (h *Handler) GetDevicePage(c *gin.Context) {
 // @Security ApiKeyAuth
 func (h *Handler) UpdateDevice(c *gin.Context) {
 	var input models.UpdateDevice
+	var uploadedPhotoPath string
 
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	existingDevice, err := h.services.Device.GetById(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -201,17 +205,23 @@ func (h *Handler) UpdateDevice(c *gin.Context) {
 	// Handle file upload
 	file, err := c.FormFile("photo")
 	if err == nil {
-		filePath, err := uploadFile(file)
+		filePath, err := uploadFile(file, "devices")
 		if err != nil {
 			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		input.Photo = filePath
+		uploadedPhotoPath = filePath
 	}
 
 	if err := h.services.Device.Update(id, input); err != nil {
+		deleteUploadedFile(uploadedPhotoPath)
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	if uploadedPhotoPath != "" && existingDevice.Photo != "" && existingDevice.Photo != uploadedPhotoPath {
+		deleteUploadedFile(existingDevice.Photo)
 	}
 
 	c.JSON(http.StatusOK, statusResponse{"Success"})
@@ -235,11 +245,19 @@ func (h *Handler) DeleteDevice(c *gin.Context) {
 		return
 	}
 
+	existingDevice, err := h.services.Device.GetById(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	err = h.services.Device.Delete(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	deleteUploadedFile(existingDevice.Photo)
 
 	c.JSON(http.StatusOK, statusResponse{"Success"})
 }
@@ -285,10 +303,21 @@ func (h *Handler) CloneDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"Success"})
 }
 
-func uploadFile(file *multipart.FileHeader) (string, error) {
+func uploadFile(file *multipart.FileHeader, entityDir string) (string, error) {
 	// Generate a unique file name
 	fileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(file.Filename))
-	filePath := filepath.Join("uploads/devices", fileName)
+	now := time.Now()
+	dirPath := filepath.Join(
+		"uploads",
+		entityDir,
+		fmt.Sprintf("%04d", now.Year()),
+		fmt.Sprintf("%02d", int(now.Month())),
+	)
+	if err := os.MkdirAll(dirPath, 0o755); err != nil {
+		return "", err
+	}
+
+	filePath := filepath.Join(dirPath, fileName)
 
 	// Create the destination file
 	dst, err := os.Create(filePath)
@@ -310,6 +339,20 @@ func uploadFile(file *multipart.FileHeader) (string, error) {
 	}
 
 	return filePath, nil
+}
+
+func deleteUploadedFile(path string) {
+	if path == "" {
+		return
+	}
+
+	cleanPath := filepath.Clean(path)
+	uploadsRoot := filepath.Clean("uploads")
+	if cleanPath != uploadsRoot && !strings.HasPrefix(cleanPath, uploadsRoot+string(os.PathSeparator)) {
+		return
+	}
+
+	_ = os.Remove(cleanPath)
 }
 
 // @Summary      Import devices

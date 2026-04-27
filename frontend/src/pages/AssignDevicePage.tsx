@@ -8,6 +8,7 @@ import type {
 import type { Device } from "../api/devices";
 import { handleApiError } from "../api/client";
 import { canAssignDevices } from "../utils/auth";
+import SearchableSelect from "../components/SearchableSelect";
 
 export default function AssignDevicePage() {
   const canAssign = canAssignDevices();
@@ -87,36 +88,24 @@ export default function AssignDevicePage() {
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, maxWidth: 400 }}>
         <div>
           <label>Işgär:</label>
-          <select
+          <SearchableSelect
             value={employeeId}
-            onChange={(e) =>
-              setEmployeeId(e.target.value ? Number(e.target.value) : "")
-            }
-          >
-            <option value="">Işgär saýlaň...</option>
-            {employees.map((emp) => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setEmployeeId(value ? Number(value) : "")}
+            options={employees.map((emp) => ({ value: emp.id, label: emp.name }))}
+            emptyOptionLabel="Işgär saýlaň..."
+            searchPlaceholder="Işgär ady boýunça filter..."
+          />
         </div>
 
         <div>
           <label>Enjam:</label>
-          <select
+          <SearchableSelect
             value={deviceId}
-            onChange={(e) =>
-              setDeviceId(e.target.value ? Number(e.target.value) : "")
-            }
-          >
-            <option value="">Enjam saýlaň...</option>
-            {devices.map((dev) => (
-              <option key={dev.id} value={dev.id}>
-                {dev.name} (#{dev.id})
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setDeviceId(value ? Number(value) : "")}
+            options={devices.map((dev) => ({ value: dev.id, label: `${dev.name} (#${dev.id})` }))}
+            emptyOptionLabel="Enjam saýlaň..."
+            searchPlaceholder="Enjam ady boýunça filter..."
+          />
         </div>
 
         <button type="submit" disabled={loading}>

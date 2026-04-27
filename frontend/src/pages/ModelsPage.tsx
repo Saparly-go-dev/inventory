@@ -20,6 +20,7 @@ import {
   getBrandsSelected,
   type SelectedObject as BrandSelected,
 } from "../api/brands";
+import SearchableSelect from "../components/SearchableSelect";
 
 const PAGE_SIZE = 10;
 
@@ -49,8 +50,14 @@ export default function ModelsPage() {
       setLoading(true);
       setError(null);
       const page = await getModelPage(PAGE_SIZE, pageNumber, search);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
       setModels(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -173,22 +180,18 @@ export default function ModelsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label className="text-sm text-muted">Brend</label>
-            <select
+            <SearchableSelect
               value={form.brand_id || ""}
-              onChange={(e) =>
+              onChange={(value) =>
                 setForm({
                   ...form,
-                  brand_id: e.target.value ? Number(e.target.value) : 0,
+                  brand_id: value ? Number(value) : 0,
                 })
               }
-            >
-              <option value="">Brend saýlaň...</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+              options={brands.map((b) => ({ value: b.id, label: b.name }))}
+              emptyOptionLabel="Brend saýlaň..."
+              searchPlaceholder="Brend ady boýunça filter..."
+            />
           </div>
 
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>

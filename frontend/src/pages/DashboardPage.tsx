@@ -13,6 +13,7 @@ import {
     useModelsList
 } from "../api/queries";
 import { canExportDevices, canReturnDevices, canViewInventory } from "../utils/auth";
+import SearchableSelect from "../components/SearchableSelect";
 
 export default function DashboardPage() {
     const canView = canViewInventory();
@@ -175,38 +176,41 @@ export default function DashboardPage() {
                     gap: 12,
                     marginBottom: 16
                 }}>
-                    <select
+                    <SearchableSelect
                         value={filters.brand_id || 0}
-                        onChange={e => setFilters({ ...filters, brand_id: Number(e.target.value), model_id: 0 })}
-                    >
-                        <option value={0}>Ähli Brendler</option>
-                        {brandsList.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                    </select>
+                        onChange={(value) => setFilters({ ...filters, brand_id: Number(value), model_id: 0 })}
+                        options={brandsList.map((b) => ({ value: b.id, label: b.name }))}
+                        emptyOptionLabel="Ähli Brendler"
+                        emptyOptionValue={0}
+                        searchPlaceholder="Brend ady boýunça filter..."
+                    />
 
-                    <select
+                    <SearchableSelect
                         value={filters.model_id || 0}
-                        onChange={e => setFilters({ ...filters, model_id: Number(e.target.value) })}
+                        onChange={(value) => setFilters({ ...filters, model_id: Number(value) })}
+                        options={modelsList.map((m) => ({ value: m.id, label: m.name }))}
+                        emptyOptionLabel="Ähli Modeller"
+                        emptyOptionValue={0}
                         disabled={!filters.brand_id}
-                    >
-                        <option value={0}>Ähli Modeller</option>
-                        {modelsList.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
+                        searchPlaceholder="Model ady boýunça filter..."
+                    />
 
-                    <select
+                    <SearchableSelect
                         value={filters.category_id || 0}
-                        onChange={e => setFilters({ ...filters, category_id: Number(e.target.value) })}
-                    >
-                        <option value={0}>Ähli Kategoriýalar</option>
-                        {categoriesList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                        onChange={(value) => setFilters({ ...filters, category_id: Number(value) })}
+                        options={categoriesList.map((c) => ({ value: c.id, label: c.name }))}
+                        emptyOptionLabel="Ähli Kategoriýalar"
+                        emptyOptionValue={0}
+                        searchPlaceholder="Kategoriýa ady boýunça filter..."
+                    />
 
-                    <select
+                    <SearchableSelect
                         value={filters.status || ""}
-                        onChange={e => setFilters({ ...filters, status: e.target.value })}
-                    >
-                        <option value="">Ähli Ýagdaýlar</option>
-                        {STATUS_OPTIONS_MAP.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                    </select>
+                        onChange={(value) => setFilters({ ...filters, status: value })}
+                        options={STATUS_OPTIONS_MAP.map((s) => ({ value: s.value, label: s.label }))}
+                        emptyOptionLabel="Ähli Ýagdaýlar"
+                        searchPlaceholder="Ýagdaý ady boýunça filter..."
+                    />
 
                     <input
                         type="number"
@@ -233,15 +237,14 @@ export default function DashboardPage() {
                         }}
                     />
 
-                    <select
+                    <SearchableSelect
                         value={filters.employee_id || 0}
-                        onChange={e => setFilters({ ...filters, employee_id: e.target.value ? Number(e.target.value) : undefined })}
-                    >
-                        <option value={0}>Ähli işgärler</option>
-                        {employeeOptions.map(emp => (
-                            <option key={emp.id} value={emp.id}>{emp.name}</option>
-                        ))}
-                    </select>
+                        onChange={(value) => setFilters({ ...filters, employee_id: value ? Number(value) : undefined })}
+                        options={employeeOptions.map((emp) => ({ value: emp.id, label: emp.name }))}
+                        emptyOptionLabel="Ähli işgärler"
+                        emptyOptionValue={0}
+                        searchPlaceholder="Işgär ady boýunça filter..."
+                    />
 
                     <input
                         type="text"

@@ -79,7 +79,7 @@ func (r *UserPostgres) GetUserPage(pageSize, pageNumber int, name, surname, patr
 	}
 
 	get_users_request = get_users_request.Count(&count)
-	get_users_request = get_users_request.Offset(offset).Limit(pageSize).Find(&users)
+	get_users_request = get_users_request.Order("id desc").Offset(offset).Limit(pageSize).Find(&users)
 
 	var read_user_list []models.ReadUser
 
@@ -159,7 +159,7 @@ func (r *UserPostgres) ChangePassword(data models.Change_Password) error {
 		return get_user_request.Error
 	}
 
-	if user.Password != data.OldPassword {
+	if data.OldPassword != "" && user.Password != data.OldPassword {
 		return errors.New("Köne açar sözi gabat gelmedi")
 	}
 

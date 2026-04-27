@@ -59,7 +59,8 @@ func main() {
 
 	// Run auto migration for models if necessary
 	err = db.AutoMigrate(&models.Brand{}, &models.Model{}, &models.Category{}, &models.Attribute{}, &models.Device{},
-		&models.DeviceAttribute{}, &models.User{}, &models.DeviceAssignment{}, &models.Employee{}, &models.Role{})
+		&models.DeviceAttribute{}, &models.User{}, &models.DeviceAssignment{}, &models.Employee{}, &models.Role{},
+		&models.Furniture{}, &models.FurnitureAllocation{})
 
 	if err != nil {
 		logrus.Fatalf("error during migration: %s", err.Error())

@@ -59,7 +59,7 @@ func (r *BrandPostgres) GetPage(name string, pageSize, pageNumber int) (models.P
 	}
 
 	get_list_request.Count(&count)
-	get_list_request.Offset(offset).Limit(pageSize).Find(&list)
+	get_list_request.Order("id desc").Offset(offset).Limit(pageSize).Find(&list)
 
 	page = CreatePaginator(list, int(count), pageSize, pageNumber)
 	return page, nil

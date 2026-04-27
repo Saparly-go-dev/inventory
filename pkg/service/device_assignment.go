@@ -28,3 +28,7 @@ func (s *DeviceAssignmentService) GetEmployeeDevices(employeeId int) ([]models.D
 func (s *DeviceAssignmentService) GetAvailableDevices() ([]models.Device, error) {
 	return s.repo.GetAvailableDevices()
 }
+
+func (s *DeviceAssignmentService) GetAvailableDevicesPage(pageSize, pageNumber int) (models.Paginator, error) {
+	return s.repo.GetAvailableDevicesPage(pageSize, pageNumber)
+}

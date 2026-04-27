@@ -50,7 +50,7 @@ function SummaryCard({
 }: {
     label: string;
     value: number;
-    tone: "devices" | "employees" | "brands" | "categories";
+    tone: "devices" | "furnitures" | "employees" | "brands" | "categories";
 }) {
     return (
         <div className="stat-card">
@@ -186,6 +186,7 @@ export default function DashboardCharts({ data }: { data: StatisticsData }) {
         <section className="dashboard-charts" aria-label="Dashboard statistics">
             <div className="stats-summary">
                 <SummaryCard label="Enjamlar" value={data.total_devices} tone="devices" />
+                <SummaryCard label="Mebeller" value={data.total_furnitures} tone="furnitures" />
                 <SummaryCard label="Işgärler" value={data.total_employees} tone="employees" />
                 <SummaryCard label="Brendler" value={data.total_brands} tone="brands" />
                 <SummaryCard label="Kategoriýalar" value={data.total_categories} tone="categories" />
@@ -211,6 +212,19 @@ export default function DashboardCharts({ data }: { data: StatisticsData }) {
                     <h4>Işgärler - enjam sany boýunça</h4>
                     <BarChart data={data.top_employees_by_devices || []} colors={["#0f766e", "#059669", "#16a34a", "#65a30d"]} />
                 </div>
+
+                <div className="chart-card">
+                    <h4>Işgärler - mebel sany boýunça</h4>
+                    <BarChart data={data.top_employees_by_furnitures || []} colors={["#b45309", "#d97706", "#f59e0b", "#fbbf24"]} />
+                </div>
+
+                <div className="chart-card">
+                    <h4>Otaglar - mebel sany boýunça</h4>
+                    <BarChart
+                        data={(data.top_rooms_by_furnitures || []).map((item) => ({ ...item, name: `Otag #${item.name}` }))}
+                        colors={["#7c3aed", "#8b5cf6", "#a855f7", "#c084fc"]}
+                    />
+                </div>
             </div>
 
             <div className="recent-section">
@@ -221,13 +235,25 @@ export default function DashboardCharts({ data }: { data: StatisticsData }) {
     );
 }
 
-function StatIcon({ name }: { name: "devices" | "employees" | "brands" | "categories" }) {
+function StatIcon({ name }: { name: "devices" | "furnitures" | "employees" | "brands" | "categories" }) {
     if (name === "devices") {
         return (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                 <line x1="8" y1="21" x2="16" y2="21" />
                 <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+        );
+    }
+
+    if (name === "furnitures") {
+        return (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 11V9a4 4 0 0 1 8 0v2" />
+                <path d="M12 11V9a4 4 0 0 1 8 0v2" />
+                <path d="M3 11h18v6H3z" />
+                <path d="M5 17v3" />
+                <path d="M19 17v3" />
             </svg>
         );
     }

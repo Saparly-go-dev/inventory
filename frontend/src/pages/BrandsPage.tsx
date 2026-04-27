@@ -41,9 +41,15 @@ export default function BrandsPage() {
       setLoading(true);
       setError(null);
       const page = await getBrandPage(PAGE_SIZE, pageNumber, search);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
 
       setBrands(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
     } catch (e) {
       setError(handleApiError(e));
     } finally {

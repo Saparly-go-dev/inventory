@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  changeUserPassword,
   changeUserStatus,
   createUser,
   deleteUser,
@@ -12,6 +13,7 @@ import {
 import { handleApiError } from "../api/client";
 import { getPageCount } from "../api/pagination";
 import { getRolesSelected, type SelectedRole } from "../api/roles";
+import SearchableSelect from "../components/SearchableSelect";
 import { canManageUsers, normalizeRole, ROLE_OPTIONS } from "../utils/auth";
 
 const PAGE_SIZE = 10;
@@ -37,6 +39,8 @@ export default function UsersPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [passwordUser, setPasswordUser] = useState<User | null>(null);
+  const [passwordForm, setPasswordForm] = useState({ password: "", confirm_password: "" });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -46,8 +50,14 @@ export default function UsersPage() {
       setLoading(true);
       setError(null);
       const page = await getUserPage(PAGE_SIZE, pageNumber, filters);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
       setUsers(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -90,6 +100,11 @@ export default function UsersPage() {
   function resetForm() {
     setEditId(null);
     setForm(emptyForm);
+  }
+
+  function resetPasswordForm() {
+    setPasswordUser(null);
+    setPasswordForm({ password: "", confirm_password: "" });
   }
 
   function onEditClick(user: User) {
@@ -162,9 +177,32 @@ export default function UsersPage() {
       setError(null);
       setSuccess(null);
       await changeUserStatus(id);
+      setSuccess("Ulanyjy statusy üýtgedildi");
       await loadUsers();
     } catch (e) {
       setError(handleApiError(e));
+    }
+  }
+
+  async function onPasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canManage || !passwordUser) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      await changeUserPassword({
+        user_id: passwordUser.id,
+        password: passwordForm.password,
+        confirm_password: passwordForm.confirm_password,
+      });
+      setSuccess("Açar sözi üýtgedildi");
+      resetPasswordForm();
+    } catch (e) {
+      setError(handleApiError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -215,13 +253,15 @@ export default function UsersPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Rol</label>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: normalizeRole(e.target.value) })}>
-                {(roleOptions.length > 0 ? roleOptions : ROLE_OPTIONS.map((role) => ({ code: role.value, name: role.label }))).map((role) => (
-                  <option key={role.code} value={role.code}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
+              <SearchableSelect
+                value={form.role}
+                onChange={(value) => setForm({ ...form, role: normalizeRole(value) })}
+                options={(roleOptions.length > 0 ? roleOptions : ROLE_OPTIONS.map((role) => ({ code: role.value, name: role.label }))).map((role) => ({
+                  value: role.code,
+                  label: role.name,
+                }))}
+                searchPlaceholder="Rol ady boýunça filter..."
+              />
             </div>
             {editId === null && (
               <>
@@ -317,6 +357,17 @@ export default function UsersPage() {
                       <button onClick={() => onEditClick(user)} className="btn btn-primary" style={{ padding: "4px 8px", fontSize: 12 }}>
                         Üýtget
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPasswordUser(user);
+                          setPasswordForm({ password: "", confirm_password: "" });
+                        }}
+                        className="btn btn-secondary"
+                        style={{ padding: "4px 8px", fontSize: 12 }}
+                      >
+                        Parol
+                      </button>
                       <button onClick={() => onDelete(user.id)} className="btn btn-danger" style={{ padding: "4px 8px", fontSize: 12 }}>
                         Poz
                       </button>
@@ -357,6 +408,54 @@ export default function UsersPage() {
           Öňe
         </button>
       </div>
+
+      {passwordUser && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "rgba(0,0,0,0.5)",
+          backdropFilter: "blur(4px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+        }}>
+          <div className="card" style={{ width: 420, background: "var(--bg-card)" }}>
+            <h3 style={{ marginBottom: 16 }}>Paroly üýtget: {passwordUser.username}</h3>
+            <form onSubmit={onPasswordSubmit} style={{ display: "grid", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label className="text-sm text-muted">Täze açar sözi</label>
+                <input
+                  required
+                  type="password"
+                  value={passwordForm.password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label className="text-sm text-muted">Tassykla</label>
+                <input
+                  required
+                  type="password"
+                  value={passwordForm.confirm_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm_password: e.target.value })}
+                />
+              </div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                <button type="button" className="btn btn-secondary" onClick={resetPasswordForm}>
+                  Ýatyr
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? "Saklanýar..." : "Ýatda sakla"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

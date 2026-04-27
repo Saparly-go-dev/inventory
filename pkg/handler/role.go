@@ -24,15 +24,8 @@ func (h *Handler) CreateRole(c *gin.Context) {
 }
 
 func (h *Handler) GetRolePage(c *gin.Context) {
-	pageSize, err := strconv.Atoi(c.Query("page_size"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	pageNumber, err := strconv.Atoi(c.Query("page_number"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	pageSize, pageNumber, ok := parsePageParams(c)
+	if !ok {
 		return
 	}
 

@@ -44,6 +44,11 @@
     color: #10b981;
 }
 
+.stat-icon.furnitures {
+    background: rgba(180, 83, 9, 0.15);
+    color: #b45309;
+}
+
 .stat-icon.brands {
     background: rgba(245, 158, 11, 0.15);
     color: #f59e0b;

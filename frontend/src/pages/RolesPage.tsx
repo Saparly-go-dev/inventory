@@ -170,8 +170,14 @@ export default function RolesPage() {
       setLoading(true);
       setError(null);
       const page = await getRolePage(PAGE_SIZE, pageNumber, search);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
       setRoles(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
     } catch (e) {
       setError(handleApiError(e));
     } finally {

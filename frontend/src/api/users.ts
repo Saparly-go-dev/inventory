@@ -33,14 +33,21 @@ export interface UserFilters {
   username?: string;
 }
 
+export interface ChangeUserPasswordInput {
+  user_id: number;
+  old_password?: string;
+  password: string;
+  confirm_password: string;
+}
+
 export async function getUserPage(
   pageSize: number,
   pageNumber: number,
   filters: UserFilters = {}
 ) {
   const params: Record<string, string | number> = {
-    pageSize,
-    pageNumber,
+    page_size: pageSize,
+    page_number: pageNumber,
   };
 
   if (filters.name) params.name = filters.name;
@@ -71,4 +78,8 @@ export async function deleteUser(id: number) {
 
 export async function changeUserStatus(id: number) {
   await api.patch(`/api/users/${id}/status`);
+}
+
+export async function changeUserPassword(input: ChangeUserPasswordInput) {
+  await api.post("/api/users/password", input);
 }

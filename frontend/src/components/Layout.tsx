@@ -68,12 +68,15 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
         if (pathname.includes('/employees')) return 'Işgärler';
         if (pathname.includes('/devices/available')) return 'Elýeterli Enjamlar';
         if (pathname.includes('/devices')) return 'Enjamlar';
+        if (pathname.includes('/furnitures/assign')) return 'Mebel birikdirme';
+        if (pathname.includes('/furnitures')) return 'Mebeller';
         if (pathname.includes('/assign')) return 'Berkidilme';
         if (pathname.includes('/brands')) return 'Brendler';
         if (pathname.includes('/models')) return 'Modeller';
         if (pathname.includes('/categories')) return 'Kategoriýalar';
         if (pathname.includes('/attributes')) return 'Aýratynlyklar';
         if (pathname.includes('/statistics')) return 'Statistika';
+        if (pathname.includes('/profile')) return 'Meniň profilim';
         return 'Panel';
     };
 
@@ -123,10 +126,22 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                             Elýeterli
                         </NavLink>
                     )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/furnitures" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} end>
+                            <NavIcon name="sofa" />
+                            Mebeller
+                        </NavLink>
+                    )}
                     {canAssignDevicesNow && (
                         <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
                             <NavIcon name="link" />
                             Berkidilme
+                        </NavLink>
+                    )}
+                    {canAssignDevicesNow && (
+                        <NavLink to="/furnitures/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="armchair" />
+                            Mebel birikdirme
                         </NavLink>
                     )}
 
@@ -156,6 +171,13 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                             Aýratynlyklar
                         </NavLink>
                     )}
+
+                    <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
+
+                    <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                        <NavIcon name="profile" />
+                        Meniň profilim
+                    </NavLink>
 
                     <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
 
@@ -192,7 +214,7 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                             )}
                         </button>
 
-                        <div className="profile-pill">
+                        <NavLink to="/profile" className="profile-pill" style={{ textDecoration: "none" }}>
                             <div className="profile-avatar" aria-hidden="true">
                                 {(profile?.name || profile?.username || "U").slice(0, 1).toUpperCase()}
                             </div>
@@ -200,7 +222,7 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                                 <span className="profile-name">{displayName}</span>
                                 <span className="profile-role">{profile?.username || "..." } · {currentRoleLabel}</span>
                             </div>
-                        </div>
+                        </NavLink>
 
                         <button type="button" className="logout-btn" onClick={handleLogout} title="Logout">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -248,6 +270,12 @@ function NavIcon({ name }: { name: string }) {
             return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
         case 'chart':
             return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>;
+        case 'profile':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+        case 'sofa':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 11V9a4 4 0 0 1 8 0v2"></path><path d="M12 11V9a4 4 0 0 1 8 0v2"></path><path d="M3 11h18v6H3z"></path><path d="M5 17v3"></path><path d="M19 17v3"></path></svg>;
+        case 'armchair':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 11V8a5 5 0 0 1 10 0v3"></path><path d="M5 11h14v6H5z"></path><path d="M7 17v3"></path><path d="M17 17v3"></path><path d="M4 11v4"></path><path d="M20 11v4"></path></svg>;
         default:
             return null;
     }

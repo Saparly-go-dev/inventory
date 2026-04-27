@@ -120,15 +120,8 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Security ApiKeyAuth
 func (h *Handler) getUserPage(c *gin.Context) {
 
-	pageSize, err := strconv.Atoi(c.Query("pageSize"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	pageNumber, err := strconv.Atoi(c.Query("pageNumber"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	pageSize, pageNumber, ok := parsePageParams(c)
+	if !ok {
 		return
 	}
 

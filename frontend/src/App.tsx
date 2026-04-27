@@ -18,6 +18,9 @@ import CategoriesPage from "./pages/CategoriesPage";
 import AttributesPage from "./pages/AttributesPage";
 import DevicesPage from "./pages/DevicesPage";
 import StatisticsPage from "./pages/StatisticsPage";
+import FurnituresPage from "./pages/FurnituresPage";
+import AssignFurniturePage from "./pages/AssignFurniturePage";
+import MyProfilePage from "./pages/MyProfilePage";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -54,11 +57,14 @@ function App() {
             <Route path="/devices" element={<DevicesPage />} />
             <Route path="/devices/available" element={<AvailableDevicesPage />} />
             <Route path="/assign" element={<AssignDevicePage />} />
+            <Route path="/furnitures" element={<FurnituresPage />} />
+            <Route path="/furnitures/assign" element={<AssignFurniturePage />} />
             <Route path="/brands" element={<BrandsPage />} />
             <Route path="/models" element={<ModelsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/attributes" element={<AttributesPage />} />
             <Route path="/statistics" element={<StatisticsPage />} />
+            <Route path="/profile" element={<MyProfilePage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Route>

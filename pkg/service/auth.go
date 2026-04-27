@@ -7,6 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"inventory/models"
 	"inventory/pkg/repository"
+	"strings"
 	"time"
 )
 
@@ -36,6 +37,10 @@ func (s *AuthService) GenerateToken(username, password string) (models.LoginResp
 
 	if err != nil {
 		return result, err
+	}
+
+	if strings.ToLower(strings.TrimSpace(user.Role)) != "admin" && !user.Status {
+		return result, errors.New("Ulanyjy işjeň däl")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{

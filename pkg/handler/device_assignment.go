@@ -114,7 +114,12 @@ func (h *Handler) GetEmployeeDevices(c *gin.Context) {
 // @Router       /api/devices/available [get]
 // @Security ApiKeyAuth
 func (h *Handler) GetAvailableDevices(c *gin.Context) {
-	devices, err := h.services.DeviceAssignment.GetAvailableDevices()
+	pageSize, pageNumber, ok := parsePageParams(c)
+	if !ok {
+		return
+	}
+
+	devices, err := h.services.DeviceAssignment.GetAvailableDevicesPage(pageSize, pageNumber)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

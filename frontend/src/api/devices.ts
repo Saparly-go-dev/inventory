@@ -155,7 +155,17 @@ export async function deleteDevice(id: number) {
 // ниже — если ты используешь эти функции для available/assign (можно оставить как есть)
 
 export async function getAvailableDevices() {
-  const res = await api.get<Device[]>("/api/devices/available");
+  const page = await getAvailableDevicesPage(500, 1);
+  return page.items;
+}
+
+export async function getAvailableDevicesPage(pageSize: number, pageNumber: number) {
+  const res = await api.get<Paginator<Device>>("/api/devices/available", {
+    params: {
+      page_size: pageSize,
+      page_number: pageNumber,
+    },
+  });
   return res.data;
 }
 

@@ -75,6 +75,18 @@ type DeviceAttribute interface {
 	Delete(id int) error
 }
 
+type Furniture interface {
+	Create(buffer models.UpdateFurniture) error
+	GetPage(name string, pageSize, pageNumber int) (models.Paginator, error)
+	Update(id int, buffer models.UpdateFurniture) error
+	Delete(id int) error
+	GetById(id int) (models.Furniture, error)
+	GetAvailable() ([]models.Furniture, error)
+	GetAllocations(furnitureID int) ([]models.FurnitureAllocation, error)
+	Assign(input models.AssignFurnitureInput) error
+	Return(input models.ReturnFurnitureInput) error
+}
+
 type Employee interface {
 	Create(buffer models.UpdateEmployee) error
 	GetPage(name string, roomNumbers []int, pageSize, pageNumber int) (models.Paginator, error)
@@ -91,6 +103,7 @@ type DeviceAssignment interface {
 	ReturnDeviceFromEmployee(deviceId, employeeId int) error
 	GetEmployeeDevices(employeeId int) ([]models.Device, error)
 	GetAvailableDevices() ([]models.Device, error)
+	GetAvailableDevicesPage(pageSize, pageNumber int) (models.Paginator, error)
 }
 
 type Dashboard interface {
@@ -112,6 +125,7 @@ type Repository struct {
 	Attribute
 	Device
 	DeviceAttribute
+	Furniture
 	Employee
 	DeviceAssignment
 	Dashboard
@@ -129,6 +143,7 @@ func NewRepository(db *gorm.DB) *Repository {
 		Attribute:        NewAttributePostgres(db),
 		Device:           NewDevicePostgres(db),
 		DeviceAttribute:  NewDeviceAttributePostgres(db),
+		Furniture:        NewFurniturePostgres(db),
 		Employee:         NewEmployeePostgres(db),
 		DeviceAssignment: NewDeviceAssignmentPostgres(db),
 		Dashboard:        NewDashboardPostgres(db),

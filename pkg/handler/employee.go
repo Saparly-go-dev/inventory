@@ -52,15 +52,8 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 // @Router       /api/employees [get]
 // @Security ApiKeyAuth
 func (h *Handler) GetEmployeePage(c *gin.Context) {
-	pageSize, err := strconv.Atoi(c.Query("page_size"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	pageNumber, err := strconv.Atoi(c.Query("page_number"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	pageSize, pageNumber, ok := parsePageParams(c)
+	if !ok {
 		return
 	}
 

@@ -18,6 +18,7 @@ export interface RecentAssignment {
 
 export interface StatisticsData {
     total_devices: number;
+    total_furnitures: number;
     total_employees: number;
     total_brands: number;
     total_categories: number;
@@ -25,6 +26,8 @@ export interface StatisticsData {
     devices_by_category: NameCount[];
     devices_by_brand: NameCount[];
     top_employees_by_devices: NameCount[];
+    top_employees_by_furnitures: NameCount[];
+    top_rooms_by_furnitures: NameCount[];
     recent_assignments: RecentAssignment[];
 }
 

@@ -59,7 +59,9 @@ func (Service *UserService) Update(id int, update_user models.CreateUser) error 
 }
 
 func (Service *UserService) ChangePassword(data models.Change_Password) error {
-	data.OldPassword = generatePasswordHash(data.OldPassword)
+	if strings.TrimSpace(data.OldPassword) != "" {
+		data.OldPassword = generatePasswordHash(data.OldPassword)
+	}
 	data.Password = generatePasswordHash(data.Password)
 	data.ConfirmPassword = generatePasswordHash(data.ConfirmPassword)
 

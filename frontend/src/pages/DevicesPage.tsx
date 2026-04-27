@@ -19,8 +19,10 @@ import { handleApiError, API_BASE_URL } from "../api/client";
 import { getPageCount } from "../api/pagination";
 import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
 import { canCloneDevices, canCreateInventory, canDeleteInventory, canImportDevices, canUpdateInventory } from "../utils/auth";
+import SearchableSelect from "../components/SearchableSelect";
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 function getImageUrl(path: string | null | undefined) {
   if (!path) return "";
@@ -48,7 +50,9 @@ export default function DevicesPage() {
   const canWrite = canCreate || canUpdate || canDelete || canClone;
   const [devices, setDevices] = useState<Device[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,9 +115,16 @@ export default function DevicesPage() {
     try {
       setLoading(true);
       setError(null);
-      const page = await getDevicePage(PAGE_SIZE, pageNumber, search);
+      const page = await getDevicePage(pageSize, pageNumber, search);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
       setDevices(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
+      setPageInput(String(pageNumber));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -123,7 +134,11 @@ export default function DevicesPage() {
 
   useEffect(() => {
     loadDevices();
-  }, [pageNumber, search]);
+  }, [pageNumber, pageSize, search]);
+
+  useEffect(() => {
+    setPageInput(String(pageNumber));
+  }, [pageNumber]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -199,6 +214,15 @@ export default function DevicesPage() {
     setPhotoFile(null);
   }
 
+  function goToPage() {
+    const nextPage = Number(pageInput);
+    if (!Number.isInteger(nextPage) || nextPage < 1) {
+      setPageInput(String(pageNumber));
+      return;
+    }
+    setPageNumber(Math.min(nextPage, totalPages));
+  }
+
   return (
     <div className="page-animate">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -242,14 +266,12 @@ export default function DevicesPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label className="text-sm text-muted">Ýagdaýy</label>
-              <select
+              <SearchableSelect
                 value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value || "in_stock" })}
-              >
-                {STATUS_OPTIONS_MAP.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
-              </select>
+                onChange={(value) => setForm({ ...form, status: value || "in_stock" })}
+                options={STATUS_OPTIONS_MAP.map((s) => ({ value: s.value, label: s.label }))}
+                searchPlaceholder="Ýagdaý ady boýunça filter..."
+              />
             </div>
           </div>
 
@@ -304,36 +326,42 @@ export default function DevicesPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Brend</label>
-              <select
+              <SearchableSelect
                 value={form.brand_id}
-                onChange={(e) => setForm({ ...form, brand_id: Number(e.target.value), model_id: 0 })}
-              >
-                <option value={0} disabled>Brend saýlaň</option>
-                {brandsList.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+                onChange={(value) => setForm({ ...form, brand_id: Number(value), model_id: 0 })}
+                options={brandsList.map((b) => ({ value: b.id, label: b.name }))}
+                emptyOptionLabel="Brend saýlaň"
+                emptyOptionValue={0}
+                emptyOptionDisabled
+                searchPlaceholder="Brend ady boýunça filter..."
+              />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Model</label>
-              <select
+              <SearchableSelect
                 value={form.model_id}
-                onChange={(e) => setForm({ ...form, model_id: Number(e.target.value) })}
+                onChange={(value) => setForm({ ...form, model_id: Number(value) })}
+                options={modelsList.map((m) => ({ value: m.id, label: m.name }))}
+                emptyOptionLabel="Model saýlaň"
+                emptyOptionValue={0}
+                emptyOptionDisabled
                 disabled={!form.brand_id}
-              >
-                <option value={0} disabled>Model saýlaň</option>
-                {modelsList.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
+                searchPlaceholder="Model ady boýunça filter..."
+              />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Kategoriýa</label>
-              <select
+              <SearchableSelect
                 value={form.category_id}
-                onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
-              >
-                <option value={0} disabled>Kategoriýa saýlaň</option>
-                {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+                onChange={(value) => setForm({ ...form, category_id: Number(value) })}
+                options={categoriesList.map((c) => ({ value: c.id, label: c.name }))}
+                emptyOptionLabel="Kategoriýa saýlaň"
+                emptyOptionValue={0}
+                emptyOptionDisabled
+                searchPlaceholder="Kategoriýa ady boýunça filter..."
+              />
             </div>
           </div>
 
@@ -353,18 +381,21 @@ export default function DevicesPage() {
 
             {form.attributes?.map((attr, index) => (
               <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                <select
+                <div style={{ flex: 1 }}>
+                <SearchableSelect
                   value={attr.attribute_id}
-                  onChange={(e) => {
+                  onChange={(value) => {
                     const newAttributes = [...(form.attributes || [])];
-                    newAttributes[index].attribute_id = Number(e.target.value);
+                    newAttributes[index].attribute_id = Number(value);
                     setForm({ ...form, attributes: newAttributes });
                   }}
-                  style={{ flex: 1 }}
-                >
-                  <option value={0} disabled>Aýratynlyk saýlaň</option>
-                  {attributesList.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
+                  options={attributesList.map((a) => ({ value: a.id, label: a.name }))}
+                  emptyOptionLabel="Aýratynlyk saýlaň"
+                  emptyOptionValue={0}
+                  emptyOptionDisabled
+                  searchPlaceholder="Aýratynlyk ady boýunça filter..."
+                />
+                </div>
                 <input
                   placeholder="Düzümi"
                   value={attr.options}
@@ -495,7 +526,7 @@ export default function DevicesPage() {
         </table>
       </div>
 
-      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
         <button
           disabled={pageNumber <= 1}
           onClick={() => setPageNumber((p) => p - 1)}
@@ -515,6 +546,41 @@ export default function DevicesPage() {
         >
           Öňe
         </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Sahypa geç:</span>
+          <input
+            type="number"
+            min={1}
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                goToPage();
+              }
+            }}
+            style={{ width: 88 }}
+          />
+          <button type="button" className="btn btn-secondary" onClick={goToPage}>
+            Geç
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Sahypada:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPageNumber(1);
+            }}
+          >
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {previewImage && (

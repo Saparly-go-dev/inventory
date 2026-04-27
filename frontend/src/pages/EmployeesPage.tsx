@@ -50,8 +50,14 @@ export default function EmployeesPage() {
       setError(null);
       const roomNumbers = roomFilter.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
       const page = await getEmployeesPage(PAGE_SIZE, pageNumber, search, roomNumbers);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
       setEmployees(page.items);
-      setTotalPages(getPageCount(page));
+      setTotalPages(pageCount);
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -74,6 +80,7 @@ export default function EmployeesPage() {
         await updateEmployee(editId, form);
       }
       resetForm();
+      setPageNumber(1);
       await load();
     } catch (e) {
       setError(handleApiError(e));

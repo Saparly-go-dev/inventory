@@ -1,16 +1,24 @@
 // src/pages/AvailableDevicesPage.tsx
 import { useEffect, useState } from "react";
-import { getAvailableDevices } from "../api/devices";
+import { getAvailableDevicesPage } from "../api/devices";
 import type {
   Device
 } from "../api/devices";
 import { handleApiError } from "../api/client";
+import { getPageCount } from "../api/pagination";
 import { getDeviceStatusLabel } from "../utils/statusUtils";
 import { canViewInventory } from "../utils/auth";
+
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 export default function AvailableDevicesPage() {
   const canView = canViewInventory();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +26,16 @@ export default function AvailableDevicesPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getAvailableDevices();
-      setDevices(data);
+      const page = await getAvailableDevicesPage(pageSize, pageNumber);
+      const pageCount = getPageCount(page);
+      if (pageNumber > pageCount) {
+        setTotalPages(pageCount);
+        setPageNumber(pageCount);
+        return;
+      }
+      setDevices(page.items);
+      setTotalPages(pageCount);
+      setPageInput(String(pageNumber));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -30,7 +46,20 @@ export default function AvailableDevicesPage() {
   useEffect(() => {
     if (!canView) return;
     load();
-  }, [canView]);
+  }, [canView, pageNumber, pageSize]);
+
+  useEffect(() => {
+    setPageInput(String(pageNumber));
+  }, [pageNumber]);
+
+  function goToPage() {
+    const nextPage = Number(pageInput);
+    if (!Number.isInteger(nextPage) || nextPage < 1) {
+      setPageInput(String(pageNumber));
+      return;
+    }
+    setPageNumber(Math.min(nextPage, totalPages));
+  }
 
   if (!canView) {
     return (
@@ -87,6 +116,63 @@ export default function AvailableDevicesPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <button
+          disabled={pageNumber <= 1}
+          onClick={() => setPageNumber((p) => p - 1)}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber <= 1 ? 0.5 : 1 }}
+        >
+          Yza
+        </button>
+        <span style={{ color: 'var(--text-muted)' }}>
+          Sahypa {pageNumber} / {totalPages}
+        </span>
+        <button
+          disabled={pageNumber >= totalPages}
+          onClick={() => setPageNumber((p) => p + 1)}
+          className="btn btn-secondary"
+          style={{ opacity: pageNumber >= totalPages ? 0.5 : 1 }}
+        >
+          Öňe
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Sahypa geç:</span>
+          <input
+            type="number"
+            min={1}
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                goToPage();
+              }
+            }}
+            style={{ width: 88 }}
+          />
+          <button type="button" className="btn btn-secondary" onClick={goToPage}>
+            Geç
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Sahypada:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPageNumber(1);
+            }}
+          >
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );

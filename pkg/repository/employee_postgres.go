@@ -170,7 +170,7 @@ func (r *EmployeePostgres) GetPage(name string, roomNumbers []int, pageSize, pag
 	}
 
 	getListRequest.Count(&count)
-	getListRequest.Offset(offset).Limit(pageSize).Find(&list)
+	getListRequest.Order("id desc").Offset(offset).Limit(pageSize).Find(&list)
 
 	page = CreatePaginator(list, int(count), pageSize, pageNumber)
 	return page, nil

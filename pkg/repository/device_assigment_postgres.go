@@ -118,10 +118,36 @@ func (r *DeviceAssignmentPostgres) GetAvailableDevices() ([]models.Device, error
 
 	getReq := r.db.Model(&models.Device{}).Preload("Category").Preload("Brand").Preload("Model").
 		Where("status = ?", "in_stock").
+		Order("id desc").
 		Find(&devices)
 	if getReq.Error != nil {
 		return nil, getReq.Error
 	}
 
 	return devices, nil
+}
+
+func (r *DeviceAssignmentPostgres) GetAvailableDevicesPage(pageSize, pageNumber int) (models.Paginator, error) {
+	var page models.Paginator
+	var devices []models.Device
+	var count int64
+
+	offset := (pageNumber - 1) * pageSize
+
+	query := r.db.Model(&models.Device{}).
+		Preload("Category").
+		Preload("Brand").
+		Preload("Model").
+		Where("status = ?", "in_stock")
+
+	if err := query.Count(&count).Error; err != nil {
+		return page, err
+	}
+
+	if err := query.Order("id desc").Offset(offset).Limit(pageSize).Find(&devices).Error; err != nil {
+		return page, err
+	}
+
+	page = CreatePaginator(devices, int(count), pageSize, pageNumber)
+	return page, nil
 }

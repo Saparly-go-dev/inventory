@@ -12,6 +12,7 @@ import {
 import { handleApiError } from "../api/client";
 import { getPageCount } from "../api/pagination";
 import { canCreateInventory, canDeleteInventory, canUpdateInventory } from "../utils/auth";
+import SearchableSelect from "../components/SearchableSelect";
 
 const PAGE_SIZE = 10;
 
@@ -44,8 +45,14 @@ export default function CategoriesPage() {
             setLoading(true);
             setError(null);
             const page = await getCategoryPage(PAGE_SIZE, pageNumber, search);
+            const pageCount = getPageCount(page);
+            if (pageNumber > pageCount) {
+                setTotalPages(pageCount);
+                setPageNumber(pageCount);
+                return;
+            }
             setCategories(page.items);
-            setTotalPages(getPageCount(page));
+            setTotalPages(pageCount);
         } catch (e) {
             setError(handleApiError(e));
         } finally {
@@ -165,22 +172,19 @@ export default function CategoriesPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             <label className="text-sm text-muted">Parent kategoriýa</label>
-                            <select
+                            <SearchableSelect
                                 value={form.parent_id || 0}
-                                onChange={(e) =>
+                                onChange={(value) =>
                                     setForm({
                                         ...form,
-                                        parent_id: e.target.value ? Number(e.target.value) : null,
+                                        parent_id: value && value !== "0" ? Number(value) : null,
                                     })
                                 }
-                            >
-                                <option value={0}>- Ýok (Root) -</option>
-                                {parentList.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </select>
+                                options={parentList.map((p) => ({ value: p.id, label: p.name }))}
+                                emptyOptionLabel="- Ýok (Root) -"
+                                emptyOptionValue={0}
+                                searchPlaceholder="Kategoriýa ady boýunça filter..."
+                            />
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

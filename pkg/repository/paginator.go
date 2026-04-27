@@ -10,6 +10,10 @@ func CreatePaginator[T any](items []T, total, pageSize, pageNumber int) models.P
 		interfaceItems[i] = v
 	}
 
+	if pageSize <= 0 {
+		pageSize = 1
+	}
+
 	pageCount := total / pageSize
 	if total%pageSize != 0 {
 		pageCount++

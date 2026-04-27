@@ -33,15 +33,18 @@ type RecentAssignment struct {
 }
 
 type StatisticsData struct {
-	TotalDevices         int                `json:"total_devices"`
-	TotalEmployees       int                `json:"total_employees"`
-	TotalBrands          int                `json:"total_brands"`
-	TotalCategories      int                `json:"total_categories"`
-	DevicesByStatus      []StatusCount      `json:"devices_by_status"`
-	DevicesByCategory    []NameCount        `json:"devices_by_category"`
-	DevicesByBrand       []NameCount        `json:"devices_by_brand"`
-	TopEmployeesByDevice []NameCount        `json:"top_employees_by_devices"`
-	RecentAssignments    []RecentAssignment `json:"recent_assignments"`
+	TotalDevices            int                `json:"total_devices"`
+	TotalFurnitures         int                `json:"total_furnitures"`
+	TotalEmployees          int                `json:"total_employees"`
+	TotalBrands             int                `json:"total_brands"`
+	TotalCategories         int                `json:"total_categories"`
+	DevicesByStatus         []StatusCount      `json:"devices_by_status"`
+	DevicesByCategory       []NameCount        `json:"devices_by_category"`
+	DevicesByBrand          []NameCount        `json:"devices_by_brand"`
+	TopEmployeesByDevice    []NameCount        `json:"top_employees_by_devices"`
+	TopEmployeesByFurniture []NameCount        `json:"top_employees_by_furnitures"`
+	TopRoomsByFurniture     []NameCount        `json:"top_rooms_by_furnitures"`
+	RecentAssignments       []RecentAssignment `json:"recent_assignments"`
 }
 
 // ---------- implementation ----------
@@ -54,6 +57,9 @@ func (r *StatisticsPostgres) GetStatistics() (StatisticsData, error) {
 
 	r.db.Table("devices").Count(&cnt)
 	data.TotalDevices = int(cnt)
+
+	r.db.Table("furnitures").Count(&cnt)
+	data.TotalFurnitures = int(cnt)
 
 	r.db.Table("employees").Count(&cnt)
 	data.TotalEmployees = int(cnt)
@@ -103,6 +109,29 @@ func (r *StatisticsPostgres) GetStatistics() (StatisticsData, error) {
 		Order("count DESC").
 		Limit(10).
 		Scan(&data.TopEmployeesByDevice).Error; err != nil {
+		return data, err
+	}
+
+	if err := r.db.Table("furniture_allocations").
+		Select("employees.full_name as name, COALESCE(SUM(furniture_allocations.quantity), 0) as count").
+		Joins("JOIN employees ON employees.id = furniture_allocations.employee_id").
+		Where("furniture_allocations.returned_at IS NULL").
+		Where("COALESCE(employees.full_name, '') <> ''").
+		Group("employees.full_name").
+		Order("count DESC").
+		Limit(10).
+		Scan(&data.TopEmployeesByFurniture).Error; err != nil {
+		return data, err
+	}
+
+	if err := r.db.Table("furniture_allocations").
+		Select("CAST(furniture_allocations.room_number AS TEXT) as name, COALESCE(SUM(furniture_allocations.quantity), 0) as count").
+		Where("furniture_allocations.returned_at IS NULL").
+		Where("furniture_allocations.room_number IS NOT NULL").
+		Group("furniture_allocations.room_number").
+		Order("count DESC").
+		Limit(10).
+		Scan(&data.TopRoomsByFurniture).Error; err != nil {
 		return data, err
 	}
 
