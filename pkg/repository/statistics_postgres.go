@@ -33,14 +33,15 @@ type RecentAssignment struct {
 }
 
 type StatisticsData struct {
-	TotalDevices      int                `json:"total_devices"`
-	TotalEmployees    int                `json:"total_employees"`
-	TotalBrands       int                `json:"total_brands"`
-	TotalCategories   int                `json:"total_categories"`
-	DevicesByStatus   []StatusCount      `json:"devices_by_status"`
-	DevicesByCategory []NameCount        `json:"devices_by_category"`
-	DevicesByBrand    []NameCount        `json:"devices_by_brand"`
-	RecentAssignments []RecentAssignment `json:"recent_assignments"`
+	TotalDevices         int                `json:"total_devices"`
+	TotalEmployees       int                `json:"total_employees"`
+	TotalBrands          int                `json:"total_brands"`
+	TotalCategories      int                `json:"total_categories"`
+	DevicesByStatus      []StatusCount      `json:"devices_by_status"`
+	DevicesByCategory    []NameCount        `json:"devices_by_category"`
+	DevicesByBrand       []NameCount        `json:"devices_by_brand"`
+	TopEmployeesByDevice []NameCount        `json:"top_employees_by_devices"`
+	RecentAssignments    []RecentAssignment `json:"recent_assignments"`
 }
 
 // ---------- implementation ----------
@@ -89,6 +90,19 @@ func (r *StatisticsPostgres) GetStatistics() (StatisticsData, error) {
 		Group("brands.name").
 		Order("count DESC").
 		Scan(&data.DevicesByBrand).Error; err != nil {
+		return data, err
+	}
+
+	// Employees by current assigned devices (top 10)
+	if err := r.db.Table("device_assignments").
+		Select("employees.full_name as name, COUNT(*) as count").
+		Joins("JOIN employees ON employees.id = device_assignments.employee_id").
+		Where("device_assignments.returned_at IS NULL").
+		Where("COALESCE(employees.full_name, '') <> ''").
+		Group("employees.full_name").
+		Order("count DESC").
+		Limit(10).
+		Scan(&data.TopEmployeesByDevice).Error; err != nil {
 		return data, err
 	}
 

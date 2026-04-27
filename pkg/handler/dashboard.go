@@ -17,6 +17,7 @@ import (
 // @Param category_id query int false "Category ID"
 // @Param brand_id query int false "Brand ID"
 // @Param room_number query int false "Room Number"
+// @Param floor_number query int false "Floor Number"
 // @Param employee_id query int false "Employee ID"
 // @Param status query string false "Status"
 // @Param attribute_id query int false "Attribute ID"
@@ -52,6 +53,7 @@ func (h *Handler) getAllDevices(c *gin.Context) {
 // @Param category_id query int false "Category ID"
 // @Param brand_id query int false "Brand ID"
 // @Param room_number query int false "Room Number"
+// @Param floor_number query int false "Floor Number"
 // @Param employee_id query int false "Employee ID"
 // @Param status query string false "Status"
 // @Param attribute_id query int false "Attribute ID"
@@ -111,6 +113,13 @@ func (h *Handler) parseDeviceFilters(c *gin.Context) (repository.DeviceFilters, 
 			return filters, err
 		}
 		filters.RoomNumber = &val
+	}
+	if floorNumberStr := c.Query("floor_number"); floorNumberStr != "" {
+		val, err := strconv.Atoi(floorNumberStr)
+		if err != nil {
+			return filters, err
+		}
+		filters.FloorNumber = &val
 	}
 	if employeeIDStr := c.Query("employee_id"); employeeIDStr != "" {
 		val, err := strconv.Atoi(employeeIDStr)

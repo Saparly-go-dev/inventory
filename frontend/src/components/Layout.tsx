@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './Layout.css';
+import { getCurrentUser, type User } from '../api/users';
+import { canAssignDevices, canManageRoles, canManageUsers, canViewInventory, canViewStatistics, clearAuth, getCurrentPermissions, getCurrentRole, normalizeRole, ROLE_OPTIONS, setCurrentPermissions } from '../utils/auth';
 
 interface LayoutProps {
     theme: 'light' | 'dark';
@@ -9,19 +11,60 @@ interface LayoutProps {
 
 export default function Layout({ theme, setTheme }: LayoutProps) {
     const location = useLocation();
+    const navigate = useNavigate();
+    const [profile, setProfile] = useState<User | null>(null);
+    const currentRole = getCurrentRole();
+    const profileRole = normalizeRole(profile?.role || currentRole);
+    const currentRoleLabel = profile?.role_name || ROLE_OPTIONS.find((role) => role.value === profileRole)?.label || profileRole;
+    const activePermissions = profile?.permissions || getCurrentPermissions();
+    const canManageUsersNow = canManageUsers(profileRole, activePermissions);
+    const canManageRolesNow = canManageRoles(profileRole, activePermissions);
+    const canViewInventoryNow = canViewInventory(profileRole, activePermissions);
+    const canAssignDevicesNow = canAssignDevices(profileRole, activePermissions);
+    const canViewStatisticsNow = canViewStatistics(profileRole, activePermissions);
+    const displayName = profile
+        ? [profile.surname, profile.name].filter(Boolean).join(" ") || profile.username
+        : "Profile";
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
     }, [theme]);
 
+    useEffect(() => {
+        let cancelled = false;
+
+        getCurrentUser()
+            .then((user) => {
+                if (cancelled) return;
+                localStorage.setItem("auth_role", normalizeRole(user.role));
+                setCurrentPermissions(user.permissions);
+                setProfile(user);
+            })
+            .catch(() => {
+                if (cancelled) return;
+                setProfile(null);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     const toggleTheme = () => {
         setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    };
+
+    const handleLogout = () => {
+        clearAuth();
+        navigate("/login", { replace: true });
     };
 
     // Helper to determine page title based on path
     const getPageTitle = (pathname: string) => {
         if (pathname.includes('/dashboard')) return 'Panel';
+        if (pathname.includes('/users')) return 'Ulanyjylar';
+        if (pathname.includes('/roles')) return 'Rollar';
         if (pathname.includes('/employees')) return 'Işgärler';
         if (pathname.includes('/devices/available')) return 'Elýeterli Enjamlar';
         if (pathname.includes('/devices')) return 'Enjamlar';
@@ -44,55 +87,90 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                 </div>
 
                 <nav className="nav-links">
-                    <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="dashboard" />
-                        Panel
-                    </NavLink>
-                    <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="users" />
-                        Işgärler
-                    </NavLink>
-                    <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} end>
-                        <NavIcon name="monitor" />
-                        Enjamlar
-                    </NavLink>
-                    <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="box" />
-                        Elýeterli
-                    </NavLink>
-                    <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="link" />
-                        Berkidilme
-                    </NavLink>
+                    {canViewInventoryNow && (
+                        <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="dashboard" />
+                            Panel
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/employees" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="users" />
+                            Işgärler
+                        </NavLink>
+                    )}
+                    {canManageUsersNow && (
+                        <NavLink to="/users" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="account" />
+                            Ulanyjylar
+                        </NavLink>
+                    )}
+                    {canManageRolesNow && (
+                        <NavLink to="/roles" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="shield" />
+                            Rollar
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/devices" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} end>
+                            <NavIcon name="monitor" />
+                            Enjamlar
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/devices/available" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="box" />
+                            Elýeterli
+                        </NavLink>
+                    )}
+                    {canAssignDevicesNow && (
+                        <NavLink to="/assign" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="link" />
+                            Berkidilme
+                        </NavLink>
+                    )}
 
                     <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
 
-                    <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="tag" />
-                        Brendler
-                    </NavLink>
-                    <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="layers" />
-                        Modeller
-                    </NavLink>
-                    <NavLink to="/categories" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="grid" />
-                        Kategoriýalar
-                    </NavLink>
-                    <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="settings" />
-                        Aýratynlyklar
-                    </NavLink>
+                    {canViewInventoryNow && (
+                        <NavLink to="/brands" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="tag" />
+                            Brendler
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/models" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="layers" />
+                            Modeller
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/categories" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="grid" />
+                            Kategoriýalar
+                        </NavLink>
+                    )}
+                    {canViewInventoryNow && (
+                        <NavLink to="/attributes" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="settings" />
+                            Aýratynlyklar
+                        </NavLink>
+                    )}
 
                     <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
 
-                    <NavLink to="/statistics" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                        <NavIcon name="chart" />
-                        Statistika
-                    </NavLink>
+                    {canViewStatisticsNow && (
+                        <NavLink to="/statistics" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="chart" />
+                            Statistika
+                        </NavLink>
+                    )}
                 </nav>
 
                 <div className="sidebar-footer">
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                        Rol: {currentRoleLabel}
+                    </span>
                     <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>v1.0.0</span>
                 </div>
             </aside>
@@ -101,18 +179,38 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
             <main className="main-area">
                 <header className="top-bar">
                     <h2 className="page-title">{getPageTitle(location.pathname)}</h2>
-                    <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme" title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>
-                        {theme === "light" ? (
-                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    <div className="top-bar-actions">
+                        <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme" title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}>
+                            {theme === "light" ? (
+                                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                            ) : (
+                                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            )}
+                        </button>
+
+                        <div className="profile-pill">
+                            <div className="profile-avatar" aria-hidden="true">
+                                {(profile?.name || profile?.username || "U").slice(0, 1).toUpperCase()}
+                            </div>
+                            <div className="profile-meta">
+                                <span className="profile-name">{displayName}</span>
+                                <span className="profile-role">{profile?.username || "..." } · {currentRoleLabel}</span>
+                            </div>
+                        </div>
+
+                        <button type="button" className="logout-btn" onClick={handleLogout} title="Logout">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
                             </svg>
-                        ) : (
-                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                        )}
-                    </button>
-                    {/* Add User Profile or other top bar items here in future */}
+                            <span>Çykmak</span>
+                        </button>
+                    </div>
                 </header>
 
                 <div className="content-wrapper">
@@ -130,6 +228,10 @@ function NavIcon({ name }: { name: string }) {
             return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
         case 'users':
             return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
+        case 'account':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle><path d="M18 8h4"></path><path d="M20 6v4"></path></svg>;
+        case 'shield':
+            return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>;
         case 'monitor':
             return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>;
         case 'box':

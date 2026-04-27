@@ -13,6 +13,8 @@ import type {
   ModelItem,
   UpdateModel
 } from "../api/models"
+import { getPageCount } from "../api/pagination";
+import { canCreateInventory, canDeleteInventory, canUpdateInventory } from "../utils/auth";
 
 import {
   getBrandsSelected,
@@ -22,6 +24,10 @@ import {
 const PAGE_SIZE = 10;
 
 export default function ModelsPage() {
+  const canCreate = canCreateInventory();
+  const canUpdate = canUpdateInventory();
+  const canDelete = canDeleteInventory();
+  const canWrite = canCreate || canUpdate || canDelete;
   const [models, setModels] = useState<ModelItem[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,7 +50,7 @@ export default function ModelsPage() {
       setError(null);
       const page = await getModelPage(PAGE_SIZE, pageNumber, search);
       setModels(page.items);
-      setTotalPages(page.total_pages);
+      setTotalPages(getPageCount(page));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -71,6 +77,7 @@ export default function ModelsPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if ((editId === null && !canCreate) || (editId !== null && !canUpdate)) return;
 
     if (!form.brand_id) {
       setError("Brend saýlaň");
@@ -94,6 +101,7 @@ export default function ModelsPage() {
   }
 
   async function onDelete(id: number) {
+    if (!canDelete) return;
     if (!confirm("Modeli pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
@@ -105,6 +113,7 @@ export default function ModelsPage() {
   }
 
   function onEditClick(m: ModelItem) {
+    if (!canUpdate) return;
     setEditId(m.id);
     setForm({
       name: m.name,
@@ -136,6 +145,7 @@ export default function ModelsPage() {
         </div>
       </div>
 
+      {(canCreate || editId !== null) && (
       <div className="card" style={{ marginBottom: 32, maxWidth: 640 }}>
         <h3 style={{ marginBottom: 16 }}>
           {editId === null ? "Model döret" : `Modeli üýtget #${editId}`}
@@ -194,6 +204,7 @@ export default function ModelsPage() {
           </div>
         </form>
       </div>
+      )}
 
       {error && (
         <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
@@ -211,7 +222,7 @@ export default function ModelsPage() {
               <th>Ady</th>
               <th>Düşündiriş</th>
               <th>Brend</th>
-              <th>Hereketler</th>
+              {canWrite && <th>Hereketler</th>}
             </tr>
           </thead>
           <tbody>
@@ -221,17 +232,19 @@ export default function ModelsPage() {
                 <td style={{ fontWeight: 500 }}>{m.name}</td>
                 <td>{m.description}</td>
                 <td>{m.brand.name}</td>
+                {canWrite && (
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditClick(m)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
-                    <button onClick={() => onDelete(m.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                    {canUpdate && <button onClick={() => onEditClick(m)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>}
+                    {canDelete && <button onClick={() => onDelete(m.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>}
                   </div>
                 </td>
+                )}
               </tr>
             ))}
             {models.length === 0 && !loading && (
               <tr>
-                <td colSpan={5} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                <td colSpan={canWrite ? 5 : 4} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
                   Modeller tapylmady
                 </td>
               </tr>

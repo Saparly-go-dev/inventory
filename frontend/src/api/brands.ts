@@ -1,5 +1,6 @@
 // src/api/brands.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 export interface Brand {
   id: number;
@@ -14,15 +15,6 @@ export interface UpdateBrand {
   name: string;
   description: string;
   info: string;
-}
-
-// подгони поля под свой CreatePaginator, если отличаются
-export interface Paginator<T> {
-  items: T[];
-  total_items: number;
-  total_pages: number;
-  page_number: number;
-  page_size: number;
 }
 
 export interface SelectedObject {

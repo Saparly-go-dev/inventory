@@ -10,10 +10,16 @@ import {
     type SelectedObject,
 } from "../api/categories";
 import { handleApiError } from "../api/client";
+import { getPageCount } from "../api/pagination";
+import { canCreateInventory, canDeleteInventory, canUpdateInventory } from "../utils/auth";
 
 const PAGE_SIZE = 10;
 
 export default function CategoriesPage() {
+    const canCreate = canCreateInventory();
+    const canUpdate = canUpdateInventory();
+    const canDelete = canDeleteInventory();
+    const canWrite = canCreate || canUpdate || canDelete;
     const [categories, setCategories] = useState<Category[]>([]);
     const [pageNumber, setPageNumber] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -39,7 +45,7 @@ export default function CategoriesPage() {
             setError(null);
             const page = await getCategoryPage(PAGE_SIZE, pageNumber, search);
             setCategories(page.items);
-            setTotalPages(page.total_pages);
+            setTotalPages(getPageCount(page));
         } catch (e) {
             setError(handleApiError(e));
         } finally {
@@ -66,6 +72,7 @@ export default function CategoriesPage() {
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
+        if ((editId === null && !canCreate) || (editId !== null && !canUpdate)) return;
 
         try {
             setError(null);
@@ -84,6 +91,7 @@ export default function CategoriesPage() {
     }
 
     async function onDelete(id: number) {
+        if (!canDelete) return;
         if (!confirm("Kategoriýany pozmak isleýärsiňizmi?")) return;
         try {
             setError(null);
@@ -96,6 +104,7 @@ export default function CategoriesPage() {
     }
 
     function onEditClick(c: Category) {
+        if (!canUpdate) return;
         setEditId(c.id);
         setForm({
             name: c.name,
@@ -130,9 +139,10 @@ export default function CategoriesPage() {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) 2fr', gap: '24px', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: (canCreate || editId !== null) ? 'minmax(320px, 1fr) 2fr' : '1fr', gap: '24px', alignItems: 'start' }}>
 
                 {/* Form Section */}
+                {(canCreate || editId !== null) && (
                 <div className="card" style={{ position: 'sticky', top: '80px' }}>
                     <h3 style={{ marginBottom: 20, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {editId === null ? (
@@ -215,6 +225,7 @@ export default function CategoriesPage() {
                         </div>
                     </form>
                 </div>
+                )}
 
                 {/* List Section */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -234,7 +245,7 @@ export default function CategoriesPage() {
                                     <th>Ady</th>
                                     <th>Parent</th>
                                     <th>Info</th>
-                                    <th style={{ width: '100px', textAlign: 'right' }}>Hereketler</th>
+                                    {canWrite && <th style={{ width: '100px', textAlign: 'right' }}>Hereketler</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -258,21 +269,23 @@ export default function CategoriesPage() {
                                             )}
                                         </td>
                                         <td>{c.info || '-'}</td>
+                                        {canWrite && (
                                         <td style={{ textAlign: 'right' }}>
                                             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                                                <button onClick={() => onEditClick(c)} className="btn btn-secondary" style={{ padding: '6px', width: '32px', height: '32px' }} title="Üýtget">
+                                                {canUpdate && <button onClick={() => onEditClick(c)} className="btn btn-secondary" style={{ padding: '6px', width: '32px', height: '32px' }} title="Üýtget">
                                                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                                </button>
-                                                <button onClick={() => onDelete(c.id)} className="btn btn-secondary" style={{ padding: '6px', width: '32px', height: '32px', color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Poz">
+                                                </button>}
+                                                {canDelete && <button onClick={() => onDelete(c.id)} className="btn btn-secondary" style={{ padding: '6px', width: '32px', height: '32px', color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Poz">
                                                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                                </button>
+                                                </button>}
                                             </div>
                                         </td>
+                                        )}
                                     </tr>
                                 ))}
                                 {categories.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={5} style={{ padding: 48, textAlign: "center", color: 'var(--text-muted)' }}>
+                                        <td colSpan={canWrite ? 5 : 4} style={{ padding: 48, textAlign: "center", color: 'var(--text-muted)' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                                                 <svg width="48" height="48" stroke="currentColor" fill="none" viewBox="0 0 24 24" style={{ opacity: 0.2 }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                                 Kategoriýalar tapylmady

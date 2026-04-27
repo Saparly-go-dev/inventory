@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as XLSX from 'xlsx';
 import { type DeviceFilters } from "../api/dashboard";
+import { getEmployeesSelected, type SelectedObject as EmployeeSelected } from "../api/employees";
+import { returnDevice } from "../api/devices";
+import { handleApiError } from "../api/client";
 import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
 import {
     useDashboardDevices,
@@ -9,9 +12,18 @@ import {
     useAttributesList,
     useModelsList
 } from "../api/queries";
+import { canExportDevices, canReturnDevices, canViewInventory } from "../utils/auth";
 
 export default function DashboardPage() {
+    const canView = canViewInventory();
+    const canReturn = canReturnDevices();
+    const canExport = canExportDevices();
     const [exporting, setExporting] = useState(false);
+    const [employeeSearch, setEmployeeSearch] = useState("");
+    const [employeeOptions, setEmployeeOptions] = useState<EmployeeSelected[]>([]);
+    const [returningDeviceId, setReturningDeviceId] = useState<number | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
     // Filters
     const [filters, setFilters] = useState<DeviceFilters>({
@@ -20,6 +32,7 @@ export default function DashboardPage() {
         category_id: 0,
         status: "",
         room_number: 0,
+        floor_number: 0,
         employee_id: 0,
         name: "",
         attribute_options: "",
@@ -27,17 +40,40 @@ export default function DashboardPage() {
     });
 
     // Data Fetching with React Query
-    const { data: devices = [], isLoading: loading, isError, error } = useDashboardDevices(filters);
-    const { data: brandsList = [] } = useBrandsList();
-    const { data: categoriesList = [] } = useCategoriesList();
-    const { data: attributesList = [] } = useAttributesList();
-    const { data: modelsList = [] } = useModelsList(filters.brand_id || 0);
+    const { data: devices = [], isLoading: loading, isError, error, refetch } = useDashboardDevices(filters, canView);
+    const { data: brandsList = [] } = useBrandsList(canView);
+    const { data: categoriesList = [] } = useCategoriesList(canView);
+    const { data: attributesList = [] } = useAttributesList(canView);
+    const { data: modelsList = [] } = useModelsList(filters.brand_id || 0, canView);
 
     // Create attribute map for display
     const attributeMap: Record<number, string> = {};
     attributesList.forEach(a => attributeMap[a.id] = a.name);
 
+    useEffect(() => {
+        let cancelled = false;
+        const timer = window.setTimeout(async () => {
+            try {
+                if (!canView) return;
+                const employees = await getEmployeesSelected(employeeSearch.trim());
+                if (!cancelled) {
+                    setEmployeeOptions(employees);
+                }
+            } catch (e) {
+                if (!cancelled) {
+                    setActionError(handleApiError(e));
+                }
+            }
+        }, 250);
+
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+        };
+    }, [canView, employeeSearch]);
+
     const handleExport = async () => {
+        if (!canExport) return;
         if (exporting) return;
         setExporting(true);
         try {
@@ -99,8 +135,37 @@ export default function DashboardPage() {
         }
     };
 
+    const handleReturnDevice = async (deviceId: number, employeeId: number, employeeName: string) => {
+        if (!canReturn) return;
+        if (!employeeId || returningDeviceId !== null) return;
+
+        const ok = window.confirm(`${employeeName || "Işgär"} üçin berkidilen enjamy aýyrmak isleýärsiňizmi?`);
+        if (!ok) return;
+
+        setReturningDeviceId(deviceId);
+        setActionError(null);
+        setActionSuccess(null);
+
+        try {
+            await returnDevice({ device_id: deviceId, employee_id: employeeId });
+            setActionSuccess("Enjam işgärden aýryldy");
+            await refetch();
+        } catch (e) {
+            setActionError(handleApiError(e));
+        } finally {
+            setReturningDeviceId(null);
+        }
+    };
+
     return (
         <div className="page-animate">
+            {!canView ? (
+                <div className="card">
+                    <h2 style={{ marginBottom: 8 }}>Rugsat ýok</h2>
+                    <p style={{ color: "var(--text-muted)" }}>Panel maglumatlaryny görmek üçin degişli rugsat gerek.</p>
+                </div>
+            ) : (
+            <>
             <h2 style={{ marginBottom: 16 }}>Dolandyryş paneli</h2>
 
             <div className="card" style={{ marginBottom: 24 }}>
@@ -152,10 +217,31 @@ export default function DashboardPage() {
 
                     <input
                         type="number"
-                        placeholder="Işgär ID"
-                        value={filters.employee_id || ""}
-                        onChange={e => setFilters({ ...filters, employee_id: e.target.value ? Number(e.target.value) : undefined })}
+                        min={0}
+                        placeholder="Gat"
+                        value={filters.floor_number || ""}
+                        onChange={e => setFilters({ ...filters, floor_number: e.target.value ? Number(e.target.value) : undefined })}
                     />
+
+                    <input
+                        type="text"
+                        placeholder="Işgär ady/familiýasy"
+                        value={employeeSearch}
+                        onChange={e => {
+                            setEmployeeSearch(e.target.value);
+                            setFilters({ ...filters, employee_id: undefined });
+                        }}
+                    />
+
+                    <select
+                        value={filters.employee_id || 0}
+                        onChange={e => setFilters({ ...filters, employee_id: e.target.value ? Number(e.target.value) : undefined })}
+                    >
+                        <option value={0}>Ähli işgärler</option>
+                        {employeeOptions.map(emp => (
+                            <option key={emp.id} value={emp.id}>{emp.name}</option>
+                        ))}
+                    </select>
 
                     <input
                         type="text"
@@ -191,16 +277,30 @@ export default function DashboardPage() {
                     >
                         Filtrleri ulan
                     </button>
-                    <button
-                        onClick={handleExport}
-                        disabled={exporting}
-                        className={`btn badge ${exporting ? "status-warning" : "status-success"}`}
-                        style={{ fontSize: 14, cursor: exporting ? "wait" : "pointer" }}
-                    >
-                        {exporting ? "Eksport edilýär..." : "Excel-e eksport et"}
-                    </button>
+                    {canExport && (
+                        <button
+                            onClick={handleExport}
+                            disabled={exporting}
+                            className={`btn badge ${exporting ? "status-warning" : "status-success"}`}
+                            style={{ fontSize: 14, cursor: exporting ? "wait" : "pointer" }}
+                        >
+                            {exporting ? "Eksport edilýär..." : "Excel-e eksport et"}
+                        </button>
+                    )}
                 </div>
             </div>
+
+            {actionSuccess && (
+                <div style={{ padding: 12, borderRadius: 6, background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', marginBottom: 16 }}>
+                    {actionSuccess}
+                </div>
+            )}
+
+            {actionError && (
+                <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
+                    {actionError}
+                </div>
+            )}
 
             {isError && (
                 <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
@@ -225,6 +325,7 @@ export default function DashboardPage() {
                                     <th>Berkidilen</th>
                                     <th>Otag</th>
                                     <th>Aýratynlyklar</th>
+                                    {canReturn && <th>Hereketler</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -254,12 +355,32 @@ export default function DashboardPage() {
                                                     </div>
                                                 ) : "-"}
                                             </td>
+                                            {canReturn && (
+                                            <td>
+                                                {d.employee_id ? (
+                                                    <button
+                                                        onClick={() => handleReturnDevice(d.id, d.employee_id, d.employee_full_name)}
+                                                        disabled={returningDeviceId === d.id}
+                                                        className="btn"
+                                                        style={{
+                                                            padding: '4px 8px',
+                                                            fontSize: 12,
+                                                            color: 'var(--danger)',
+                                                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                                                            background: 'rgba(239, 68, 68, 0.08)',
+                                                        }}
+                                                    >
+                                                        {returningDeviceId === d.id ? "Aýrylýar..." : "Aýyr"}
+                                                    </button>
+                                                ) : "-"}
+                                            </td>
+                                            )}
                                         </tr>
                                     )
                                 })}
                                 {devices.length === 0 && (
                                     <tr>
-                                        <td colSpan={9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                                        <td colSpan={canReturn ? 10 : 9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
                                             Maglumat tapylmady.
                                         </td>
                                     </tr>
@@ -268,6 +389,8 @@ export default function DashboardPage() {
                         </table>
                     </div>
                 </div>
+            )}
+            </>
             )}
         </div>
     );

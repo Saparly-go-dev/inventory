@@ -1,5 +1,6 @@
 // src/api/devices.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 export interface RelatedBrand {
   id: number;
@@ -61,14 +62,6 @@ export interface UpdateDevice {
   category_id: number;
   photo?: string; // старый путь, чтобы не терять фото при апдейте
   attributes?: { attribute_id: number; options: string; info: string }[];
-}
-
-export interface Paginator<T> {
-  items: T[];
-  total_items: number;
-  total_pages: number;
-  page_number: number;
-  page_size: number;
 }
 
 export interface DeviceAssignmentInput {

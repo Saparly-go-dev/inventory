@@ -1,5 +1,6 @@
 // src/api/employees.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 export interface Employee {
   id: number;
@@ -23,15 +24,6 @@ export interface UpdateEmployee {
 
 export interface EmployeeWithDevices extends Employee {
   devices: any[]; // Using any[] to match existing usage in details page, or we could import Device if available
-}
-
-// подгони под свой Paginator, если названия полей другие
-export interface Paginator<T> {
-  items: T[];
-  total_items: number;
-  total_pages: number;
-  page_number: number;
-  page_size: number;
 }
 
 export interface SelectedObject {
@@ -72,6 +64,10 @@ export async function deleteEmployee(id: number) {
   await api.delete("/api/employees", { params: { id } });
 }
 
+export async function syncEmployees() {
+  await api.post("/api/employees/sync");
+}
+
 export async function getEmployeesSelected(name?: string) {
   const params = name ? { name } : {};
   const res = await api.get<SelectedObject[]>("/api/employees/selected", {
@@ -108,4 +104,3 @@ export async function getEmployee(id: number) {
   // If it returns single object directly
   return response.data as Employee;
 }
-

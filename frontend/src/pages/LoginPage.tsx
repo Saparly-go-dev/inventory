@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { signIn, type SignInInput } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { handleApiError } from "../api/client";
+import { normalizeRole, setCurrentPermissions } from "../utils/auth";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -26,6 +27,8 @@ export default function LoginPage() {
             // Let's inspect response if it fails, but for now assuming "token".
             if (data && data.token) {
                 localStorage.setItem("auth_token", data.token);
+                localStorage.setItem("auth_role", normalizeRole(data.role));
+                setCurrentPermissions(null);
                 navigate("/dashboard", { replace: true });
             } else {
                 // Fallback if key is different (e.g. just the string?)

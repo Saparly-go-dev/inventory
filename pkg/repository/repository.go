@@ -12,11 +12,21 @@ type Authorization interface {
 
 type User interface {
 	Create(create_user models.CreateUser) error
+	GetById(id int) (models.User, error)
 	GetUserPage(pageSize, pageNumber int, name, surname, patronymic, username string) (models.Paginator, error)
 	ChangeStatus(id int) error
 	Delete(id int) error
 	Update(id int, update_user models.CreateUser) error
 	ChangePassword(data models.Change_Password) error
+}
+
+type Role interface {
+	Create(buffer models.UpdateRole) error
+	GetPage(search string, pageSize, pageNumber int) (models.Paginator, error)
+	GetAllSelected() ([]models.SelectedRole, error)
+	GetByCode(code string) (models.Role, error)
+	Update(id int, buffer models.UpdateRole) error
+	Delete(id int) error
 }
 
 type Brand interface {
@@ -94,6 +104,7 @@ type Statistics interface {
 
 type Repository struct {
 	User
+	Role
 	Authorization
 	Brand
 	Category
@@ -111,6 +122,7 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		Authorization:    NewAuthPostgres(db),
 		User:             NewUserPostgres(db),
+		Role:             NewRolePostgres(db),
 		Brand:            NewBrandPostgres(db),
 		Category:         NewCategoryPostgres(db),
 		Model:            NewModelPostgres(db),

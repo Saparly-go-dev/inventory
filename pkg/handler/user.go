@@ -8,6 +8,70 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type userProfileResponse struct {
+	Id          int                    `json:"id"`
+	Name        string                 `json:"name"`
+	Surname     string                 `json:"surname"`
+	Patronymic  string                 `json:"patronymic"`
+	Username    string                 `json:"username"`
+	Role        string                 `json:"role"`
+	RoleName    string                 `json:"role_name"`
+	Status      bool                   `json:"status"`
+	CreatedAt   string                 `json:"created_at"`
+	UpdatedAt   string                 `json:"updated_at"`
+	Permissions models.RolePermissions `json:"permissions"`
+}
+
+func toUserProfileResponse(user models.User, roleName string, permissions models.RolePermissions) userProfileResponse {
+	return userProfileResponse{
+		Id:          user.Id,
+		Name:        user.Name,
+		Surname:     user.Surname,
+		Patronymic:  user.Patronymic,
+		Username:    user.Username,
+		Role:        normalizeRole(user.Role),
+		RoleName:    roleName,
+		Status:      user.Status,
+		CreatedAt:   user.CreatedAt.Format("02.01.2006"),
+		UpdatedAt:   user.UpdatedAt.Format("02.01.2006"),
+		Permissions: permissions,
+	}
+}
+
+// @Summary      Get Current User
+// @Description  Returns the profile for the authenticated user
+// @Tags         users
+// @Produce      json
+// @Success      200  {object}  userProfileResponse
+// @Failure      401  {object}  errorResponse
+// @Failure      500  {object}  errorResponse
+// @Router       /api/users/me [get]
+// @Security ApiKeyAuth
+func (h *Handler) getCurrentUser(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+
+	user, err := h.services.User.GetById(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	permissions, err := getUserPermissions(c)
+	if err != nil {
+		return
+	}
+
+	roleName := normalizeRole(user.Role)
+	if role, err := h.services.Role.GetByCode(roleName); err == nil && role.Name != "" {
+		roleName = role.Name
+	}
+
+	c.JSON(http.StatusOK, toUserProfileResponse(user, roleName, permissions))
+}
+
 // @Summary      Create User
 // @Description  Creates a new user
 // @Tags         users

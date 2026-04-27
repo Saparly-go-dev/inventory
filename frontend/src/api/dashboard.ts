@@ -3,6 +3,7 @@ import type { Device } from "./devices";
 
 export interface DashboardDevice extends Device {
     employee_full_name: string;
+    employee_id: number;
     room_number: number;
     attributes: {
         id: number;
@@ -26,6 +27,7 @@ export interface DeviceFilters {
     category_id?: number | null;
     brand_id?: number | null;
     room_number?: number | null;
+    floor_number?: number | null;
     employee_id?: number | null;
     status?: string | null;
     name?: string | null;
@@ -43,6 +45,7 @@ export async function getDashboardDevices(filters: DeviceFilters) {
     if (filters.category_id) params.category_id = filters.category_id;
     if (filters.brand_id) params.brand_id = filters.brand_id;
     if (filters.room_number) params.room_number = filters.room_number;
+    if (filters.floor_number) params.floor_number = filters.floor_number;
     if (filters.employee_id) params.employee_id = filters.employee_id;
     if (filters.status) params.status = filters.status;
     if (filters.name) params.name = filters.name;
@@ -60,11 +63,12 @@ export async function exportDashboardExcel(filters: DeviceFilters) {
     if (filters.category_id) params.category_id = filters.category_id;
     if (filters.brand_id) params.brand_id = filters.brand_id;
     if (filters.room_number) params.room_number = filters.room_number;
+    if (filters.floor_number) params.floor_number = filters.floor_number;
     if (filters.employee_id) params.employee_id = filters.employee_id;
     if (filters.status) params.status = filters.status;
     if (filters.name) params.name = filters.name;
     if (filters.attribute_options) params.attribute_options = filters.attribute_options;
-    if (filters.attribute_info) params.info = filters.attribute_info;
+    if (filters.attribute_info) params.attribute_info = filters.attribute_info;
 
     const res = await api.get("/api/dashboard/devices/export", {
         params,

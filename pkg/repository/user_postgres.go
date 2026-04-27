@@ -49,6 +49,12 @@ func (r *UserPostgres) Create(create_user models.CreateUser) error {
 	return nil
 }
 
+func (r *UserPostgres) GetById(id int) (models.User, error) {
+	var user models.User
+	result := r.db.Model(&models.User{}).Where("id = ?", id).First(&user)
+	return user, result.Error
+}
+
 func (r *UserPostgres) GetUserPage(pageSize, pageNumber int, name, surname, patronymic, username string) (models.Paginator, error) {
 
 	var users []models.User

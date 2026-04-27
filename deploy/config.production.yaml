@@ -1,0 +1,16 @@
+port: "8080"
+
+db:
+  username: "postgres"
+  host: "127.0.0.1"
+  port: "5432"
+  dbname: "inventory"
+  sslmode: "disable"
+
+mysql:
+  host: "localhost"
+  port: "3306"
+  username: "root"
+  password: "<mysql-password-if-sync-is-used>"
+  dbname: "info"
+  sslmode: "disable"

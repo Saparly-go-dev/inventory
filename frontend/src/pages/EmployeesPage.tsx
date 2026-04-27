@@ -6,23 +6,32 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  syncEmployees,
 } from "../api/employees";
 import type {
   Employee,
   UpdateEmployee
 } from "../api/employees";
 import { handleApiError } from "../api/client";
+import { getPageCount } from "../api/pagination";
+import { canCreateInventory, canDeleteInventory, canSyncEmployees, canUpdateInventory } from "../utils/auth";
 
 const PAGE_SIZE = 10;
 
 export default function EmployeesPage() {
   const navigate = useNavigate();
+  const canCreate = canCreateInventory();
+  const canUpdate = canUpdateInventory();
+  const canDelete = canDeleteInventory();
+  const canSync = canSyncEmployees();
+  const canWrite = canCreate || canUpdate || canDelete;
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [roomFilter, setRoomFilter] = useState("");
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState<UpdateEmployee>({
@@ -42,7 +51,7 @@ export default function EmployeesPage() {
       const roomNumbers = roomFilter.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
       const page = await getEmployeesPage(PAGE_SIZE, pageNumber, search, roomNumbers);
       setEmployees(page.items);
-      setTotalPages(page.total_pages);
+      setTotalPages(getPageCount(page));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -56,6 +65,7 @@ export default function EmployeesPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if ((editId === null && !canCreate) || (editId !== null && !canUpdate)) return;
     try {
       setError(null);
       if (editId === null) {
@@ -71,6 +81,7 @@ export default function EmployeesPage() {
   }
 
   async function onDelete(id: number) {
+    if (!canDelete) return;
     if (!confirm("Işgäri pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
@@ -82,6 +93,7 @@ export default function EmployeesPage() {
   }
 
   function onEditClick(e: Employee) {
+    if (!canUpdate) return;
     setEditId(e.id);
     setForm({
       full_name: e.full_name,
@@ -106,11 +118,30 @@ export default function EmployeesPage() {
     });
   }
 
+  async function onSync() {
+    if (!canSync || syncing) return;
+    try {
+      setSyncing(true);
+      setError(null);
+      await syncEmployees();
+      await load();
+    } catch (e) {
+      setError(handleApiError(e));
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   return (
     <div className="page-animate">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h2>Işgärler</h2>
-        <div style={{ display: 'flex', gap: 12, width: '400px' }}>
+        <div style={{ display: 'flex', gap: 12, width: '520px' }}>
+          {canSync && (
+            <button type="button" className="btn btn-secondary" onClick={onSync} disabled={syncing}>
+              {syncing ? "Sync..." : "Sync"}
+            </button>
+          )}
           <input
             placeholder="Ady boýunça gözleg..."
             value={search}
@@ -132,6 +163,7 @@ export default function EmployeesPage() {
         </div>
       </div>
 
+      {(canCreate || editId !== null) && (
       <div className="card" style={{ marginBottom: 32 }}>
         <h3 style={{ marginBottom: 16 }}>{editId === null ? "Işgär döret" : `Işgäri üýtget #${editId}`}</h3>
         <form onSubmit={onSubmit} style={{ display: "grid", gap: 16 }}>
@@ -197,6 +229,7 @@ export default function EmployeesPage() {
           </div>
         </form>
       </div>
+      )}
 
       {error && (
         <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
@@ -217,7 +250,7 @@ export default function EmployeesPage() {
               <th>Email</th>
               <th>Tel</th>
               <th>Otag</th>
-              <th>Hereketler</th>
+              {canWrite && <th>Hereketler</th>}
             </tr>
           </thead>
           <tbody>
@@ -230,17 +263,19 @@ export default function EmployeesPage() {
                 <td>{e.email}</td>
                 <td>{e.phone}</td>
                 <td>{e.room_number || "-"}</td>
+                {canWrite && (
                 <td>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <button onClick={(event) => { event.stopPropagation(); onEditClick(e); }} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
-                    <button onClick={(event) => { event.stopPropagation(); onDelete(e.id); }} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                    {canUpdate && <button onClick={(event) => { event.stopPropagation(); onEditClick(e); }} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>}
+                    {canDelete && <button onClick={(event) => { event.stopPropagation(); onDelete(e.id); }} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>}
                   </div>
                 </td>
+                )}
               </tr>
             ))}
             {employees.length === 0 && !loading && (
               <tr>
-                <td colSpan={8} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                <td colSpan={canWrite ? 8 : 7} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
                   Işgärler tapylmady
                 </td>
               </tr>

@@ -4,13 +4,48 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="test version 0.2&#10;add excel import">
+    <list default="true" id="f105e54b-fadb-4478-85f7-8e2daee767b1" name="Changes" comment="beta version 1.0">
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393/storage_v2/_src_/database/inventory.XBmQhw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a3c9db97-dcbb-4b37-b61e-379427cea393/storage_v2/_src_/database/inventory.XBmQhw/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/attributes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/attributes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/brands.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/brands.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/categories.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/categories.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/dashboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/dashboard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/devices.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/devices.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/employees.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/employees.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/models.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/models.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/queries.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/queries.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/statistics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/statistics.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Layout.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Layout.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProtectedRoute.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ProtectedRoute.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AssignDevicePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AssignDevicePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AttributesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AttributesPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AvailableDevicesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AvailableDevicesPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/BrandsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/BrandsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CategoriesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CategoriesPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DevicesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DevicesPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/EmployeesPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/EmployeesPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/LoginPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ModelsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ModelsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/StatisticsPage.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/StatisticsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/StatisticsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/dashboard.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/dashboard.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/response.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/handler/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/handler/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/dashboard_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/dashboard_postgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/statistics_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/statistics_postgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/repository/user_postgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/repository/user_postgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/service/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/service/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,42 +74,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.GoLinterPluginOnboarding": "true",
-    "RunOnceActivity.GoLinterPluginOnboardingV2": "true",
-    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.analysis.ui.options.defaults": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/home/saparly/GolandProjects/inventory",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "/home/saparly/GolandProjects/inventory/main.go",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/saparly/GolandProjects/inventory/frontend/node_modules/typescript/lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboardingV2&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.analysis.ui.options.defaults&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/saparly/GolandProjects/inventory&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/saparly/GolandProjects/inventory/main.go&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/saparly/GolandProjects/inventory/frontend/node_modules/typescript/lib&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-72a9cf600ed8-dfa3e7267ae0-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-253.30387.193" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-GO-253.30387.193" />
+        <option value="bundled-gosdk-72a9cf600ed8-3105c3b11fe0-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-261.22158.291" />
+        <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-GO-261.22158.291" />
       </set>
     </attachedChunks>
   </component>
@@ -114,6 +150,7 @@
     <MESSAGE value="translating to turkmen" />
     <MESSAGE value="test version 0.1" />
     <MESSAGE value="test version 0.2&#10;add excel import" />
-    <option name="LAST_COMMIT_MESSAGE" value="test version 0.2&#10;add excel import" />
+    <MESSAGE value="beta version 1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="beta version 1.0" />
   </component>
 </project>

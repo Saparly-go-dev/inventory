@@ -23,6 +23,7 @@ type DeviceFilters struct {
 	CategoryID       *int
 	BrandID          *int
 	RoomNumber       *int
+	FloorNumber      *int
 	EmployeeID       *int
 	Status           *string
 	AttributeID      *int
@@ -33,6 +34,7 @@ type DeviceFilters struct {
 type DashboardDevice struct {
 	models.Device
 	EmployeeFullName string                   `json:"employee_full_name"`
+	EmployeeID       int                      `json:"employee_id"`
 	RoomNumber       int                      `json:"room_number"`
 	Attributes       []models.DeviceAttribute `json:"attributes"`
 }
@@ -41,6 +43,7 @@ type DashboardDevice struct {
 type deviceAssignRow struct {
 	DeviceId         int    `gorm:"column:device_id"`
 	EmployeeFullName string `gorm:"column:employee_full_name"`
+	EmployeeID       int    `gorm:"column:employee_id"`
 	RoomNumber       int    `gorm:"column:room_number"`
 }
 
@@ -105,6 +108,7 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 		Select(`
 			devices.id as device_id,
 			COALESCE(employees.full_name, '') as employee_full_name,
+			COALESCE(employees.id, 0) as employee_id,
 			COALESCE(employees.room_number, 0) as room_number
 		`).
 		Joins(`
@@ -121,6 +125,9 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 	}
 	if filters.RoomNumber != nil {
 		assignQ = assignQ.Where("employees.room_number = ?", *filters.RoomNumber)
+	}
+	if filters.FloorNumber != nil {
+		assignQ = assignQ.Where("FLOOR(employees.room_number::numeric / 10) = ?", *filters.FloorNumber)
 	}
 
 	var assignRows []deviceAssignRow
@@ -154,7 +161,7 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 	for _, d := range baseDevices {
 		// Если включены фильтры по employee/room, то нужно отфильтровать устройства,
 		// которые не попали в assignRows.
-		if filters.EmployeeID != nil || filters.RoomNumber != nil {
+		if filters.EmployeeID != nil || filters.RoomNumber != nil || filters.FloorNumber != nil {
 			if _, ok := assignByDevice[d.Id]; !ok {
 				continue
 			}
@@ -164,6 +171,7 @@ func (r *DashboardPostgres) GetAllDevices(filters DeviceFilters) ([]DashboardDev
 		dd := DashboardDevice{
 			Device:           d,
 			EmployeeFullName: row.EmployeeFullName,
+			EmployeeID:       row.EmployeeID,
 			RoomNumber:       row.RoomNumber,
 			Attributes:       attrsByDevice[d.Id],
 		}

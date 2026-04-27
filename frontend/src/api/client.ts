@@ -1,5 +1,6 @@
 // src/api/client.ts
 import axios from "axios";
+import { clearAuth } from "../utils/auth";
 
 function normalizeBaseUrl(input: string): string {
   let base = input.trim();
@@ -39,8 +40,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      // Clear token and redirect to login
-      localStorage.removeItem("auth_token");
+      clearAuth();
       window.location.href = "/login";
     }
     return Promise.reject(error);

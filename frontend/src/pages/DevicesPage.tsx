@@ -16,7 +16,9 @@ import { getModelsSelected, type SelectedObject as ModelSelected } from "../api/
 import { getCategoriesSelected, type SelectedObject as CategorySelected } from "../api/categories";
 import { getAttributesSelected, type SelectedObject as AttributeSelected } from "../api/attributes";
 import { handleApiError, API_BASE_URL } from "../api/client";
+import { getPageCount } from "../api/pagination";
 import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
+import { canCloneDevices, canCreateInventory, canDeleteInventory, canImportDevices, canUpdateInventory } from "../utils/auth";
 
 const PAGE_SIZE = 10;
 
@@ -38,6 +40,12 @@ const statusBadgeClass = (status: string) => {
 };
 
 export default function DevicesPage() {
+  const canCreate = canCreateInventory();
+  const canUpdate = canUpdateInventory();
+  const canDelete = canDeleteInventory();
+  const canImport = canImportDevices();
+  const canClone = canCloneDevices();
+  const canWrite = canCreate || canUpdate || canDelete || canClone;
   const [devices, setDevices] = useState<Device[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -105,7 +113,7 @@ export default function DevicesPage() {
       setError(null);
       const page = await getDevicePage(PAGE_SIZE, pageNumber, search);
       setDevices(page.items);
-      setTotalPages(page.total_pages);
+      setTotalPages(getPageCount(page));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -119,6 +127,7 @@ export default function DevicesPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if ((editId === null && !canCreate) || (editId !== null && !canUpdate)) return;
 
     if (!form.brand_id || !form.model_id) {
       setError("Brend we modeli saýlaň");
@@ -141,6 +150,7 @@ export default function DevicesPage() {
   }
 
   async function onDelete(id: number) {
+    if (!canDelete) return;
     if (!confirm("Enjamy pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
@@ -152,6 +162,7 @@ export default function DevicesPage() {
   }
 
   function onEditClick(d: Device) {
+    if (!canUpdate) return;
     setEditId(d.id);
     setForm({
       name: d.name,
@@ -193,9 +204,11 @@ export default function DevicesPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h2>Enjamlar</h2>
         <div style={{ width: '300px', display: 'flex', gap: 12 }}>
+          {canImport && (
           <button onClick={() => setShowImportModal(true)} className="btn btn-secondary">
             Excel Import
           </button>
+          )}
           <input
             type="text"
             placeholder="Enjam ady boýunça gözleg..."
@@ -209,6 +222,7 @@ export default function DevicesPage() {
         </div>
       </div>
 
+      {(canCreate || editId !== null) && (
       <div className="card" style={{ marginBottom: 32 }}>
         <h3 style={{ marginBottom: 16 }}>
           {editId === null ? "Enjam döret" : `Enjamy üýtget #${editId}`}
@@ -398,6 +412,7 @@ export default function DevicesPage() {
           </div>
         </form>
       </div>
+      )}
 
       {error && (
         <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
@@ -419,7 +434,7 @@ export default function DevicesPage() {
               <th>Kategoriýa</th>
               <th>Surat</th>
               <th>Aýratynlyklar</th>
-              <th>Hereketler</th>
+              {canWrite && <th>Hereketler</th>}
             </tr>
           </thead>
           <tbody>
@@ -458,19 +473,21 @@ export default function DevicesPage() {
                     <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>-</span>
                   )}
                 </td>
+                {canWrite && (
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
-                    <button onClick={() => { setCloneId(d.id); setCloneCount(1); setShowCloneModal(true); }} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: 12 }}>Klon</button>
-                    <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                    {canUpdate && <button onClick={() => onEditClick(d)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>}
+                    {canClone && <button onClick={() => { setCloneId(d.id); setCloneCount(1); setShowCloneModal(true); }} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: 12 }}>Klon</button>}
+                    {canDelete && <button onClick={() => onDelete(d.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>}
                   </div>
                 </td>
+                )}
               </tr>
             ))}
             {devices.length === 0 && !loading && (
               <tr>
-                <td colSpan={9} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
-                  Enjam tapylmady. Ýokarda täzesini dörediň!
+                <td colSpan={canWrite ? 9 : 8} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                  Enjam tapylmady.
                 </td>
               </tr>
             )}
@@ -533,7 +550,7 @@ export default function DevicesPage() {
       )}
 
       {/* Clone Modal */}
-      {showCloneModal && (
+      {canClone && showCloneModal && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
           background: "rgba(0,0,0,0.5)", backdropFilter: 'blur(4px)',
@@ -554,7 +571,7 @@ export default function DevicesPage() {
             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
               <button className="btn btn-secondary" onClick={() => setShowCloneModal(false)}>Ýatyr</button>
               <button className="btn btn-primary" onClick={async () => {
-                if (!cloneId || cloneCount <= 0) return;
+                if (!canClone || !cloneId || cloneCount <= 0) return;
                 try {
                   await cloneDevice(cloneId, cloneCount);
                   setShowCloneModal(false);
@@ -567,7 +584,7 @@ export default function DevicesPage() {
       )}
 
       {/* Import Modal */}
-      {showImportModal && (
+      {canImport && showImportModal && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
           background: "rgba(0,0,0,0.5)", backdropFilter: 'blur(4px)',
@@ -593,7 +610,7 @@ export default function DevicesPage() {
             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
               <button className="btn btn-secondary" onClick={() => setShowImportModal(false)}>Ýatyr</button>
               <button className="btn btn-primary" onClick={async () => {
-                if (!importFile) return;
+                if (!canImport || !importFile) return;
                 try {
                   await importDevices(importFile);
                   setShowImportModal(false);

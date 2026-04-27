@@ -24,6 +24,7 @@ export interface StatisticsData {
     devices_by_status: StatusCount[];
     devices_by_category: NameCount[];
     devices_by_brand: NameCount[];
+    top_employees_by_devices: NameCount[];
     recent_assignments: RecentAssignment[];
 }
 

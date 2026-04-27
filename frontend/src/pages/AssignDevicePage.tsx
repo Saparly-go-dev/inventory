@@ -7,8 +7,10 @@ import type {
 } from "../api/employees";
 import type { Device } from "../api/devices";
 import { handleApiError } from "../api/client";
+import { canAssignDevices } from "../utils/auth";
 
 export default function AssignDevicePage() {
+  const canAssign = canAssignDevices();
   const [employees, setEmployees] = useState<SelectedObject[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
   const [employeeId, setEmployeeId] = useState<number | "">("");
@@ -37,11 +39,13 @@ export default function AssignDevicePage() {
   }
 
   useEffect(() => {
+    if (!canAssign) return;
     loadData();
-  }, []);
+  }, [canAssign]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!canAssign) return;
     setSuccess(null);
 
     if (!employeeId || !deviceId) {
@@ -61,6 +65,15 @@ export default function AssignDevicePage() {
     } catch (e) {
       setError(handleApiError(e));
     }
+  }
+
+  if (!canAssign) {
+    return (
+      <div className="card">
+        <h2 style={{ marginBottom: 8 }}>Rugsat ýok</h2>
+        <p style={{ color: "var(--text-muted)" }}>Enjam berkitmek üçin degişli rugsat gerek.</p>
+      </div>
+    );
   }
 
   return (

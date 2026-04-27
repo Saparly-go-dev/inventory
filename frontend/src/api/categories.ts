@@ -1,5 +1,6 @@
 // src/api/categories.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 export interface Category {
     id: number;
@@ -21,14 +22,6 @@ export interface UpdateCategory {
     parent_id?: number | null;
 }
 
-export interface CategoryPage {
-    items: Category[];
-    total: number;
-    page: number;
-    size: number;
-    total_pages: number;
-}
-
 export interface SelectedObject {
     id: number;
     name: string;
@@ -42,7 +35,7 @@ export async function getCategoryPage(pageSize: number, pageNumber: number, name
     if (name) {
         params.name = name;
     }
-    const res = await api.get<CategoryPage>("/api/categories", { params });
+    const res = await api.get<Paginator<Category>>("/api/categories", { params });
     return res.data;
 }
 

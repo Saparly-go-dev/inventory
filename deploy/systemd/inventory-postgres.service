@@ -1,0 +1,17 @@
+[Unit]
+Description=Inventory PostgreSQL database
+After=network.target
+
+[Service]
+Type=simple
+User=pptech
+Group=pptech
+WorkingDirectory=/home/pptech/pgdata
+ExecStart=/home/pptech/tools/postgresql-16.11.0/postgresql-16.11.0-x86_64-unknown-linux-gnu/bin/postgres -D /home/pptech/pgdata -p 5432
+ExecStop=/home/pptech/tools/postgresql-16.11.0/postgresql-16.11.0-x86_64-unknown-linux-gnu/bin/pg_ctl -D /home/pptech/pgdata -m fast stop
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

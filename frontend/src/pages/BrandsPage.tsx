@@ -12,10 +12,16 @@ import type {
   UpdateBrand
 } from "../api/brands"
 import { handleApiError } from "../api/client";
+import { getPageCount } from "../api/pagination";
+import { canCreateInventory, canDeleteInventory, canUpdateInventory } from "../utils/auth";
 
 const PAGE_SIZE = 10;
 
 export default function BrandsPage() {
+  const canCreate = canCreateInventory();
+  const canUpdate = canUpdateInventory();
+  const canDelete = canDeleteInventory();
+  const canWrite = canCreate || canUpdate || canDelete;
   const [brands, setBrands] = useState<Brand[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -37,7 +43,7 @@ export default function BrandsPage() {
       const page = await getBrandPage(PAGE_SIZE, pageNumber, search);
 
       setBrands(page.items);
-      setTotalPages(page.total_pages);
+      setTotalPages(getPageCount(page));
     } catch (e) {
       setError(handleApiError(e));
     } finally {
@@ -51,6 +57,7 @@ export default function BrandsPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if ((editId === null && !canCreate) || (editId !== null && !canUpdate)) return;
     try {
       setError(null);
       if (editId === null) {
@@ -68,6 +75,7 @@ export default function BrandsPage() {
   }
 
   async function onDelete(id: number) {
+    if (!canDelete) return;
     if (!confirm("Brendi pozmak isleýärsiňizmi?")) return;
     try {
       setError(null);
@@ -79,6 +87,7 @@ export default function BrandsPage() {
   }
 
   function onEditClick(brand: Brand) {
+    if (!canUpdate) return;
     setEditId(brand.id);
     setForm({
       name: brand.name,
@@ -110,6 +119,7 @@ export default function BrandsPage() {
         </div>
       </div>
 
+      {(canCreate || editId !== null) && (
       <div className="card" style={{ marginBottom: 32, maxWidth: 640 }}>
         <h3 style={{ marginBottom: 16 }}>
           {editId === null ? "Brend döret" : `Brendi üýtget #${editId}`}
@@ -161,6 +171,7 @@ export default function BrandsPage() {
           </div>
         </form>
       </div>
+      )}
 
       {error && (
         <div style={{ padding: 12, borderRadius: 6, background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', marginBottom: 16 }}>
@@ -178,7 +189,7 @@ export default function BrandsPage() {
               <th>Ady</th>
               <th>Düşündiriş</th>
               <th>Maglumat</th>
-              <th>Hereketler</th>
+              {canWrite && <th>Hereketler</th>}
             </tr>
           </thead>
           <tbody>
@@ -188,17 +199,19 @@ export default function BrandsPage() {
                 <td style={{ fontWeight: 500 }}>{b.name}</td>
                 <td>{b.description}</td>
                 <td>{b.info}</td>
+                {canWrite && (
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditClick(b)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>
-                    <button onClick={() => onDelete(b.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>
+                    {canUpdate && <button onClick={() => onEditClick(b)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: 12 }}>Üýtget</button>}
+                    {canDelete && <button onClick={() => onDelete(b.id)} className="btn btn-danger" style={{ padding: '4px 8px', fontSize: 12 }}>Poz</button>}
                   </div>
                 </td>
+                )}
               </tr>
             ))}
             {brands.length === 0 && !loading && (
               <tr>
-                <td colSpan={5} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                <td colSpan={canWrite ? 5 : 4} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
                   Brendler ýok
                 </td>
               </tr>

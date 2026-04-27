@@ -6,8 +6,10 @@ import type {
 } from "../api/devices";
 import { handleApiError } from "../api/client";
 import { getDeviceStatusLabel } from "../utils/statusUtils";
+import { canViewInventory } from "../utils/auth";
 
 export default function AvailableDevicesPage() {
+  const canView = canViewInventory();
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +28,18 @@ export default function AvailableDevicesPage() {
   }
 
   useEffect(() => {
+    if (!canView) return;
     load();
-  }, []);
+  }, [canView]);
+
+  if (!canView) {
+    return (
+      <div className="card">
+        <h2 style={{ marginBottom: 8 }}>Rugsat ýok</h2>
+        <p style={{ color: "var(--text-muted)" }}>Enjamlary görmek üçin degişli rugsat gerek.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="page-animate">

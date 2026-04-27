@@ -1,0 +1,18 @@
+[Unit]
+Description=Inventory backend API
+After=network.target inventory-postgres.service
+Requires=inventory-postgres.service
+
+[Service]
+Type=simple
+User=pptech
+Group=pptech
+WorkingDirectory=/home/pptech/src/inventory
+EnvironmentFile=/home/pptech/src/inventory/.env
+ExecStart=/home/pptech/src/inventory/inventory
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

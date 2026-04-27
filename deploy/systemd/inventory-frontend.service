@@ -1,0 +1,18 @@
+[Unit]
+Description=Inventory frontend static server
+After=network.target
+
+[Service]
+Type=simple
+User=pptech
+Group=pptech
+WorkingDirectory=/home/pptech/src/inventory
+Environment=FRONTEND_HOST=0.0.0.0
+Environment=FRONTEND_PORT=5173
+ExecStart=/usr/bin/python3 /home/pptech/src/inventory/serve_frontend.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

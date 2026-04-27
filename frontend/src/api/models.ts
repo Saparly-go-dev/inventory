@@ -1,5 +1,6 @@
 // src/api/models.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 // DTO под твой ReadBrand
 export interface ModelItem {
@@ -25,15 +26,6 @@ export interface UpdateModel {
   name: string;
   description: string;
   brand_id: number;
-}
-
-// если уже есть такой интерфейс в brands.ts – можешь его импортнуть оттуда
-export interface Paginator<T> {
-  items: T[];
-  total_items: number;
-  total_pages: number;
-  page_number: number;
-  page_size: number;
 }
 
 export interface SelectedObject {

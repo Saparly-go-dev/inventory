@@ -1,5 +1,6 @@
 // src/api/attributes.ts
 import { api } from "./client";
+import type { Paginator } from "./pagination";
 
 export interface Attribute {
   id: number;
@@ -12,15 +13,6 @@ export interface Attribute {
 export interface UpdateAttribute {
   name: string;
   description: string;
-}
-
-// если у тебя другой формат пагинации — подгони поля здесь
-export interface Paginator<T> {
-  items: T[];
-  total_items: number;
-  total_pages: number;
-  page_number: number;
-  page_size: number;
 }
 
 export interface SelectedObject {

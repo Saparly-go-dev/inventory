@@ -7,6 +7,7 @@ export interface SignInInput {
 
 export interface AuthResponse {
     token: string;
+    role: string;
 }
 
 export async function signIn(input: SignInInput) {
