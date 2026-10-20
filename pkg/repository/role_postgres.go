@@ -33,27 +33,33 @@ func (r *RolePostgres) Create(buffer models.UpdateRole) error {
 	}
 
 	role := models.Role{
-		Code:               code,
-		Name:               strings.TrimSpace(buffer.Name),
-		Description:        strings.TrimSpace(buffer.Description),
-		CanManageUsers:     buffer.CanManageUsers,
-		CanManageRoles:     buffer.CanManageRoles,
-		CanViewInventory:   buffer.CanViewInventory,
-		CanCreateInventory: buffer.CanCreateInventory,
-		CanUpdateInventory: buffer.CanUpdateInventory,
-		CanDeleteInventory: buffer.CanDeleteInventory,
-		CanAssignDevices:   buffer.CanAssignDevices,
-		CanReturnDevices:   buffer.CanReturnDevices,
-		CanImportDevices:   buffer.CanImportDevices,
-		CanExportDevices:   buffer.CanExportDevices,
-		CanCloneDevices:    buffer.CanCloneDevices,
-		CanSyncEmployees:   buffer.CanSyncEmployees,
-		CanViewStatistics:  buffer.CanViewStatistics,
-		CanManageInventory: buffer.CanManageInventory,
-		CanView:            buffer.CanView,
-		IsSystem:           false,
-		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
+		Code:                code,
+		Name:                strings.TrimSpace(buffer.Name),
+		Description:         strings.TrimSpace(buffer.Description),
+		CanManageUsers:      buffer.CanManageUsers,
+		CanManageRoles:      buffer.CanManageRoles,
+		CanViewInventory:    buffer.CanViewInventory,
+		CanCreateInventory:  buffer.CanCreateInventory,
+		CanUpdateInventory:  buffer.CanUpdateInventory,
+		CanDeleteInventory:  buffer.CanDeleteInventory,
+		CanAssignDevices:    buffer.CanAssignDevices,
+		CanReturnDevices:    buffer.CanReturnDevices,
+		CanImportDevices:    buffer.CanImportDevices,
+		CanExportDevices:    buffer.CanExportDevices,
+		CanCloneDevices:     buffer.CanCloneDevices,
+		CanSyncEmployees:    buffer.CanSyncEmployees,
+		CanViewStatistics:   buffer.CanViewStatistics,
+		CanViewFurnitures:   buffer.CanViewFurnitures,
+		CanCreateFurnitures: buffer.CanCreateFurnitures,
+		CanUpdateFurnitures: buffer.CanUpdateFurnitures,
+		CanDeleteFurnitures: buffer.CanDeleteFurnitures,
+		CanAssignFurnitures: buffer.CanAssignFurnitures,
+		CanReturnFurnitures: buffer.CanReturnFurnitures,
+		CanManageInventory:  buffer.CanManageInventory,
+		CanView:             buffer.CanView,
+		IsSystem:            false,
+		CreatedAt:           time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 
 	normalizeRolePermissions(&role)
@@ -135,48 +141,60 @@ func (r *RolePostgres) Update(id int, buffer models.UpdateRole) error {
 	}
 
 	updateRole := models.Role{
-		Code:               code,
-		Name:               strings.TrimSpace(buffer.Name),
-		Description:        strings.TrimSpace(buffer.Description),
-		CanManageUsers:     buffer.CanManageUsers,
-		CanManageRoles:     buffer.CanManageRoles,
-		CanViewInventory:   buffer.CanViewInventory,
-		CanCreateInventory: buffer.CanCreateInventory,
-		CanUpdateInventory: buffer.CanUpdateInventory,
-		CanDeleteInventory: buffer.CanDeleteInventory,
-		CanAssignDevices:   buffer.CanAssignDevices,
-		CanReturnDevices:   buffer.CanReturnDevices,
-		CanImportDevices:   buffer.CanImportDevices,
-		CanExportDevices:   buffer.CanExportDevices,
-		CanCloneDevices:    buffer.CanCloneDevices,
-		CanSyncEmployees:   buffer.CanSyncEmployees,
-		CanViewStatistics:  buffer.CanViewStatistics,
-		CanManageInventory: buffer.CanManageInventory,
-		CanView:            buffer.CanView,
-		IsSystem:           role.IsSystem,
+		Code:                code,
+		Name:                strings.TrimSpace(buffer.Name),
+		Description:         strings.TrimSpace(buffer.Description),
+		CanManageUsers:      buffer.CanManageUsers,
+		CanManageRoles:      buffer.CanManageRoles,
+		CanViewInventory:    buffer.CanViewInventory,
+		CanCreateInventory:  buffer.CanCreateInventory,
+		CanUpdateInventory:  buffer.CanUpdateInventory,
+		CanDeleteInventory:  buffer.CanDeleteInventory,
+		CanAssignDevices:    buffer.CanAssignDevices,
+		CanReturnDevices:    buffer.CanReturnDevices,
+		CanImportDevices:    buffer.CanImportDevices,
+		CanExportDevices:    buffer.CanExportDevices,
+		CanCloneDevices:     buffer.CanCloneDevices,
+		CanSyncEmployees:    buffer.CanSyncEmployees,
+		CanViewStatistics:   buffer.CanViewStatistics,
+		CanViewFurnitures:   buffer.CanViewFurnitures,
+		CanCreateFurnitures: buffer.CanCreateFurnitures,
+		CanUpdateFurnitures: buffer.CanUpdateFurnitures,
+		CanDeleteFurnitures: buffer.CanDeleteFurnitures,
+		CanAssignFurnitures: buffer.CanAssignFurnitures,
+		CanReturnFurnitures: buffer.CanReturnFurnitures,
+		CanManageInventory:  buffer.CanManageInventory,
+		CanView:             buffer.CanView,
+		IsSystem:            role.IsSystem,
 	}
 	normalizeRolePermissions(&updateRole)
 
 	updateData := map[string]interface{}{
-		"code":                 updateRole.Code,
-		"name":                 updateRole.Name,
-		"description":          updateRole.Description,
-		"can_manage_users":     updateRole.CanManageUsers,
-		"can_manage_roles":     updateRole.CanManageRoles,
-		"can_view_inventory":   updateRole.CanViewInventory,
-		"can_create_inventory": updateRole.CanCreateInventory,
-		"can_update_inventory": updateRole.CanUpdateInventory,
-		"can_delete_inventory": updateRole.CanDeleteInventory,
-		"can_assign_devices":   updateRole.CanAssignDevices,
-		"can_return_devices":   updateRole.CanReturnDevices,
-		"can_import_devices":   updateRole.CanImportDevices,
-		"can_export_devices":   updateRole.CanExportDevices,
-		"can_clone_devices":    updateRole.CanCloneDevices,
-		"can_sync_employees":   updateRole.CanSyncEmployees,
-		"can_view_statistics":  updateRole.CanViewStatistics,
-		"can_manage_inventory": updateRole.CanManageInventory,
-		"can_view":             updateRole.CanView,
-		"updated_at":           time.Now(),
+		"code":                  updateRole.Code,
+		"name":                  updateRole.Name,
+		"description":           updateRole.Description,
+		"can_manage_users":      updateRole.CanManageUsers,
+		"can_manage_roles":      updateRole.CanManageRoles,
+		"can_view_inventory":    updateRole.CanViewInventory,
+		"can_create_inventory":  updateRole.CanCreateInventory,
+		"can_update_inventory":  updateRole.CanUpdateInventory,
+		"can_delete_inventory":  updateRole.CanDeleteInventory,
+		"can_assign_devices":    updateRole.CanAssignDevices,
+		"can_return_devices":    updateRole.CanReturnDevices,
+		"can_import_devices":    updateRole.CanImportDevices,
+		"can_export_devices":    updateRole.CanExportDevices,
+		"can_clone_devices":     updateRole.CanCloneDevices,
+		"can_sync_employees":    updateRole.CanSyncEmployees,
+		"can_view_statistics":   updateRole.CanViewStatistics,
+		"can_view_furnitures":   updateRole.CanViewFurnitures,
+		"can_create_furnitures": updateRole.CanCreateFurnitures,
+		"can_update_furnitures": updateRole.CanUpdateFurnitures,
+		"can_delete_furnitures": updateRole.CanDeleteFurnitures,
+		"can_assign_furnitures": updateRole.CanAssignFurnitures,
+		"can_return_furnitures": updateRole.CanReturnFurnitures,
+		"can_manage_inventory":  updateRole.CanManageInventory,
+		"can_view":              updateRole.CanView,
+		"updated_at":            time.Now(),
 	}
 
 	return r.db.Model(&models.Role{}).Where("id = ?", id).Updates(updateData).Error
@@ -207,28 +225,34 @@ func (r *RolePostgres) Delete(id int) error {
 func toReadRole(role models.Role) models.ReadRole {
 	normalizeRolePermissions(&role)
 	return models.ReadRole{
-		Id:                 role.Id,
-		Code:               role.Code,
-		Name:               role.Name,
-		Description:        role.Description,
-		CanManageUsers:     role.CanManageUsers,
-		CanManageRoles:     role.CanManageRoles,
-		CanViewInventory:   role.CanViewInventory,
-		CanCreateInventory: role.CanCreateInventory,
-		CanUpdateInventory: role.CanUpdateInventory,
-		CanDeleteInventory: role.CanDeleteInventory,
-		CanAssignDevices:   role.CanAssignDevices,
-		CanReturnDevices:   role.CanReturnDevices,
-		CanImportDevices:   role.CanImportDevices,
-		CanExportDevices:   role.CanExportDevices,
-		CanCloneDevices:    role.CanCloneDevices,
-		CanSyncEmployees:   role.CanSyncEmployees,
-		CanViewStatistics:  role.CanViewStatistics,
-		CanManageInventory: role.CanManageInventory,
-		CanView:            role.CanView,
-		IsSystem:           role.IsSystem,
-		CreatedAt:          role.CreatedAt.Format("02.01.2006"),
-		UpdatedAt:          role.UpdatedAt.Format("02.01.2006"),
+		Id:                  role.Id,
+		Code:                role.Code,
+		Name:                role.Name,
+		Description:         role.Description,
+		CanManageUsers:      role.CanManageUsers,
+		CanManageRoles:      role.CanManageRoles,
+		CanViewInventory:    role.CanViewInventory,
+		CanCreateInventory:  role.CanCreateInventory,
+		CanUpdateInventory:  role.CanUpdateInventory,
+		CanDeleteInventory:  role.CanDeleteInventory,
+		CanAssignDevices:    role.CanAssignDevices,
+		CanReturnDevices:    role.CanReturnDevices,
+		CanImportDevices:    role.CanImportDevices,
+		CanExportDevices:    role.CanExportDevices,
+		CanCloneDevices:     role.CanCloneDevices,
+		CanSyncEmployees:    role.CanSyncEmployees,
+		CanViewStatistics:   role.CanViewStatistics,
+		CanViewFurnitures:   role.CanViewFurnitures,
+		CanCreateFurnitures: role.CanCreateFurnitures,
+		CanUpdateFurnitures: role.CanUpdateFurnitures,
+		CanDeleteFurnitures: role.CanDeleteFurnitures,
+		CanAssignFurnitures: role.CanAssignFurnitures,
+		CanReturnFurnitures: role.CanReturnFurnitures,
+		CanManageInventory:  role.CanManageInventory,
+		CanView:             role.CanView,
+		IsSystem:            role.IsSystem,
+		CreatedAt:           role.CreatedAt.Format("02.01.2006"),
+		UpdatedAt:           role.UpdatedAt.Format("02.01.2006"),
 	}
 }
 
@@ -258,6 +282,12 @@ func forceAdminPermissions(role *models.Role) {
 	role.CanCloneDevices = true
 	role.CanSyncEmployees = true
 	role.CanViewStatistics = true
+	role.CanViewFurnitures = true
+	role.CanCreateFurnitures = true
+	role.CanUpdateFurnitures = true
+	role.CanDeleteFurnitures = true
+	role.CanAssignFurnitures = true
+	role.CanReturnFurnitures = true
 	role.CanManageInventory = true
 	role.CanView = true
 	role.IsSystem = true
@@ -276,12 +306,19 @@ func normalizeRolePermissions(role *models.Role) {
 		role.CanCloneDevices = true
 		role.CanSyncEmployees = true
 		role.CanViewStatistics = true
+		role.CanViewFurnitures = true
+		role.CanCreateFurnitures = true
+		role.CanUpdateFurnitures = true
+		role.CanDeleteFurnitures = true
+		role.CanAssignFurnitures = true
+		role.CanReturnFurnitures = true
 	}
 
 	if role.CanView {
 		role.CanViewInventory = true
 		role.CanExportDevices = true
 		role.CanViewStatistics = true
+		role.CanViewFurnitures = true
 	}
 
 	forceAdminPermissions(role)

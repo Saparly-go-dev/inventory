@@ -5,6 +5,7 @@ import { getCategoriesSelected } from "./categories";
 import { getModelsSelected } from "./models";
 import { getAttributesSelected } from "./attributes";
 import { getStatistics } from "./statistics";
+import { getFurniturePage } from "./furnitures";
 
 export const QUERY_KEYS = {
     dashboard: "dashboard",
@@ -28,6 +29,14 @@ export function useDashboardStatistics(enabled = true) {
     return useQuery({
         queryKey: [QUERY_KEYS.dashboard, "statistics"],
         queryFn: getStatistics,
+        enabled,
+    });
+}
+
+export function useDashboardFurnitures(enabled = true) {
+    return useQuery({
+        queryKey: [QUERY_KEYS.dashboard, "furnitures"],
+        queryFn: async () => (await getFurniturePage(50, 1)).items,
         enabled,
     });
 }

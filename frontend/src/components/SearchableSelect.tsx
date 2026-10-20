@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export interface SearchableOption {
   value: string | number;
   label: string;
+  searchText?: string;
 }
 
 interface SearchableSelectProps {
@@ -61,7 +62,9 @@ export default function SearchableSelect({
       : options;
 
     if (!normalized) return baseOptions;
-    return baseOptions.filter((option) => option.label.toLowerCase().includes(normalized));
+    return baseOptions.filter((option) =>
+      (option.searchText || option.label).toLowerCase().includes(normalized)
+    );
   }, [emptyOptionDisabled, emptyOptionLabel, emptyOptionValue, options, search]);
 
   function commitValue(nextValue: string | number, nextLabel: string) {
@@ -76,10 +79,10 @@ export default function SearchableSelect({
       window.clearTimeout(blurTimeoutRef.current);
       blurTimeoutRef.current = null;
     }
-    setIsOpen(true);
-    if (isEmptyValueSelected) {
+    if (!isOpen) {
       setSearch("");
     }
+    setIsOpen(true);
   }
 
   function handleBlur() {

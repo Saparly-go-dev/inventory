@@ -9,12 +9,12 @@ import {
   type FurnitureAllocation,
 } from "../api/furnitures";
 import { handleApiError } from "../api/client";
-import { canAssignDevices, canReturnDevices } from "../utils/auth";
+import { canAssignFurnitures, canReturnFurnitures } from "../utils/auth";
 import SearchableSelect from "../components/SearchableSelect";
 
 export default function AssignFurniturePage() {
-  const canAssign = canAssignDevices();
-  const canReturn = canReturnDevices();
+  const canAssign = canAssignFurnitures();
+  const canReturn = canReturnFurnitures();
   const [employees, setEmployees] = useState<SelectedObject[]>([]);
   const [furnitures, setFurnitures] = useState<Furniture[]>([]);
   const [allocations, setAllocations] = useState<FurnitureAllocation[]>([]);
@@ -103,7 +103,7 @@ export default function AssignFurniturePage() {
         room_number: targetType === "room" ? Number(roomNumber) : null,
         quantity,
       });
-      setSuccess("Mebel üstünlikli bölüşdirildi");
+      setSuccess("Mebel üstünlikli birikdirildi");
       setQuantity(1);
       await Promise.all([loadBaseData(), loadAllocations(Number(furnitureId))]);
     } catch (e) {
@@ -134,14 +134,14 @@ export default function AssignFurniturePage() {
     return (
       <div className="card">
         <h2 style={{ marginBottom: 8 }}>Rugsat ýok</h2>
-        <p style={{ color: "var(--text-muted)" }}>Mebel bölüşdirmek üçin degişli rugsat gerek.</p>
+        <p style={{ color: "var(--text-muted)" }}>Mebel birikdirmek üçin degişli rugsat gerek.</p>
       </div>
     );
   }
 
   return (
     <div className="page-animate">
-      <h2 style={{ marginBottom: 16 }}>Mebel bölüşdirme</h2>
+      <h2 style={{ marginBottom: 16 }}>Mebel birikdirme</h2>
 
       {error && <div style={{ color: "var(--danger)", marginBottom: 16 }}>{error}</div>}
       {success && <div style={{ color: "var(--success)", marginBottom: 16 }}>{success}</div>}
@@ -198,7 +198,7 @@ export default function AssignFurniturePage() {
 
           {canAssign && (
             <button className="btn btn-primary" type="submit" disabled={loading}>
-              Bölüşdir
+              Birikdir
             </button>
           )}
         </form>

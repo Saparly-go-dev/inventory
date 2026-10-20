@@ -19,6 +19,12 @@ export interface Role {
   can_clone_devices: boolean;
   can_sync_employees: boolean;
   can_view_statistics: boolean;
+  can_view_furnitures: boolean;
+  can_create_furnitures: boolean;
+  can_update_furnitures: boolean;
+  can_delete_furnitures: boolean;
+  can_assign_furnitures: boolean;
+  can_return_furnitures: boolean;
   can_manage_inventory: boolean;
   can_view: boolean;
   is_system: boolean;
@@ -43,6 +49,12 @@ export interface RoleForm {
   can_clone_devices: boolean;
   can_sync_employees: boolean;
   can_view_statistics: boolean;
+  can_view_furnitures: boolean;
+  can_create_furnitures: boolean;
+  can_update_furnitures: boolean;
+  can_delete_furnitures: boolean;
+  can_assign_furnitures: boolean;
+  can_return_furnitures: boolean;
   can_manage_inventory: boolean;
   can_view: boolean;
 }

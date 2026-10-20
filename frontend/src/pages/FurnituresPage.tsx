@@ -10,7 +10,7 @@ import {
 } from "../api/furnitures";
 import { API_BASE_URL, handleApiError } from "../api/client";
 import { getPageCount } from "../api/pagination";
-import { canCreateInventory, canDeleteInventory, canUpdateInventory } from "../utils/auth";
+import { canCreateFurnitures, canDeleteFurnitures, canUpdateFurnitures, canViewFurnitures } from "../utils/auth";
 import SearchableSelect from "../components/SearchableSelect";
 
 const PAGE_SIZE = 10;
@@ -23,9 +23,10 @@ function getImageUrl(path: string | null | undefined) {
 }
 
 export default function FurnituresPage() {
-  const canCreate = canCreateInventory();
-  const canUpdate = canUpdateInventory();
-  const canDelete = canDeleteInventory();
+  const canView = canViewFurnitures();
+  const canCreate = canCreateFurnitures();
+  const canUpdate = canUpdateFurnitures();
+  const canDelete = canDeleteFurnitures();
   const [items, setItems] = useState<Furniture[]>([]);
   const [categories, setCategories] = useState<CategorySelected[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
@@ -51,8 +52,9 @@ export default function FurnituresPage() {
   }, []);
 
   useEffect(() => {
+    if (!canView) return;
     loadItems();
-  }, [pageNumber, search]);
+  }, [canView, pageNumber, search]);
 
   async function loadItems() {
     try {
@@ -141,6 +143,13 @@ export default function FurnituresPage() {
 
   return (
     <div className="page-animate">
+      {!canView ? (
+        <div className="card">
+          <h2 style={{ marginBottom: 8 }}>Rugsat ýok</h2>
+          <p style={{ color: "var(--text-muted)" }}>Mebelleri görmek üçin degişli rugsat gerek.</p>
+        </div>
+      ) : (
+      <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h2>Mebeller</h2>
         <input
@@ -300,6 +309,8 @@ export default function FurnituresPage() {
             Öňe
           </button>
         </div>
+      )}
+      </>
       )}
     </div>
   );

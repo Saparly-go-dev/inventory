@@ -15,12 +15,11 @@ function normalizeBaseUrl(input: string): string {
 }
 
 // Prefer explicit env, fallback to current hostname.
-const hostname = window.location.hostname;
 const envBaseUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL) as
   | string
   | undefined;
 
-export const API_BASE_URL = envBaseUrl ? normalizeBaseUrl(envBaseUrl) : `http://${hostname}:8080`;
+export const API_BASE_URL = envBaseUrl ? normalizeBaseUrl(envBaseUrl) : window.location.origin;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

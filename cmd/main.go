@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"inventory"
 	"inventory/models"
 	"inventory/pkg/handler"
@@ -140,83 +141,113 @@ func configureLogger() {
 func seedDefaultRoles(db *gorm.DB) error {
 	defaultRoles := []models.Role{
 		{
-			Code:               "admin",
-			Name:               "Administrator",
-			Description:        "Ähli hukuklar",
-			CanManageUsers:     true,
-			CanManageRoles:     true,
-			CanViewInventory:   true,
-			CanCreateInventory: true,
-			CanUpdateInventory: true,
-			CanDeleteInventory: true,
-			CanAssignDevices:   true,
-			CanReturnDevices:   true,
-			CanImportDevices:   true,
-			CanExportDevices:   true,
-			CanCloneDevices:    true,
-			CanSyncEmployees:   true,
-			CanViewStatistics:  true,
-			CanManageInventory: true,
-			CanView:            true,
-			IsSystem:           true,
+			Code:                "admin",
+			Name:                "Administrator",
+			Description:         "Ähli hukuklar",
+			CanManageUsers:      true,
+			CanManageRoles:      true,
+			CanViewInventory:    true,
+			CanCreateInventory:  true,
+			CanUpdateInventory:  true,
+			CanDeleteInventory:  true,
+			CanAssignDevices:    true,
+			CanReturnDevices:    true,
+			CanImportDevices:    true,
+			CanExportDevices:    true,
+			CanCloneDevices:     true,
+			CanSyncEmployees:    true,
+			CanViewStatistics:   true,
+			CanViewFurnitures:   true,
+			CanCreateFurnitures: true,
+			CanUpdateFurnitures: true,
+			CanDeleteFurnitures: true,
+			CanAssignFurnitures: true,
+			CanReturnFurnitures: true,
+			CanManageInventory:  true,
+			CanView:             true,
+			IsSystem:            true,
 		},
 		{
-			Code:               "manager",
-			Name:               "Dolandyryjy",
-			Description:        "Inwentar maglumatlaryny dolandyrmak",
-			CanManageUsers:     false,
-			CanManageRoles:     false,
-			CanViewInventory:   true,
-			CanCreateInventory: true,
-			CanUpdateInventory: true,
-			CanDeleteInventory: true,
-			CanAssignDevices:   true,
-			CanReturnDevices:   true,
-			CanImportDevices:   true,
-			CanExportDevices:   true,
-			CanCloneDevices:    true,
-			CanSyncEmployees:   true,
-			CanViewStatistics:  true,
-			CanManageInventory: true,
-			CanView:            true,
-			IsSystem:           true,
+			Code:                "manager",
+			Name:                "Dolandyryjy",
+			Description:         "Inwentar maglumatlaryny dolandyrmak",
+			CanManageUsers:      false,
+			CanManageRoles:      false,
+			CanViewInventory:    true,
+			CanCreateInventory:  true,
+			CanUpdateInventory:  true,
+			CanDeleteInventory:  true,
+			CanAssignDevices:    true,
+			CanReturnDevices:    true,
+			CanImportDevices:    true,
+			CanExportDevices:    true,
+			CanCloneDevices:     true,
+			CanSyncEmployees:    true,
+			CanViewStatistics:   true,
+			CanViewFurnitures:   true,
+			CanCreateFurnitures: true,
+			CanUpdateFurnitures: true,
+			CanDeleteFurnitures: true,
+			CanAssignFurnitures: true,
+			CanReturnFurnitures: true,
+			CanManageInventory:  true,
+			CanView:             true,
+			IsSystem:            true,
 		},
 		{
-			Code:               "viewer",
-			Name:               "Synçy",
-			Description:        "Diňe maglumatlary görmek",
-			CanManageUsers:     false,
-			CanManageRoles:     false,
-			CanViewInventory:   true,
-			CanCreateInventory: false,
-			CanUpdateInventory: false,
-			CanDeleteInventory: false,
-			CanAssignDevices:   false,
-			CanReturnDevices:   false,
-			CanImportDevices:   false,
-			CanExportDevices:   true,
-			CanCloneDevices:    false,
-			CanSyncEmployees:   false,
-			CanViewStatistics:  true,
-			CanManageInventory: false,
-			CanView:            true,
-			IsSystem:           true,
+			Code:                "viewer",
+			Name:                "Synçy",
+			Description:         "Diňe maglumatlary görmek",
+			CanManageUsers:      false,
+			CanManageRoles:      false,
+			CanViewInventory:    true,
+			CanCreateInventory:  false,
+			CanUpdateInventory:  false,
+			CanDeleteInventory:  false,
+			CanAssignDevices:    false,
+			CanReturnDevices:    false,
+			CanImportDevices:    false,
+			CanExportDevices:    true,
+			CanCloneDevices:     false,
+			CanSyncEmployees:    false,
+			CanViewStatistics:   true,
+			CanViewFurnitures:   true,
+			CanCreateFurnitures: false,
+			CanUpdateFurnitures: false,
+			CanDeleteFurnitures: false,
+			CanAssignFurnitures: false,
+			CanReturnFurnitures: false,
+			CanManageInventory:  false,
+			CanView:             true,
+			IsSystem:            true,
 		},
 	}
 
 	for _, role := range defaultRoles {
-		var count int64
-		if err := db.Model(&models.Role{}).Where("code = ?", role.Code).Count(&count).Error; err != nil {
+		var existing models.Role
+		if err := db.Model(&models.Role{}).Where("code = ?", role.Code).First(&existing).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err := db.Create(&role).Error; err != nil {
+					return err
+				}
+				continue
+			}
+
 			return err
 		}
 
-		if count > 0 {
-			continue
-		}
+		updateData := rolePermissionUpdateMap(role)
+		updateData["name"] = role.Name
+		updateData["description"] = role.Description
+		updateData["updated_at"] = time.Now()
 
-		if err := db.Create(&role).Error; err != nil {
+		if err := db.Model(&models.Role{}).Where("id = ?", existing.Id).Updates(updateData).Error; err != nil {
 			return err
 		}
+	}
+
+	if err := db.Model(&models.User{}).Where("role = ?", "string").Update("role", "admin").Error; err != nil {
+		return err
 	}
 
 	return backfillRolePermissions(db)
@@ -256,6 +287,12 @@ func applyLegacyRoleBackfill(role *models.Role) {
 		role.CanCloneDevices = true
 		role.CanSyncEmployees = true
 		role.CanViewStatistics = true
+		role.CanViewFurnitures = true
+		role.CanCreateFurnitures = true
+		role.CanUpdateFurnitures = true
+		role.CanDeleteFurnitures = true
+		role.CanAssignFurnitures = true
+		role.CanReturnFurnitures = true
 		role.CanManageInventory = true
 		role.CanView = true
 		role.IsSystem = true
@@ -278,32 +315,45 @@ func applyLegacyRoleBackfill(role *models.Role) {
 		role.CanCloneDevices = true
 		role.CanSyncEmployees = true
 		role.CanViewStatistics = true
+		role.CanViewFurnitures = true
+		role.CanCreateFurnitures = true
+		role.CanUpdateFurnitures = true
+		role.CanDeleteFurnitures = true
+		role.CanAssignFurnitures = true
+		role.CanReturnFurnitures = true
 	}
 
 	if role.CanView {
 		role.CanViewInventory = true
 		role.CanExportDevices = true
 		role.CanViewStatistics = true
+		role.CanViewFurnitures = true
 	}
 }
 
 func rolePermissionUpdateMap(role models.Role) map[string]interface{} {
 	return map[string]interface{}{
-		"can_manage_users":     role.CanManageUsers,
-		"can_manage_roles":     role.CanManageRoles,
-		"can_view_inventory":   role.CanViewInventory,
-		"can_create_inventory": role.CanCreateInventory,
-		"can_update_inventory": role.CanUpdateInventory,
-		"can_delete_inventory": role.CanDeleteInventory,
-		"can_assign_devices":   role.CanAssignDevices,
-		"can_return_devices":   role.CanReturnDevices,
-		"can_import_devices":   role.CanImportDevices,
-		"can_export_devices":   role.CanExportDevices,
-		"can_clone_devices":    role.CanCloneDevices,
-		"can_sync_employees":   role.CanSyncEmployees,
-		"can_view_statistics":  role.CanViewStatistics,
-		"can_manage_inventory": role.CanManageInventory,
-		"can_view":             role.CanView,
-		"is_system":            role.IsSystem,
+		"can_manage_users":      role.CanManageUsers,
+		"can_manage_roles":      role.CanManageRoles,
+		"can_view_inventory":    role.CanViewInventory,
+		"can_create_inventory":  role.CanCreateInventory,
+		"can_update_inventory":  role.CanUpdateInventory,
+		"can_delete_inventory":  role.CanDeleteInventory,
+		"can_assign_devices":    role.CanAssignDevices,
+		"can_return_devices":    role.CanReturnDevices,
+		"can_import_devices":    role.CanImportDevices,
+		"can_export_devices":    role.CanExportDevices,
+		"can_clone_devices":     role.CanCloneDevices,
+		"can_sync_employees":    role.CanSyncEmployees,
+		"can_view_statistics":   role.CanViewStatistics,
+		"can_view_furnitures":   role.CanViewFurnitures,
+		"can_create_furnitures": role.CanCreateFurnitures,
+		"can_update_furnitures": role.CanUpdateFurnitures,
+		"can_delete_furnitures": role.CanDeleteFurnitures,
+		"can_assign_furnitures": role.CanAssignFurnitures,
+		"can_return_furnitures": role.CanReturnFurnitures,
+		"can_manage_inventory":  role.CanManageInventory,
+		"can_view":              role.CanView,
+		"is_system":             role.IsSystem,
 	}
 }

@@ -3,10 +3,11 @@ import * as XLSX from 'xlsx';
 import { type DeviceFilters } from "../api/dashboard";
 import { getEmployeesSelected, type SelectedObject as EmployeeSelected } from "../api/employees";
 import { returnDevice } from "../api/devices";
-import { handleApiError } from "../api/client";
+import { API_BASE_URL, handleApiError } from "../api/client";
 import { getDeviceStatusLabel, STATUS_OPTIONS_MAP } from "../utils/statusUtils";
 import {
     useDashboardDevices,
+    useDashboardFurnitures,
     useBrandsList,
     useCategoriesList,
     useAttributesList,
@@ -42,6 +43,7 @@ export default function DashboardPage() {
 
     // Data Fetching with React Query
     const { data: devices = [], isLoading: loading, isError, error, refetch } = useDashboardDevices(filters, canView);
+    const { data: furnitures = [], isLoading: furnitureLoading } = useDashboardFurnitures(canView);
     const { data: brandsList = [] } = useBrandsList(canView);
     const { data: categoriesList = [] } = useCategoriesList(canView);
     const { data: attributesList = [] } = useAttributesList(canView);
@@ -314,7 +316,11 @@ export default function DashboardPage() {
             {loading ? (
                 <div style={{ color: 'var(--text-muted)' }}>Maglumatlar ýüklenýär...</div>
             ) : (
-                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <>
+                <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 24 }}>
+                    <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-color)", fontWeight: 700 }}>
+                        Enjamlar
+                    </div>
                     <div style={{ overflowX: "auto" }}>
                         <table className="data-table">
                             <thead>
@@ -392,6 +398,65 @@ export default function DashboardPage() {
                         </table>
                     </div>
                 </div>
+
+                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: 700 }}>Mebeller</span>
+                        <span className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-main)' }}>
+                            Jemi: {furnitures.length}
+                        </span>
+                    </div>
+                    {furnitureLoading ? (
+                        <div style={{ padding: 20, color: 'var(--text-muted)' }}>Mebeller ýüklenýär...</div>
+                    ) : (
+                    <div style={{ overflowX: "auto" }}>
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Surat</th>
+                                    <th>Ady</th>
+                                    <th>Kategoriýa</th>
+                                    <th>Jemi</th>
+                                    <th>Berkidilen</th>
+                                    <th>Boş</th>
+                                    <th>Düşündiriş</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {furnitures.map((item) => (
+                                    <tr key={item.id}>
+                                        <td>{item.id}</td>
+                                        <td>
+                                            {item.photo ? (
+                                                <img
+                                                    src={`${API_BASE_URL}/${item.photo}`}
+                                                    alt={item.name}
+                                                    style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 10, border: "1px solid var(--border-color)" }}
+                                                />
+                                            ) : "-"}
+                                        </td>
+                                        <td style={{ fontWeight: 600 }}>{item.name}</td>
+                                        <td>{item.category?.name || "-"}</td>
+                                        <td>{item.total_quantity}</td>
+                                        <td>{item.allocated_quantity}</td>
+                                        <td>{item.available_quantity}</td>
+                                        <td>{item.description || "-"}</td>
+                                    </tr>
+                                ))}
+                                {furnitures.length === 0 && (
+                                    <tr>
+                                        <td colSpan={8} style={{ padding: 32, textAlign: "center", color: 'var(--text-muted)' }}>
+                                            Mebel tapylmady.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    )}
+                </div>
+                </>
             )}
             </>
             )}

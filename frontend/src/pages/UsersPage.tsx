@@ -14,6 +14,7 @@ import { handleApiError } from "../api/client";
 import { getPageCount } from "../api/pagination";
 import { getRolesSelected, type SelectedRole } from "../api/roles";
 import SearchableSelect from "../components/SearchableSelect";
+import PasswordInput from "../components/PasswordInput";
 import { canManageUsers, normalizeRole, ROLE_OPTIONS } from "../utils/auth";
 
 const PAGE_SIZE = 10;
@@ -259,26 +260,25 @@ export default function UsersPage() {
                 options={(roleOptions.length > 0 ? roleOptions : ROLE_OPTIONS.map((role) => ({ code: role.value, name: role.label }))).map((role) => ({
                   value: role.code,
                   label: role.name,
+                  searchText: `${role.name} ${normalizeRole(role.code)}`,
                 }))}
-                searchPlaceholder="Rol ady boýunça filter..."
+                searchPlaceholder="Rol ady ýa-da kody boýunça filter..."
               />
             </div>
             {editId === null && (
               <>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label className="text-sm text-muted">Açar sözi</label>
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label className="text-sm text-muted">Açar sözi tassykla</label>
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     value={form.confirm_password}
                     onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
                   />
@@ -341,14 +341,12 @@ export default function UsersPage() {
                   <td>{user.username}</td>
                   <td>{getRoleName(user.role)}</td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => onStatusToggle(user.id)}
+                    <span
                       className={`badge ${user.status ? "status-success" : "status-warning"}`}
                       style={{ border: "none" }}
                     >
                       {user.status ? "Işjeň" : "Öçürilen"}
-                    </button>
+                    </span>
                   </td>
                   <td>{user.created_at}</td>
                   <td>{user.updated_at}</td>
@@ -367,6 +365,14 @@ export default function UsersPage() {
                         style={{ padding: "4px 8px", fontSize: 12 }}
                       >
                         Parol
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onStatusToggle(user.id)}
+                        className="btn btn-secondary"
+                        style={{ padding: "4px 8px", fontSize: 12 }}
+                      >
+                        {user.status ? "Öçür" : "Işjeňleşdir"}
                       </button>
                       <button onClick={() => onDelete(user.id)} className="btn btn-danger" style={{ padding: "4px 8px", fontSize: 12 }}>
                         Poz
@@ -428,18 +434,16 @@ export default function UsersPage() {
             <form onSubmit={onPasswordSubmit} style={{ display: "grid", gap: 16 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label className="text-sm text-muted">Täze açar sözi</label>
-                <input
+                <PasswordInput
                   required
-                  type="password"
                   value={passwordForm.password}
                   onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
                 />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label className="text-sm text-muted">Tassykla</label>
-                <input
+                <PasswordInput
                   required
-                  type="password"
                   value={passwordForm.confirm_password}
                   onChange={(e) => setPasswordForm({ ...passwordForm, confirm_password: e.target.value })}
                 />

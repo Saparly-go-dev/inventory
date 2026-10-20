@@ -4,6 +4,7 @@ import { signIn, type SignInInput } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { handleApiError } from "../api/client";
 import { normalizeRole, setCurrentPermissions } from "../utils/auth";
+import PasswordInput from "../components/PasswordInput";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -85,8 +86,7 @@ export default function LoginPage() {
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                         <label style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-main)" }}>Açar sözi</label>
-                        <input
-                            type="password"
+                        <PasswordInput
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"

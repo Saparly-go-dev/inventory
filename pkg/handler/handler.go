@@ -40,6 +40,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		importDevices := h.requirePermission("devices.import")
 		exportDevices := h.requirePermission("devices.export")
 		cloneDevices := h.requirePermission("devices.clone")
+		readFurnitures := h.requirePermission("furnitures.view")
+		createFurnitures := h.requirePermission("furnitures.create")
+		updateFurnitures := h.requirePermission("furnitures.update")
+		deleteFurnitures := h.requirePermission("furnitures.delete")
+		assignFurnitures := h.requirePermission("furnitures.assign")
+		returnFurnitures := h.requirePermission("furnitures.return")
 		syncEmployees := h.requirePermission("employees.sync")
 		viewStatistics := h.requirePermission("statistics.view")
 
@@ -122,14 +128,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		furnitures := api.Group("/furnitures", h.userIdentity)
 		{
-			furnitures.POST("/", createInventory, h.CreateFurniture)
-			furnitures.GET("/", readInventory, h.GetFurniturePage)
-			furnitures.PUT("/", updateInventory, h.UpdateFurniture)
-			furnitures.DELETE("/", deleteInventory, h.DeleteFurniture)
-			furnitures.GET("/available", readInventory, h.GetAvailableFurniture)
-			furnitures.GET("/:id/allocations", readInventory, h.GetFurnitureAllocations)
-			furnitures.POST("/assign", assignDevices, h.AssignFurniture)
-			furnitures.POST("/return", returnDevices, h.ReturnFurniture)
+			furnitures.POST("/", createFurnitures, h.CreateFurniture)
+			furnitures.GET("/", readFurnitures, h.GetFurniturePage)
+			furnitures.PUT("/", updateFurnitures, h.UpdateFurniture)
+			furnitures.DELETE("/", deleteFurnitures, h.DeleteFurniture)
+			furnitures.GET("/available", readFurnitures, h.GetAvailableFurniture)
+			furnitures.GET("/:id/allocations", readFurnitures, h.GetFurnitureAllocations)
+			furnitures.POST("/assign", assignFurnitures, h.AssignFurniture)
+			furnitures.POST("/return", returnFurnitures, h.ReturnFurniture)
 		}
 
 		employees := api.Group("/employees", h.userIdentity)

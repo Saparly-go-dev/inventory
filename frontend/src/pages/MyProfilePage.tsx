@@ -1,27 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { changeUserPassword, getCurrentUser, type User } from "../api/users";
 import { handleApiError } from "../api/client";
-import { normalizePermissions, type PermissionKey, type RolePermissions } from "../utils/auth";
-
-const permissionLabels: Record<PermissionKey, string> = {
-  can_manage_users: "Ulanyjylary dolandyrmak",
-  can_manage_roles: "Rollary dolandyrmak",
-  can_view_inventory: "Inventary görmek",
-  can_create_inventory: "Inventar döretmek",
-  can_update_inventory: "Inventary üýtgetmek",
-  can_delete_inventory: "Inventary pozmak",
-  can_assign_devices: "Enjamlary bermek",
-  can_return_devices: "Enjamlary gaýtarmak",
-  can_import_devices: "Enjam importy",
-  can_export_devices: "Enjam eksporty",
-  can_clone_devices: "Enjam klonlamak",
-  can_sync_employees: "Işgärleri sinhronlamak",
-  can_view_statistics: "Statistikany görmek",
-  can_manage_inventory: "Inventary doly dolandyrmak",
-  can_view: "Diňe görmek",
-};
-
-const permissionOrder = Object.keys(permissionLabels) as PermissionKey[];
+import PasswordInput from "../components/PasswordInput";
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
@@ -63,9 +43,6 @@ export default function MyProfilePage() {
       cancelled = true;
     };
   }, []);
-
-  const permissions = useMemo<RolePermissions>(() => normalizePermissions(profile?.permissions), [profile?.permissions]);
-  const enabledPermissions = permissionOrder.filter((key) => permissions[key]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -138,8 +115,7 @@ export default function MyProfilePage() {
           <form onSubmit={onSubmit} style={{ display: "grid", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Köne açar söz</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 value={passwordForm.old_password}
                 onChange={(e) => setPasswordForm((current) => ({ ...current, old_password: e.target.value }))}
@@ -147,8 +123,7 @@ export default function MyProfilePage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Täze açar söz</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 value={passwordForm.password}
                 onChange={(e) => setPasswordForm((current) => ({ ...current, password: e.target.value }))}
@@ -156,8 +131,7 @@ export default function MyProfilePage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label className="text-sm text-muted">Täze açar sözi gaýtala</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 value={passwordForm.confirm_password}
                 onChange={(e) => setPasswordForm((current) => ({ ...current, confirm_password: e.target.value }))}
@@ -167,33 +141,6 @@ export default function MyProfilePage() {
               {saving ? "Ýatda saklanýar..." : "Açar sözi üýtget"}
             </button>
           </form>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
-          <h3 style={{ margin: 0 }}>Rugsatlar</h3>
-          <span className="badge" style={{ background: "var(--bg-hover)", color: "var(--text-main)" }}>
-            {enabledPermissions.length} işjeň rugsat
-          </span>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-          {permissionOrder.map((key) => (
-            <div
-              key={key}
-              style={{
-                padding: 14,
-                borderRadius: 12,
-                border: "1px solid var(--border-color)",
-                background: permissions[key] ? "rgba(34, 197, 94, 0.08)" : "var(--bg-card)",
-                color: permissions[key] ? "var(--text-main)" : "var(--text-muted)",
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{permissionLabels[key]}</div>
-              <div style={{ fontSize: 13 }}>{permissions[key] ? "Bar" : "Ýok"}</div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

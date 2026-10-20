@@ -73,25 +73,32 @@ func defaultRolePermissions(code string) models.RolePermissions {
 		return allRolePermissions()
 	case "manager":
 		return models.RolePermissions{
-			CanViewInventory:   true,
-			CanCreateInventory: true,
-			CanUpdateInventory: true,
-			CanDeleteInventory: true,
-			CanAssignDevices:   true,
-			CanReturnDevices:   true,
-			CanImportDevices:   true,
-			CanExportDevices:   true,
-			CanCloneDevices:    true,
-			CanSyncEmployees:   true,
-			CanViewStatistics:  true,
-			CanManageInventory: true,
-			CanView:            true,
+			CanViewInventory:    true,
+			CanCreateInventory:  true,
+			CanUpdateInventory:  true,
+			CanDeleteInventory:  true,
+			CanAssignDevices:    true,
+			CanReturnDevices:    true,
+			CanImportDevices:    true,
+			CanExportDevices:    true,
+			CanCloneDevices:     true,
+			CanSyncEmployees:    true,
+			CanViewStatistics:   true,
+			CanViewFurnitures:   true,
+			CanCreateFurnitures: true,
+			CanUpdateFurnitures: true,
+			CanDeleteFurnitures: true,
+			CanAssignFurnitures: true,
+			CanReturnFurnitures: true,
+			CanManageInventory:  true,
+			CanView:             true,
 		}
 	default:
 		return models.RolePermissions{
 			CanViewInventory:  true,
 			CanExportDevices:  true,
 			CanViewStatistics: true,
+			CanViewFurnitures: true,
 			CanView:           true,
 		}
 	}
@@ -103,21 +110,27 @@ func rolePermissionsFromRole(role models.Role) models.RolePermissions {
 	}
 
 	permissions := models.RolePermissions{
-		CanManageUsers:     role.CanManageUsers,
-		CanManageRoles:     role.CanManageRoles,
-		CanViewInventory:   role.CanViewInventory,
-		CanCreateInventory: role.CanCreateInventory,
-		CanUpdateInventory: role.CanUpdateInventory,
-		CanDeleteInventory: role.CanDeleteInventory,
-		CanAssignDevices:   role.CanAssignDevices,
-		CanReturnDevices:   role.CanReturnDevices,
-		CanImportDevices:   role.CanImportDevices,
-		CanExportDevices:   role.CanExportDevices,
-		CanCloneDevices:    role.CanCloneDevices,
-		CanSyncEmployees:   role.CanSyncEmployees,
-		CanViewStatistics:  role.CanViewStatistics,
-		CanManageInventory: role.CanManageInventory,
-		CanView:            role.CanView,
+		CanManageUsers:      role.CanManageUsers,
+		CanManageRoles:      role.CanManageRoles,
+		CanViewInventory:    role.CanViewInventory,
+		CanCreateInventory:  role.CanCreateInventory,
+		CanUpdateInventory:  role.CanUpdateInventory,
+		CanDeleteInventory:  role.CanDeleteInventory,
+		CanAssignDevices:    role.CanAssignDevices,
+		CanReturnDevices:    role.CanReturnDevices,
+		CanImportDevices:    role.CanImportDevices,
+		CanExportDevices:    role.CanExportDevices,
+		CanCloneDevices:     role.CanCloneDevices,
+		CanSyncEmployees:    role.CanSyncEmployees,
+		CanViewStatistics:   role.CanViewStatistics,
+		CanViewFurnitures:   role.CanViewFurnitures,
+		CanCreateFurnitures: role.CanCreateFurnitures,
+		CanUpdateFurnitures: role.CanUpdateFurnitures,
+		CanDeleteFurnitures: role.CanDeleteFurnitures,
+		CanAssignFurnitures: role.CanAssignFurnitures,
+		CanReturnFurnitures: role.CanReturnFurnitures,
+		CanManageInventory:  role.CanManageInventory,
+		CanView:             role.CanView,
 	}
 
 	if role.CanManageInventory {
@@ -132,12 +145,19 @@ func rolePermissionsFromRole(role models.Role) models.RolePermissions {
 		permissions.CanCloneDevices = true
 		permissions.CanSyncEmployees = true
 		permissions.CanViewStatistics = true
+		permissions.CanViewFurnitures = true
+		permissions.CanCreateFurnitures = true
+		permissions.CanUpdateFurnitures = true
+		permissions.CanDeleteFurnitures = true
+		permissions.CanAssignFurnitures = true
+		permissions.CanReturnFurnitures = true
 	}
 
 	if role.CanView {
 		permissions.CanViewInventory = true
 		permissions.CanExportDevices = true
 		permissions.CanViewStatistics = true
+		permissions.CanViewFurnitures = true
 	}
 
 	return permissions
@@ -145,20 +165,26 @@ func rolePermissionsFromRole(role models.Role) models.RolePermissions {
 
 func allRolePermissions() models.RolePermissions {
 	return models.RolePermissions{
-		CanManageUsers:     true,
-		CanManageRoles:     true,
-		CanViewInventory:   true,
-		CanCreateInventory: true,
-		CanUpdateInventory: true,
-		CanDeleteInventory: true,
-		CanAssignDevices:   true,
-		CanReturnDevices:   true,
-		CanImportDevices:   true,
-		CanExportDevices:   true,
-		CanCloneDevices:    true,
-		CanSyncEmployees:   true,
-		CanViewStatistics:  true,
-		CanManageInventory: true,
-		CanView:            true,
+		CanManageUsers:      true,
+		CanManageRoles:      true,
+		CanViewInventory:    true,
+		CanCreateInventory:  true,
+		CanUpdateInventory:  true,
+		CanDeleteInventory:  true,
+		CanAssignDevices:    true,
+		CanReturnDevices:    true,
+		CanImportDevices:    true,
+		CanExportDevices:    true,
+		CanCloneDevices:     true,
+		CanSyncEmployees:    true,
+		CanViewStatistics:   true,
+		CanViewFurnitures:   true,
+		CanCreateFurnitures: true,
+		CanUpdateFurnitures: true,
+		CanDeleteFurnitures: true,
+		CanAssignFurnitures: true,
+		CanReturnFurnitures: true,
+		CanManageInventory:  true,
+		CanView:             true,
 	}
 }

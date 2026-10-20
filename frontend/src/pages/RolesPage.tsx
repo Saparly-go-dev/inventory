@@ -52,6 +52,17 @@ const permissionGroups: Array<{ title: string; items: PermissionItem[] }> = [
       { key: "can_view_statistics", label: "Statistikany görmek" },
     ],
   },
+  {
+    title: "Mebel",
+    items: [
+      { key: "can_view_furnitures", label: "Mebeli görmek" },
+      { key: "can_create_furnitures", label: "Mebel döretmek" },
+      { key: "can_update_furnitures", label: "Mebeli üýtgetmek" },
+      { key: "can_delete_furnitures", label: "Mebeli pozmak" },
+      { key: "can_assign_furnitures", label: "Mebeli birikdirmek" },
+      { key: "can_return_furnitures", label: "Mebeli gaýtarmak" },
+    ],
+  },
 ];
 
 const permissionItems = permissionGroups.flatMap((group) => group.items);
@@ -73,6 +84,12 @@ const emptyForm: RoleForm = {
   can_clone_devices: false,
   can_sync_employees: false,
   can_view_statistics: true,
+  can_view_furnitures: true,
+  can_create_furnitures: false,
+  can_update_furnitures: false,
+  can_delete_furnitures: false,
+  can_assign_furnitures: false,
+  can_return_furnitures: false,
   can_manage_inventory: false,
   can_view: false,
 };
@@ -95,6 +112,12 @@ function formFromRole(role: Role): RoleForm {
     can_clone_devices: role.can_clone_devices,
     can_sync_employees: role.can_sync_employees,
     can_view_statistics: role.can_view_statistics,
+    can_view_furnitures: role.can_view_furnitures,
+    can_create_furnitures: role.can_create_furnitures,
+    can_update_furnitures: role.can_update_furnitures,
+    can_delete_furnitures: role.can_delete_furnitures,
+    can_assign_furnitures: role.can_assign_furnitures,
+    can_return_furnitures: role.can_return_furnitures,
     can_manage_inventory: false,
     can_view: false,
   };
@@ -116,6 +139,12 @@ function allRightsForm(form: RoleForm): RoleForm {
     can_clone_devices: true,
     can_sync_employees: true,
     can_view_statistics: true,
+    can_view_furnitures: true,
+    can_create_furnitures: true,
+    can_update_furnitures: true,
+    can_delete_furnitures: true,
+    can_assign_furnitures: true,
+    can_return_furnitures: true,
     can_manage_inventory: true,
     can_view: true,
   };

@@ -14,6 +14,12 @@ export interface RolePermissions {
   can_clone_devices: boolean;
   can_sync_employees: boolean;
   can_view_statistics: boolean;
+  can_view_furnitures: boolean;
+  can_create_furnitures: boolean;
+  can_update_furnitures: boolean;
+  can_delete_furnitures: boolean;
+  can_assign_furnitures: boolean;
+  can_return_furnitures: boolean;
   can_manage_inventory: boolean;
   can_view: boolean;
 }
@@ -34,6 +40,12 @@ export const PERMISSION_KEYS: PermissionKey[] = [
   "can_clone_devices",
   "can_sync_employees",
   "can_view_statistics",
+  "can_view_furnitures",
+  "can_create_furnitures",
+  "can_update_furnitures",
+  "can_delete_furnitures",
+  "can_assign_furnitures",
+  "can_return_furnitures",
   "can_manage_inventory",
   "can_view",
 ];
@@ -73,6 +85,12 @@ function emptyPermissions(): RolePermissions {
     can_clone_devices: false,
     can_sync_employees: false,
     can_view_statistics: false,
+    can_view_furnitures: false,
+    can_create_furnitures: false,
+    can_update_furnitures: false,
+    can_delete_furnitures: false,
+    can_assign_furnitures: false,
+    can_return_furnitures: false,
     can_manage_inventory: false,
     can_view: false,
   };
@@ -98,12 +116,19 @@ export function normalizePermissions(input?: Partial<RolePermissions> | null): R
     permissions.can_clone_devices = true;
     permissions.can_sync_employees = true;
     permissions.can_view_statistics = true;
+    permissions.can_view_furnitures = true;
+    permissions.can_create_furnitures = true;
+    permissions.can_update_furnitures = true;
+    permissions.can_delete_furnitures = true;
+    permissions.can_assign_furnitures = true;
+    permissions.can_return_furnitures = true;
   }
 
   if (permissions.can_view) {
     permissions.can_view_inventory = true;
     permissions.can_export_devices = true;
     permissions.can_view_statistics = true;
+    permissions.can_view_furnitures = true;
   }
 
   return permissions;
@@ -135,6 +160,12 @@ function fallbackPermissions(role: AppRole): RolePermissions {
     permissions.can_clone_devices = true;
     permissions.can_sync_employees = true;
     permissions.can_view_statistics = true;
+    permissions.can_view_furnitures = true;
+    permissions.can_create_furnitures = true;
+    permissions.can_update_furnitures = true;
+    permissions.can_delete_furnitures = true;
+    permissions.can_assign_furnitures = true;
+    permissions.can_return_furnitures = true;
     permissions.can_manage_inventory = true;
     permissions.can_view = true;
     return permissions;
@@ -144,6 +175,7 @@ function fallbackPermissions(role: AppRole): RolePermissions {
     permissions.can_view_inventory = true;
     permissions.can_export_devices = true;
     permissions.can_view_statistics = true;
+    permissions.can_view_furnitures = true;
     permissions.can_view = true;
   }
 
@@ -243,6 +275,36 @@ export function canSyncEmployees(role?: AppRole, permissions?: RolePermissions |
 export function canViewStatistics(role?: AppRole, permissions?: RolePermissions | null) {
   const effective = getEffectivePermissions(role, permissions);
   return effective.can_view_statistics || effective.can_view || effective.can_manage_inventory;
+}
+
+export function canViewFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_view_furnitures || effective.can_manage_inventory || effective.can_view;
+}
+
+export function canCreateFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_create_furnitures || effective.can_manage_inventory;
+}
+
+export function canUpdateFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_update_furnitures || effective.can_manage_inventory;
+}
+
+export function canDeleteFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_delete_furnitures || effective.can_manage_inventory;
+}
+
+export function canAssignFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_assign_furnitures || effective.can_manage_inventory;
+}
+
+export function canReturnFurnitures(role?: AppRole, permissions?: RolePermissions | null) {
+  const effective = getEffectivePermissions(role, permissions);
+  return effective.can_return_furnitures || effective.can_manage_inventory;
 }
 
 export function canManageInventory(role?: AppRole, permissions?: RolePermissions | null) {

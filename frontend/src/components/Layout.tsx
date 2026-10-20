@@ -90,6 +90,12 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                 </div>
 
                 <nav className="nav-links">
+                    {canViewStatisticsNow && (
+                        <NavLink to="/statistics" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                            <NavIcon name="chart" />
+                            Statistika
+                        </NavLink>
+                    )}
                     {canViewInventoryNow && (
                         <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
                             <NavIcon name="dashboard" />
@@ -178,15 +184,6 @@ export default function Layout({ theme, setTheme }: LayoutProps) {
                         <NavIcon name="profile" />
                         Meniň profilim
                     </NavLink>
-
-                    <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 12px' }}></div>
-
-                    {canViewStatisticsNow && (
-                        <NavLink to="/statistics" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-                            <NavIcon name="chart" />
-                            Statistika
-                        </NavLink>
-                    )}
                 </nav>
 
                 <div className="sidebar-footer">

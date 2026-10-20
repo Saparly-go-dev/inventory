@@ -172,6 +172,36 @@ func (h *Handler) requirePermission(permission string) gin.HandlerFunc {
 				c.Next()
 				return
 			}
+		case "furnitures.view":
+			if permissions.CanViewFurnitures || permissions.CanManageInventory || permissions.CanView {
+				c.Next()
+				return
+			}
+		case "furnitures.create":
+			if permissions.CanCreateFurnitures || permissions.CanManageInventory {
+				c.Next()
+				return
+			}
+		case "furnitures.update":
+			if permissions.CanUpdateFurnitures || permissions.CanManageInventory {
+				c.Next()
+				return
+			}
+		case "furnitures.delete":
+			if permissions.CanDeleteFurnitures || permissions.CanManageInventory {
+				c.Next()
+				return
+			}
+		case "furnitures.assign":
+			if permissions.CanAssignFurnitures || permissions.CanManageInventory {
+				c.Next()
+				return
+			}
+		case "furnitures.return":
+			if permissions.CanReturnFurnitures || permissions.CanManageInventory {
+				c.Next()
+				return
+			}
 		}
 
 		newErrorResponse(c, http.StatusForbidden, "permission denied")

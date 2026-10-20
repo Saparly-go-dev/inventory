@@ -7,6 +7,10 @@ from urllib.parse import unquote
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend_dist"))
 
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def handle(self):
         try:
@@ -40,6 +44,6 @@ if __name__ == "__main__":
     host = os.environ.get("FRONTEND_HOST", "0.0.0.0")
     port = int(os.environ.get("FRONTEND_PORT", "5173"))
     os.chdir(ROOT)
-    with socketserver.TCPServer((host, port), Handler) as httpd:
+    with ReusableTCPServer((host, port), Handler) as httpd:
         print(f"Serving {ROOT} on http://{host}:{port}")
         httpd.serve_forever()
